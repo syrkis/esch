@@ -68,7 +68,7 @@
 #let focus-slide(self: none, body) = {
   self = utils.empty-page(self)
   self.page-args += (
-    margin: 2em,
+    margin: 0.75em,
   )
   set text(size: 2em)
   (self.methods.touying-slide)(self: self, repeat: none, align(horizon + center, body))
@@ -106,7 +106,7 @@
   self.escher-footer = footer
   let footer(self) = {
     set align(bottom + right)
-    show: pad.with(1.5em)
+    show: pad.with(2em)
     set text(size: 15pt)
     utils.call-or-display(self, self.escher-footer)
     states.slide-counter.display() + " of " + states.last-slide-number

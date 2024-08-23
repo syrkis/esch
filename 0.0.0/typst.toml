@@ -1,0 +1,11 @@
+[package]
+name = "escher"
+version = "0.0.0"
+entrypoint = "escher.typ"
+authors = ["Noah Syrkis"]
+license = "MIT-0"
+description = "A touying based slide tempalte."
+
+[template]
+path = "template"
+entrypoint = "slide.typ"

@@ -95,6 +95,9 @@
   self: themes.default.register(),
   aspect-ratio: "16-9",
   footer : [],
+  title: none,
+  author: "Noah Syrkis",
+  date: datetime.today(),
 ) = {
   // HEADER CONFIG
   self.escher-title = []

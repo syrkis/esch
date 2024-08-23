@@ -1,26 +1,26 @@
 // escher.typ
-// TODO:
+// TODO: allow or page breaks
 
 #import "@preview/touying:0.4.2": *
 
 #let slide(self: none, title: auto, ..args) = {
   if title != auto {
-    self.escher-title = title
+    self.bamboo-title = title
   }
   (self.methods.touying-slide)(self: self, ..args)
 }
 
 #let custom-outline(self) = {
-  set text(size: 1.3em)  // Increased font size
-  set par(leading: 2.5em) // Increased line spacing
+  set text(size: 1.3em)
+  set par(leading: 2em)
   locate(loc => {
     let sections = query(heading.where(level: 1), loc)
     let unique_sections = ()
     for sect in sections {
       let title = sect.body
-      if title not in unique_sections and title != [References] {
+      if title != [] and title != [References] and title not in unique_sections {
         unique_sections.push(title)
-        let number = counter(heading).at(sect.location()).first()
+        let number = counter(heading.where(level: 1)).at(sect.location()).first()
         link(sect.location())[#number | #title]
         linebreak()
       }
@@ -64,25 +64,15 @@
   (self.methods.touying-slide)(self: self, repeat: none, body)
 }
 
-// #let new-section-slide(self: none, section) = {
-//   self = utils.empty-page(self)
-//   let body = {
-//     set align(center + horizon)
-//     set text(size: 2em, fill: self.colors.primary)
-//     section
-//   }
-//   (self.methods.touying-slide)(self: self, repeat: none, section: section, body)
-// }
 
-// #let focus-slide(self: none, body) = {
-//   self = utils.empty-page(self)
-//   self.page-args += (
-//     fill: self.colors.primary,
-//     margin: 2em,
-//   )
-//   set text(fill: self.colors.neutral-lightest, size: 2em)
-//   (self.methods.touying-slide)(self: self, repeat: none, align(horizon + center, body))
-// }
+#let focus-slide(self: none, body) = {
+  self = utils.empty-page(self)
+  self.page-args += (
+    margin: 2em,
+  )
+  set text(size: 2em)
+  (self.methods.touying-slide)(self: self, repeat: none, align(horizon + center, body))
+}
 
 #let slides(self: none, title-slide: true, slide-level: 1, ..args) = {
   if title-slide {
@@ -127,7 +117,8 @@
     paper: "presentation-" + aspect-ratio,
     header: header,
     footer: footer,
-    margin: (top: 4em, bottom: 4em, left: 4em, right: 4em) // <-- IMPORTNATo position content
+    margin: (top: 2em, bottom: 2em, left: 4em, right: 4em), // <-- IMPORTNATo position content
+    // align: (horizon + center),
   )
 
   //  REGISTER METHODS
@@ -137,12 +128,8 @@
   self.methods.title-slide = title-slide
   // self.methods.new-section-slide = new-section-slide
   // self.methods.touying-new-section-slide = new-section-slide
-  // self.methods.focus-slide = focus-slide
+  self.methods.focus-slide = focus-slide
   self.methods.slides = slides
-  // self.methods.alert = (self: none, it) => text(fill: self.colors.primary, it)
-  // self.methods.touying-outline = (self: none, enum-args: (:), ..args) => {
-      // states.touying-outline(self: self, enum-args: (tight: false,) + enum-args, ..args)
-    // }
 
   self.methods.touying-outline = (self: none, ..args) => {
     custom-outline(self)
@@ -156,6 +143,7 @@
       set text(weight: "regular")
       it
     }
+    set align(horizon)
     body
     bibliography("/library.bib", title: "References", style: "ieee")
   }

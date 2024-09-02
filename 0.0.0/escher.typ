@@ -3,6 +3,7 @@
 
 #import "@preview/touying:0.4.2": *
 
+
 #let slide(self: none, title: auto, ..args) = {
   if title != auto {
     self.bamboo-title = title
@@ -68,7 +69,7 @@
 #let focus-slide(self: none, body) = {
   self = utils.empty-page(self)
   self.page-args += (
-    margin: 0.75em,
+    margin: 0.0em, // <-- IMPORTANT maybe make 0?
   )
   set text(size: 2em)
   (self.methods.touying-slide)(self: self, repeat: none, align(horizon + center, body))

@@ -51,7 +51,7 @@
           block(info.author)
         }
         #if info.date != none {
-          block(if type(info.date) == datetime { info.date.display("[month repr:long] [day], [year]") } else { info.date })
+          block(if type(info.date) == datetime { info.date.display("[month repr:long] [day padding:none], [year]") } else { info.date })
         } else {
           block(" ")
         }
@@ -146,6 +146,7 @@
     }
     set align(horizon)
     body
+    set align(top)
     bibliography("/library.bib", title: "References", style: "ieee")
   }
   self

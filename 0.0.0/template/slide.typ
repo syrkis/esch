@@ -4,6 +4,7 @@
 
 #let s = escher.register(aspect-ratio: "16-9")  // footer: self => self.info.institution)
 #let s = (s.methods.info)( self: s, title: "Escher Presentation", author: "Noah Syrkis", date: datetime.today())
+// #let s = (s.methods.enable-handout-mode)(self: s)
 
 #let (init, slides, touying-outline, speaker-note) = utils.methods(s)
 #show: init

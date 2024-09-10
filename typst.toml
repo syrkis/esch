@@ -1,11 +1,11 @@
 [package]
 name = "escher"
 version = "0.0.0"
-entrypoint = "escher.typ"
-authors = ["Noah Syrkis"]
+entrypoint = "lib.typ"
+authors = ["Noah Syrkis <https://syrkis.com>"]
 license = "MIT-0"
 description = "A touying based slide tempalte."
 
 [template]
 path = "template"
-entrypoint = "slide.typ"
+entrypoint = "main.typ"

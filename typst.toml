@@ -1,7 +1,7 @@
 [package]
 name = "escher"
 version = "0.0.0"
-entrypoint = "lib.typ"
+entrypoint = "src/lib.typ"
 authors = ["Noah Syrkis <https://syrkis.com>"]
 license = "MIT-0"
 description = "A touying based slide tempalte."

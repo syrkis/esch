@@ -7,5 +7,5 @@ license = "MIT-0"
 description = "A touying based slide tempalte."
 
 [template]
-path = "template"
+path = "src/template"
 entrypoint = "main.typ"

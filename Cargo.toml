@@ -1,0 +1,14 @@
+[package]
+name = "esch"
+version = "0.1.0"
+edition = "2021"
+
+[[bin]]
+name = "esch"
+path = "cli/src/main.rs"
+
+[dependencies]
+actix-files = "0.6.6"
+actix-web = "4.9.0"
+clap = { version = "4.5.18", features = ["derive"] }
+typst = "0.11.1"

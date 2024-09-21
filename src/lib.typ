@@ -14,7 +14,8 @@
   }
   let footer(self) = {
     set text(size: 0.8em)
-    place(right, dx: -2em, utils.call-or-display(self, utils.call-or-display(self, self.store.footer)))
+    place(right, dx: -2em, utils.slide-counter.display() + " of " + utils.last-slide-number)
+
   }
   let self = utils.merge-dicts(
     self,
@@ -36,6 +37,7 @@
     grid(
       columns: (1fr, 1fr),
       rows: (1fr),
+      gutter: 3em,
       align(
         center + horizon,
         {
@@ -62,7 +64,7 @@
         left + horizon,
         {
           set par(leading: leading)
-          set text(size: 20pt)
+          set text(size: 24pt)
           components.custom-progressive-outline(
             level: none,
             depth: 1,
@@ -108,7 +110,7 @@
   show: touying-slides.with(
     config-page(
       paper: "presentation-" + aspect-ratio,
-      margin: (x: 2em, top: 3.5em, bottom: 2em),
+      margin: (x: 4em, top: 4.5em, bottom: 3em),
     ),
     config-common(
       slide-fn: slide,

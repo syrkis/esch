@@ -1,10 +1,12 @@
 [package]
-name = "escher"
+name = "esch"
 version = "0.0.0"
 entrypoint = "src/lib.typ"
 authors = ["Noah Syrkis <https://syrkis.com>"]
-license = "MIT-0"
-description = "A touying based slide tempalte."
+repository = "https://github.com/syrkis/esch"
+license = "MIT"
+keywords = ["presentation", "slides", "typst", "escher", "typography", "design"]
+description = "'Esch' (v.): Transform Typst into striking presentations. Elevate content with interactive slides inspired by M.C. Escher's artistry."
 
 [template]
 path = "src/template"

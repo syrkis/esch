@@ -1,7 +1,7 @@
 // head /////////////////////////////////////////////////////////////////////////
 #import "@preview/touying:0.5.2": *
 #import "@preview/lovelace:0.3.0": *
-#import "lib.typ": *
+#import "@local/escher:0.0.0": *
 
 #let title = "Monte Carlo Tree Search (MCTS)"
 #show: escher-theme.with(

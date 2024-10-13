@@ -5,9 +5,9 @@ entrypoint = "src/lib.typ"
 authors = ["Noah Syrkis <https://syrkis.com>"]
 repository = "https://github.com/syrkis/esch"
 license = "MIT"
-keywords = ["presentation", "slides", "typst", "escher", "typography", "design"]
+keywords = ["presentation", "slides", "typst", "esch", "typography", "design"]
 description = "'Esch' (v.): Transform Typst into striking presentations. Elevate content with interactive slides inspired by M.C. Escher's artistry."
 
 [template]
-path = "src/template"
+path = "typ/template"
 entrypoint = "main.typ"

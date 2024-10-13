@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Typst Slides</title>
+        <style>
+            body,
+            html {
+                margin: 0;
+                padding: 0;
+                height: 100%;
+                width: 100%;
+                overflow: hidden;
+            }
+            #slide-container {
+                height: 100%;
+                width: 100%;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                overflow: hidden;
+            }
+            #slide-container svg {
+                width: 100%;
+                height: 100%;
+                display: block;
+            }
+            #slide-container svg .typst-page {
+                display: none;
+            }
+            #slide-container svg .typst-page.active {
+                display: block;
+            }
+            @media (prefers-color-scheme: dark) {
+                body {
+                    background-color: #1a1a1a;
+                }
+                #slide-container svg {
+                    filter: invert(0.9) hue-rotate(180deg);
+                }
+            }
+        </style>
+    </head>
+    <body>
+        <div id="slide-container"></div>
+        <script>
+            let currentSlide = 1;
+            let totalSlides = 1;
+            let svgElement;
+
+            function loadSlides() {
+                fetch("/slides/metadata.json")
+                    .then((response) => response.json())
+                    .then((metadata) => {
+                        totalSlides = metadata.pageCount;
+                        return fetch("/slides/slides.svg");
+                    })
+                    .then((response) => response.text())
+                    .then((svg) => {
+                        document.getElementById("slide-container").innerHTML = svg;
+                        svgElement = document.querySelector("#slide-container svg");
+                        if (svgElement) {
+                            svgElement.style.display = "block";
+                        }
+                        showSlide(currentSlide);
+                    })
+                    .catch((error) => console.error("Error loading slides:", error));
+            }
+
+            loadSlides();
+
+            function showSlide(slideNumber) {
+                if (svgElement) {
+                    const slides = svgElement.querySelectorAll(".typst-page");
+                    slides.forEach((slide, index) => {
+                        slide.classList.toggle("active", index + 1 === slideNumber);
+                    });
+
+                    // Adjust viewBox to focus on the current slide
+                    const currentSlideElement = slides[slideNumber - 1];
+                    if (currentSlideElement) {
+                        const transform = currentSlideElement.getAttribute("transform");
+                        const match = transform.match(/translate\(([^,]+),\s*([^)]+)\)/);
+                        if (match) {
+                            const [, translateX, translateY] = match;
+                            const width = currentSlideElement.getAttribute("data-page-width");
+                            const height = currentSlideElement.getAttribute("data-page-height");
+                            svgElement.setAttribute("viewBox", `${translateX} ${translateY} ${width} ${height}`);
+
+                            // Adjust SVG size to fit viewport while maintaining aspect ratio
+                            const containerAspectRatio = window.innerWidth / window.innerHeight;
+                            const slideAspectRatio = width / height;
+
+                            if (containerAspectRatio > slideAspectRatio) {
+                                svgElement.style.height = "100%";
+                                svgElement.style.width = "auto";
+                            } else {
+                                svgElement.style.width = "100%";
+                                svgElement.style.height = "auto";
+                            }
+                        }
+                    }
+                }
+            }
+
+            function nextSlide() {
+                if (currentSlide < totalSlides) {
+                    currentSlide++;
+                    showSlide(currentSlide);
+                }
+            }
+
+            function prevSlide() {
+                if (currentSlide > 1) {
+                    currentSlide--;
+                    showSlide(currentSlide);
+                }
+            }
+
+            // Keyboard navigation
+            document.addEventListener("keydown", (event) => {
+                if (event.key === "ArrowRight" || event.key === "ArrowDown") {
+                    nextSlide();
+                } else if (event.key === "ArrowLeft" || event.key === "ArrowUp") {
+                    prevSlide();
+                }
+            });
+
+            // Adjust slide size on window resize
+            window.addEventListener("resize", () => showSlide(currentSlide));
+
+            // WebSocket connection for live updates
+            const ws = new WebSocket(`ws://${location.host}`);
+            ws.onmessage = function (event) {
+                if (event.data === "reload") {
+                    console.log("Received reload signal. Updating slides...");
+                    loadSlides(); // Reload slides without refreshing the page
+                }
+            };
+        </script>
+    </body>
+</html>

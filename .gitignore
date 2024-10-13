@@ -1,5 +1,5 @@
 target/
 **/*.pdf
-**/*.html
+#**/*.html
 **/node_modules/
 **/*.bib

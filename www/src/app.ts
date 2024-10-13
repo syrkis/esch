@@ -1,8 +1,9 @@
 import { NodeCompiler } from "@myriaddreamin/typst-ts-node-compiler";
 import fs from "node:fs/promises";
-import path from "node:path";
 import http from "node:http";
 import { JSDOM } from "jsdom";
+import { watch } from "node:fs";
+import { WebSocketServer } from "ws";
 
 async function generateSlides() {
   try {
@@ -61,14 +62,31 @@ async function generateSlides() {
 
 const PORT = 3000;
 
+let wss: WebSocketServer;
+
 async function startServer() {
   try {
-    await generateSlides(); // Generate slides before starting the server
+    await generateSlides(); // Generate slides initially
 
     const server = http.createServer(async (req, res) => {
       try {
         if (req.url === "/") {
-          const content = await fs.readFile("public/index.html", "utf-8");
+          let content = await fs.readFile("public/index.html", "utf-8");
+          // Inject WebSocket client code
+          content = content.replace(
+            "</body>",
+            `
+            <script>
+              const ws = new WebSocket('ws://localhost:${PORT}');
+              ws.onmessage = function(event) {
+                if (event.data === 'reload') {
+                  location.reload();
+                }
+              };
+            </script>
+            </body>
+          `,
+          );
           res.writeHead(200, { "Content-Type": "text/html" });
           res.end(content);
         } else if (req.url === "/slides/metadata.json") {
@@ -92,6 +110,28 @@ async function startServer() {
 
     server.listen(PORT, () => {
       console.log(`Server running at http://localhost:${PORT}/`);
+    });
+
+    // Setup WebSocket server
+    wss = new WebSocketServer({ server });
+
+    // Watch for changes to main.typ
+    watch("main.typ", async (eventType, filename) => {
+      if (eventType === "change") {
+        console.log("main.typ has changed. Regenerating slides...");
+        try {
+          await generateSlides();
+          console.log("Slides regenerated successfully.");
+          // Notify all connected clients to reload
+          for (const client of wss.clients) {
+            if (client.readyState === WebSocket.OPEN) {
+              client.send("reload");
+            }
+          }
+        } catch (error) {
+          console.error("Error regenerating slides:", error);
+        }
+      }
     });
   } catch (error) {
     console.error("Failed to start server:", error);

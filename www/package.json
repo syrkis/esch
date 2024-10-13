@@ -4,9 +4,7 @@
   "type": "module",
   "main": "index.js",
   "scripts": {
-    "generate": "tsx src/app.ts",
-    "serve": "http-server public -p 8080",
-    "start": "npm run generate && npm run serve"
+    "start": "tsx src/app.ts"
   },
   "keywords": [],
   "author": "",
@@ -15,7 +13,7 @@
   "devDependencies": {
     "@types/jsdom": "^21.1.7",
     "@types/node": "^22.7.5",
-    "http-server": "^14.1.1",
+    "@types/ws": "^8.5.12",
     "ts-node": "^10.9.2",
     "tsx": "^4.19.1",
     "typescript": "^5.6.3"
@@ -25,6 +23,7 @@
     "@myriaddreamin/typst-ts-renderer": "^0.5.0-rc7",
     "@myriaddreamin/typst-ts-web-compiler": "^0.5.0-rc7",
     "@myriaddreamin/typst.ts": "^0.5.0-rc7",
-    "jsdom": "^25.0.1"
+    "jsdom": "^25.0.1",
+    "ws": "^8.18.0"
   }
 }

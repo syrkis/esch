@@ -84,20 +84,31 @@
                         const match = transform.match(/translate\(([^,]+),\s*([^)]+)\)/);
                         if (match) {
                             const [, translateX, translateY] = match;
-                            const width = currentSlideElement.getAttribute("data-page-width");
-                            const height = currentSlideElement.getAttribute("data-page-height");
+                            const width = parseFloat(currentSlideElement.getAttribute("data-page-width"));
+                            const height = parseFloat(currentSlideElement.getAttribute("data-page-height"));
                             svgElement.setAttribute("viewBox", `${translateX} ${translateY} ${width} ${height}`);
 
+                            // Reset SVG size
+                            svgElement.style.width = "";
+                            svgElement.style.height = "";
+
                             // Adjust SVG size to fit viewport while maintaining aspect ratio
-                            const containerAspectRatio = window.innerWidth / window.innerHeight;
+                            const container = document.getElementById("slide-container");
+                            const containerWidth = container.clientWidth;
+                            const containerHeight = container.clientHeight;
+                            const containerAspectRatio = containerWidth / containerHeight;
                             const slideAspectRatio = width / height;
 
                             if (containerAspectRatio > slideAspectRatio) {
-                                svgElement.style.height = "100%";
-                                svgElement.style.width = "auto";
+                                const svgHeight = containerHeight;
+                                const svgWidth = svgHeight * slideAspectRatio;
+                                svgElement.style.height = `${svgHeight}px`;
+                                svgElement.style.width = `${svgWidth}px`;
                             } else {
-                                svgElement.style.width = "100%";
-                                svgElement.style.height = "auto";
+                                const svgWidth = containerWidth;
+                                const svgHeight = svgWidth / slideAspectRatio;
+                                svgElement.style.width = `${svgWidth}px`;
+                                svgElement.style.height = `${svgHeight}px`;
                             }
                         }
                     }
@@ -120,6 +131,10 @@
 
             // Initial load
             loadSlides();
+            window.addEventListener("load", () => showSlide(currentSlide));
+
+            // Adjust slide size on window resize
+            window.addEventListener("resize", () => showSlide(currentSlide));
 
             // Keyboard navigation
             document.addEventListener("keydown", (event) => {

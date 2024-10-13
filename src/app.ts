@@ -81,8 +81,8 @@ async function startServer(inputFile: string) {
     const server = http.createServer(async (req, res) => {
       try {
         if (req.url === "/") {
-          // Use the bundled index.html
-          const indexPath = path.join(__dirname, "..", "assets", "index.html");
+          // Use the bundled index.html from the public directory
+          const indexPath = path.join(__dirname, "..", "public", "index.html");
           const content = await fs.readFile(indexPath, "utf-8");
           res.writeHead(200, { "Content-Type": "text/html" });
           res.end(content);

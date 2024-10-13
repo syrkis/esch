@@ -12,6 +12,7 @@
                 height: 100%;
                 width: 100%;
                 overflow: hidden;
+                background-color: white;
             }
             #slide-container {
                 height: 100%;
@@ -50,11 +51,12 @@
             let svgElement;
 
             function loadSlides() {
-                fetch("/slides/metadata.json")
+                const timestamp = new Date().getTime(); // Used for cache busting
+                fetch(`/slides/metadata.json?t=${timestamp}`)
                     .then((response) => response.json())
                     .then((metadata) => {
                         totalSlides = metadata.pageCount;
-                        return fetch("/slides/slides.svg");
+                        return fetch(`/slides/slides.svg?t=${timestamp}`);
                     })
                     .then((response) => response.text())
                     .then((svg) => {
@@ -67,8 +69,6 @@
                     })
                     .catch((error) => console.error("Error loading slides:", error));
             }
-
-            loadSlides();
 
             function showSlide(slideNumber) {
                 if (svgElement) {
@@ -117,6 +117,9 @@
                     showSlide(currentSlide);
                 }
             }
+
+            // Initial load
+            loadSlides();
 
             // Keyboard navigation
             document.addEventListener("keydown", (event) => {

@@ -3,7 +3,7 @@ import fs from "node:fs/promises";
 import http from "node:http";
 import { JSDOM } from "jsdom";
 import { watch } from "node:fs";
-import { WebSocketServer } from "ws";
+import { WebSocketServer, WebSocket } from "ws"; // Import WebSocket from w
 
 async function generateSlides() {
   try {
@@ -71,31 +71,22 @@ async function startServer() {
     const server = http.createServer(async (req, res) => {
       try {
         if (req.url === "/") {
-          let content = await fs.readFile("public/index.html", "utf-8");
-          // Inject WebSocket client code
-          content = content.replace(
-            "</body>",
-            `
-            <script>
-              const ws = new WebSocket('ws://localhost:${PORT}');
-              ws.onmessage = function(event) {
-                if (event.data === 'reload') {
-                  location.reload();
-                }
-              };
-            </script>
-            </body>
-          `,
-          );
+          const content = await fs.readFile("public/index.html", "utf-8");
           res.writeHead(200, { "Content-Type": "text/html" });
           res.end(content);
-        } else if (req.url === "/slides/metadata.json") {
+        } else if (req.url?.startsWith("/slides/metadata.json")) {
           const content = await fs.readFile("public/slides/metadata.json", "utf-8");
-          res.writeHead(200, { "Content-Type": "application/json" });
+          res.writeHead(200, {
+            "Content-Type": "application/json",
+            "Cache-Control": "no-cache, no-store, must-revalidate",
+          });
           res.end(content);
-        } else if (req.url === "/slides/slides.svg") {
+        } else if (req.url?.startsWith("/slides/slides.svg")) {
           const content = await fs.readFile("public/slides/slides.svg", "utf-8");
-          res.writeHead(200, { "Content-Type": "image/svg+xml" });
+          res.writeHead(200, {
+            "Content-Type": "image/svg+xml",
+            "Cache-Control": "no-cache, no-store, must-revalidate",
+          });
           res.end(content);
         } else {
           res.writeHead(404, { "Content-Type": "text/plain" });

@@ -12,7 +12,7 @@
 #let title = "Monte Carlo Tree Search (MCTS)"
 #show: escher-theme.with(
   aspect-ratio: "16-9",
-  config-info(author: "Noah Syrkis", date: datetime.today(), title: title),
+  config-info(author: "Noah Ssssyrkis", date: datetime.today(), title: title),
   config-common(handout: true),
 )
 #show raw.where(lang: "dot-render"): it => render-image(it.text)

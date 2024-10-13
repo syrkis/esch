@@ -1,19 +1,26 @@
+// esch/src/app.ts
+
 import { NodeCompiler } from "@myriaddreamin/typst-ts-node-compiler";
 import fs from "node:fs/promises";
 import http from "node:http";
 import { JSDOM } from "jsdom";
 import { watch } from "node:fs";
-import { WebSocketServer, WebSocket } from "ws"; // Import WebSocket from w
+import { WebSocketServer, WebSocket } from "ws";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
 
-async function generateSlides() {
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+async function generateSlides(inputFile: string) {
   try {
     console.log("Starting slide generation...");
     const compiler = NodeCompiler.create();
     console.log("Compiler created.");
 
-    console.log("Reading main.typ...");
-    const typstContent = await fs.readFile("main.typ", "utf-8");
-    console.log("main.typ read successfully.");
+    console.log(`Reading ${inputFile}...`);
+    const typstContent = await fs.readFile(inputFile, "utf-8");
+    console.log(`${inputFile} read successfully.`);
 
     console.log("Compiling document...");
     const doc = compiler.compile({
@@ -21,8 +28,9 @@ async function generateSlides() {
     });
     console.log("Document compiled.");
 
-    console.log("Creating public/slides directory...");
-    await fs.mkdir("public/slides", { recursive: true });
+    const outputDir = path.join(path.dirname(inputFile), "public", "slides");
+    console.log(`Creating ${outputDir} directory...`);
+    await fs.mkdir(outputDir, { recursive: true });
     console.log("Directory created.");
 
     console.log("Generating SVG...");
@@ -30,17 +38,19 @@ async function generateSlides() {
       mainFileContent: typstContent,
     });
 
-    console.log("Writing slides.svg...");
-    await fs.writeFile("public/slides/slides.svg", svg);
+    const svgPath = path.join(outputDir, "slides.svg");
+    console.log(`Writing ${svgPath}...`);
+    await fs.writeFile(svgPath, svg);
     console.log("slides.svg written.");
 
     // Count the number of pages by parsing the SVG
     const dom = new JSDOM(svg);
     const pageCount = dom.window.document.querySelectorAll("svg > g").length;
 
-    console.log("Writing metadata.json...");
+    const metadataPath = path.join(outputDir, "metadata.json");
+    console.log(`Writing ${metadataPath}...`);
     await fs.writeFile(
-      "public/slides/metadata.json",
+      metadataPath,
       JSON.stringify({
         generated: true,
         pageCount: pageCount,
@@ -64,25 +74,29 @@ const PORT = 3000;
 
 let wss: WebSocketServer;
 
-async function startServer() {
+async function startServer(inputFile: string) {
   try {
-    await generateSlides(); // Generate slides initially
+    await generateSlides(inputFile); // Generate slides initially
 
     const server = http.createServer(async (req, res) => {
       try {
         if (req.url === "/") {
-          const content = await fs.readFile("public/index.html", "utf-8");
+          // Use the bundled index.html
+          const indexPath = path.join(__dirname, "..", "assets", "index.html");
+          const content = await fs.readFile(indexPath, "utf-8");
           res.writeHead(200, { "Content-Type": "text/html" });
           res.end(content);
         } else if (req.url?.startsWith("/slides/metadata.json")) {
-          const content = await fs.readFile("public/slides/metadata.json", "utf-8");
+          const metadataPath = path.join(path.dirname(inputFile), "public", "slides", "metadata.json");
+          const content = await fs.readFile(metadataPath, "utf-8");
           res.writeHead(200, {
             "Content-Type": "application/json",
             "Cache-Control": "no-cache, no-store, must-revalidate",
           });
           res.end(content);
         } else if (req.url?.startsWith("/slides/slides.svg")) {
-          const content = await fs.readFile("public/slides/slides.svg", "utf-8");
+          const svgPath = path.join(path.dirname(inputFile), "public", "slides", "slides.svg");
+          const content = await fs.readFile(svgPath, "utf-8");
           res.writeHead(200, {
             "Content-Type": "image/svg+xml",
             "Cache-Control": "no-cache, no-store, must-revalidate",
@@ -106,12 +120,12 @@ async function startServer() {
     // Setup WebSocket server
     wss = new WebSocketServer({ server });
 
-    // Watch for changes to main.typ
-    watch("main.typ", async (eventType, filename) => {
+    // Watch for changes to the input file
+    watch(inputFile, async (eventType, filename) => {
       if (eventType === "change") {
-        console.log("main.typ has changed. Regenerating slides...");
+        console.log(`${inputFile} has changed. Regenerating slides...`);
         try {
-          await generateSlides();
+          await generateSlides(inputFile);
           console.log("Slides regenerated successfully.");
           // Notify all connected clients to reload
           for (const client of wss.clients) {
@@ -129,4 +143,16 @@ async function startServer() {
   }
 }
 
-startServer();
+export async function main(inputFile: string) {
+  await startServer(inputFile);
+}
+
+// If running directly (not imported), start the server
+if (import.meta.url === `file://${process.argv[1]}`) {
+  const inputFile = process.argv[2];
+  if (!inputFile) {
+    console.error("Please provide a Typst file as an argument.");
+    process.exit(1);
+  }
+  main(inputFile);
+}

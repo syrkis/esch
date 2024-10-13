@@ -1,15 +1,25 @@
 {
-  "name": "www",
-  "version": "1.0.0",
+  "name": "@syrkis/esch",
+  "version": "1.0.2",
   "type": "module",
-  "main": "index.js",
-  "scripts": {
-    "start": "tsx src/app.ts"
+  "main": "dist/app.js",
+  "bin": {
+    "esch": "bin/esch.js"
   },
-  "keywords": [],
+  "scripts": {
+    "build": "tsc",
+    "prepublishOnly": "npm run build"
+  },
+  "keywords": [
+    "cli",
+    "typst"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
   "author": "",
   "license": "ISC",
-  "description": "",
+  "description": "A CLI tool for Typst files",
   "devDependencies": {
     "@types/jsdom": "^21.1.7",
     "@types/node": "^22.7.5",

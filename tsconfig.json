@@ -1,10 +1,13 @@
 {
   "compilerOptions": {
-    "module": "esnext",
+    "module": "ESNext",
     "moduleResolution": "node",
     "esModuleInterop": true,
     "target": "es2017",
     "lib": ["es2022"],
-    "strict": true
-  }
+    "strict": true,
+    "outDir": "./dist",
+    "rootDir": "./src"
+  },
+  "include": ["src/**/*"]
 }

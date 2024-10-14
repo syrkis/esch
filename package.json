@@ -1,6 +1,6 @@
 {
   "name": "@syrkis/esch",
-  "version": "1.0.7",
+  "version": "1.0.9",
   "type": "module",
   "main": "dist/app.js",
   "bin": {
@@ -19,7 +19,7 @@
   },
   "author": "",
   "license": "ISC",
-  "description": "A CLI tool for Typst files",
+  "description": "esch (v.) : to turn scientific work into ... whatever ... this is a cli tool and a typst slide theme.",
   "devDependencies": {
     "@types/jsdom": "^21.1.7",
     "@types/node": "^22.7.5",

@@ -35,13 +35,15 @@
             }
             @media (prefers-color-scheme: dark) {
                 body {
-                    /*background-color: #1a1a1a; */
-                    /* background-color: #2d2d2d; */
-                    background-color: black;
+                    background-color: #2d2d2d;
+                }
+                #slide-container {
+                    background-color: #222;
+                    mix-blend-mode: normal;
                 }
                 #slide-container svg {
-                    /* background-color: #2d2d2d; */
                     filter: invert(1) hue-rotate(180deg);
+                    mix-blend-mode: exclusion;
                 }
             }
         </style>

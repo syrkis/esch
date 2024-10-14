@@ -19,7 +19,7 @@
   },
   "author": "",
   "license": "ISC",
-  "description": "esch (v.) : to turn scientific work into ... whatever ... this is a cli tool and a typst slide theme.",
+  "description": "esch (v.) : to use this cli tool to present your typst slide in the browser so you can see .gif files.",
   "devDependencies": {
     "@types/jsdom": "^21.1.7",
     "@types/node": "^22.7.5",

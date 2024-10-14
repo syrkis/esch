@@ -1,13 +1,12 @@
 [tool.poetry]
 name = "esch"
-version = "0.1.0"
-description = ""
+version = "0.2.1"
+description = "esch (v.) : to turn matricies into high quality svg (animations)"
 authors = ["Noah Syrkis <noah@syrkis.com>"]
 readme = "README.md"
 
 [tool.poetry.dependencies]
 python = "^3.11"
-jax = "^0.4.34"
 svgwrite = "^1.4.3"
 tqdm = "^4.66.5"
 

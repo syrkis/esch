@@ -3,3 +3,6 @@ target/
 #**/*.html
 **/node_modules/
 **/*.bib
+dist/
+**/dist/
+**/build/

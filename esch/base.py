@@ -22,7 +22,6 @@ class Plot:
         ylabel: Optional[str] = None,
         xticks: Optional[List] = None,  # Add these parameters
         yticks: Optional[List] = None,
-        show_ticks: bool = False,
     ):
         self.data = data.prep(array)
         self.rate = rate
@@ -31,14 +30,13 @@ class Plot:
         self.ylabel = ylabel
         self.xticks = xticks
         self.yticks = yticks
-        self.show_ticks = show_ticks
         self._dwg = None
 
     def static(self) -> None:
         """Create static plot."""
         if len(self.data.shape) > 2:
             self.data = self.data[0]  # take first frame if animated
-        self._dwg = draw.make(self.data, self.size)
+        self._dwg = draw.make(self.data, self.xlabel, self.ylabel, self.xticks, self.yticks, self.size)
 
     def animate(self) -> None:
         """Create animated plot with optimized SVG."""
@@ -67,11 +65,10 @@ def plot(
     ylabel: Optional[str] = None,
     xticks: Optional[List] = None,
     yticks: Optional[List] = None,
-    show_ticks: bool = False,
     path: Optional[str] = None,
 ) -> Optional[Plot]:
     """Create and optionally save a Hinton plot."""
-    p = Plot(array, rate, size, xlabel, ylabel, xticks, yticks, show_ticks)
+    p = Plot(array, rate, size, xlabel, ylabel, xticks, yticks)
 
     if animated:
         p.animate()

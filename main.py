@@ -13,11 +13,18 @@ def main():
 
     # Static plot
     matrix = random.normal(key, (16, 32))
-    plot(matrix, path="static.svg", xticks=["a", "b", "c"], yticks=["d", "e", "f"], show_ticks=True)
+    plot(
+        matrix,
+        path="static.svg",
+        xticks=[(0, "a"), (16, "b")],
+        yticks=[(0, "ℙ"), (1, 2), (2, 3)],
+        xlabel="time",
+        ylabel="task",
+    )
 
     # Animated plot
-    tensor = random.normal(key, (100, 32, 64)).cumsum(axis=0)
-    tensor = prep(tensor)
+    # tensor = random.normal(key, (100, 64, 128)).cumsum(axis=0)
+    # tensor = prep(tensor)
     # plot(tensor, animated=True, path="temp.svg")
 
 

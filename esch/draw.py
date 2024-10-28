@@ -42,7 +42,14 @@ def calculate_position(i: int, j: int, size: int, offset: float) -> Tuple[float,
     return j * size + offset, i * size + offset
 
 
-def make(x: Array, size: int = 10) -> svgwrite.Drawing:
+def make(
+    x: Array,
+    xlabel: Optional[str] = None,
+    ylabel: Optional[str] = None,
+    xticks: Optional[List] = None,
+    yticks: Optional[List] = None,
+    size: int = 10,
+) -> svgwrite.Drawing:
     """Create optimized SVG drawing."""
     x = x.T
     width, height = x.shape
@@ -72,12 +79,21 @@ def make(x: Array, size: int = 10) -> svgwrite.Drawing:
     dwg.add(group)
 
     # Add ticks and labels
-    add_ticks_and_labels(dwg, size, width, height)
+    add_ticks_and_labels(dwg, size, width, height, xlabel, ylabel, xticks, yticks)
 
     return dwg
 
 
-def add_ticks_and_labels(dwg: svgwrite.Drawing, size: int, width: int, height: int) -> None:
+def add_ticks_and_labels(
+    dwg: svgwrite.Drawing,
+    size: int,
+    width: int,
+    height: int,
+    xlabel: Optional[str],
+    ylabel: Optional[str],
+    xticks: Optional[List],
+    yticks: Optional[List],
+) -> None:
     """Add axis ticks and labels to the drawing."""
     tick_length = size * 0.3
     text_offset = size * 0.6
@@ -87,73 +103,69 @@ def add_ticks_and_labels(dwg: svgwrite.Drawing, size: int, width: int, height: i
     tick_group = dwg.g()
 
     # Generate default ticks if none provided
-    xticks = list(range(width))
-    yticks = list(range(height))
-
     # Add x-axis ticks and labels
-    for i in range(width):
-        x = i * size + size / 2
-        # Draw tick mark, moved down by tick_offset
-        tick_group.add(
-            dwg.line(
-                start=(x, height * size + tick_offset),
-                end=(x, height * size + tick_offset + tick_length),
-                stroke="black",
-                stroke_width=0.5,
+    if xticks is not None:
+        for pos, label in xticks:
+            x = pos * size + size / 2
+            # Draw tick mark, moved down by tick_offset
+            tick_group.add(
+                dwg.line(
+                    start=(x, height * size + tick_offset),
+                    end=(x, height * size + tick_offset + tick_length),
+                    stroke="black",
+                    stroke_width=0.5,
+                )
             )
-        )
-        # Add tick label, moved further down to match y-axis label spacing
-        tick_group.add(
-            dwg.text(
-                str(i),
-                insert=(x, height * size + tick_offset + tick_length + text_offset),  # Adjusted spacing
-                text_anchor="middle",
-                dominant_baseline="hanging",  # Align text from top
-                font_size=f"{size * 0.6}px",
+            tick_group.add(
+                dwg.text(
+                    label,
+                    insert=(x, height * size + tick_offset + tick_length + text_offset),  # Adjusted spacing
+                    text_anchor="middle",
+                    dominant_baseline="hanging",  # Align text from top
+                    font_size=f"{size * 0.6}px",
+                )
             )
-        )
 
-    # Rest of the function remains the same...
-
-    # Add y-axis ticks and labels
-    for i in range(height):
-        y = i * size + size / 2
-        # Draw tick mark, moved left by tick_offset
-        tick_group.add(
-            dwg.line(start=(-tick_offset, y), end=(-tick_offset - tick_length, y), stroke="black", stroke_width=0.5)
-        )
-        # Add tick label, adjusted position
-        tick_group.add(
-            dwg.text(
-                str(i),
-                insert=(-tick_offset - tick_length - text_offset, y),
-                text_anchor="end",
-                dominant_baseline="middle",
-                font_size=f"{size * 0.6}px",
+    if yticks is not None:
+        for pos, label in yticks:
+            y = pos * size + size / 2
+            # Draw tick mark, moved left by tick_offset
+            tick_group.add(
+                dwg.line(start=(-tick_offset, y), end=(-tick_offset - tick_length, y), stroke="black", stroke_width=0.5)
             )
-        )
+            # Add tick label, adjusted position
+            tick_group.add(
+                dwg.text(
+                    label,
+                    insert=(-tick_offset - tick_length - text_offset, y),
+                    text_anchor="end",
+                    dominant_baseline="middle",
+                    font_size=f"{size * 0.6}px",
+                )
+            )
 
-    # Add axis labels (positions adjusted accordingly)
     # X-axis label
-    tick_group.add(
-        dwg.text(
-            "x",
-            insert=(width * size / 2, height * size + size + tick_offset),
-            text_anchor="middle",
-            font_size=f"{size}px",
+    if xlabel is not None:
+        tick_group.add(
+            dwg.text(
+                xlabel,
+                insert=(width * size / 2, height * size + (size) + (tick_offset / 4)),
+                text_anchor="middle",
+                font_size=f"{size * 0.6}px",
+            )
         )
-    )
 
     # Y-axis label
-    tick_group.add(
-        dwg.text(
-            "y",
-            insert=(-size - tick_offset, height * size / 2),
-            text_anchor="middle",
-            font_size=f"{size}px",
-            transform=f"rotate(-90, {-size - tick_offset}, {height * size / 2})",
+    if ylabel is not None:
+        tick_group.add(
+            dwg.text(
+                ylabel,
+                insert=(-size - tick_offset, height * size / 2),
+                text_anchor="middle",
+                font_size=f"{size * 0.6}px",
+                transform=f"rotate(-90, {- (size/ 2) - (tick_offset)}, {height * size / 2})",
+            )
         )
-    )
 
     dwg.add(tick_group)
 

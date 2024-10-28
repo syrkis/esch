@@ -97,7 +97,7 @@ def add_ticks_and_labels(
     """Add axis ticks and labels to the drawing."""
     tick_length = size * 0.3
     text_offset = size * 0.6
-    tick_offset = size * 0.3
+    tick_offset = size * 0.4
 
     # Create group for ticks and labels
     tick_group = dwg.g()

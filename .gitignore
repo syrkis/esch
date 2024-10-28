@@ -1,6 +1,7 @@
 target/
 **/*.pdf
 #**/*.html
+**/*.svg
 **/node_modules/
 **/*.bib
 dist/

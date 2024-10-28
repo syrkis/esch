@@ -7,6 +7,7 @@ from jax import Array
 import jax.numpy as jnp
 from . import draw, data
 from tqdm import tqdm
+from typing import List
 
 
 class Plot:
@@ -19,13 +20,18 @@ class Plot:
         size: int = 10,
         xlabel: Optional[str] = None,
         ylabel: Optional[str] = None,
+        xticks: Optional[List] = None,  # Add these parameters
+        yticks: Optional[List] = None,
+        show_ticks: bool = False,
     ):
-        """Initialize plot with data and parameters."""
-        self.data = data.prep(array)  # preprocess data
+        self.data = data.prep(array)
         self.rate = rate
         self.size = size
         self.xlabel = xlabel
         self.ylabel = ylabel
+        self.xticks = xticks
+        self.yticks = yticks
+        self.show_ticks = show_ticks
         self._dwg = None
 
     def static(self) -> None:
@@ -59,10 +65,13 @@ def plot(
     size: int = 10,
     xlabel: Optional[str] = None,
     ylabel: Optional[str] = None,
+    xticks: Optional[List] = None,
+    yticks: Optional[List] = None,
+    show_ticks: bool = False,
     path: Optional[str] = None,
 ) -> Optional[Plot]:
     """Create and optionally save a Hinton plot."""
-    p = Plot(array, rate, size, xlabel, ylabel)
+    p = Plot(array, rate, size, xlabel, ylabel, xticks, yticks, show_ticks)
 
     if animated:
         p.animate()

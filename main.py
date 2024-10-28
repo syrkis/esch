@@ -17,14 +17,14 @@ def main():
         matrix,
         path="static.svg",
         xticks=[(0, "a"), (16, "b")],
-        yticks=[(0, "ℙ"), (1, 2), (2, 3)],
+        yticks=[(37, "ℙ"), (1, 2), (2, 3)],
         xlabel="time",
         ylabel="task",
     )
 
     # Animated plot
-    tensor = np.random.randn(100, 32, 64).cumsum(axis=0)
-    tensor = prep(tensor)
+    tensor = np.random.random((100, 37, 37))
+    tensor = np.cumsum(tensor, axis=-3) / np.arange(1, 38)[None, None, ...]
     plot(
         tensor,
         animated=True,
@@ -32,7 +32,7 @@ def main():
         xlabel="time",
         ylabel="task",
         xticks=[(0, "a"), (16, "b")],
-        yticks=[(0, "ℙ"), (1, 2), (2, 3)],
+        yticks=[(36, "ℙ"), (1, 2), (2, 3)],
     )
 
 

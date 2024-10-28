@@ -67,6 +67,8 @@ def plot(
     path: Optional[str] = None,
 ) -> Optional[Plot]:
     """Create and optionally save a Hinton plot."""
+    # if yticks is not None:
+    # y_ticks = [((array.shape[-2] - pos) % array.shape[-2], label) for pos, label in yticks]
     p = Plot(array, rate, size, xlabel, ylabel, xticks, yticks)
 
     if animated:

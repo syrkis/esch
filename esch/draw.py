@@ -1,9 +1,9 @@
 # draw.py
 import svgwrite
-from jax import Array
-import jax.numpy as jnp
 from tqdm import tqdm
 from typing import Optional, Tuple, List, Any
+from numpy import ndarray
+import numpy as np
 
 
 def setup_drawing(width: int, height: int, size: int, padding: int = 0) -> svgwrite.Drawing:
@@ -29,7 +29,7 @@ def setup_drawing(width: int, height: int, size: int, padding: int = 0) -> svgwr
 
 def get_rect_properties(value: float, size: int) -> dict:
     """Calculate common rectangle properties based on value."""
-    rect_size = jnp.abs(value)
+    rect_size = np.abs(value)
     rect_width = rect_size * size * 0.8
     fill_color = "white" if value < 0 else "black"
     stroke = {"stroke": "black", "stroke_width": "0.5"} if value < 0 else {"stroke": "none", "stroke_width": "0"}
@@ -43,7 +43,7 @@ def calculate_position(i: int, j: int, size: int, offset: float) -> Tuple[float,
 
 
 def make(
-    x: Array,
+    x: ndarray,
     xlabel: Optional[str] = None,
     ylabel: Optional[str] = None,
     xticks: Optional[List] = None,
@@ -60,7 +60,7 @@ def make(
     # Create group for rectangles
     group = dwg.g()
 
-    non_zero = jnp.nonzero(x)
+    non_zero = np.nonzero(x)
     for i, j in zip(non_zero[0], non_zero[1]):
         value = x[i, j]
         props = get_rect_properties(value, size)  # type: ignore
@@ -170,10 +170,10 @@ def add_ticks_and_labels(
     dwg.add(tick_group)
 
 
-def create_animation_values(frames: List[Array], i: int, j: int, size: int) -> dict:
+def create_animation_values(frames: List[ndarray], i: int, j: int, size: int) -> dict:
     """Create animation values for a specific position."""
     values = [frame[i, j] for frame in frames]
-    sizes = [float(jnp.abs(v)) for v in values]  # Convert to float
+    sizes = [float(np.abs(v)) for v in values]  # Convert to float
     rect_widths = [s * size * 0.8 for s in sizes]
     offsets = [(size - w) / 2 for w in rect_widths]
 
@@ -190,8 +190,8 @@ def create_animation_values(frames: List[Array], i: int, j: int, size: int) -> d
 
 def play(
     frames,
-    xlabel: str,
-    ylabel: str,
+    xlabel: str | None,
+    ylabel: str | None,
     xticks: Optional[List] = None,
     yticks: Optional[List] = None,
     size: int = 10,
@@ -207,7 +207,7 @@ def play(
     dwg = setup_drawing(width, height, size, padding)
     base_group = dwg.g()
 
-    non_zero = jnp.nonzero(frames[0])
+    non_zero = np.nonzero(frames[0])
     total_elements = len(non_zero[0])
 
     for i, j in tqdm(zip(non_zero[0], non_zero[1]), total=total_elements):

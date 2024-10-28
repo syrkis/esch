@@ -2,17 +2,17 @@
 # example usage of esch
 # by: Noah Syrkis
 
-from jax import random
+# from jax import random
 from esch import plot, prep
+import numpy as np
 
 
 def main():
     """Example usage of esch plotting."""
     # Generate some data
-    key = random.PRNGKey(0)
 
     # Static plot
-    matrix = random.normal(key, (16, 32))
+    matrix = np.random.randn(16, 32)
     plot(
         matrix,
         path="static.svg",
@@ -23,8 +23,8 @@ def main():
     )
 
     # Animated plot
-    tensor = random.normal(key, (32, 16, 32)).cumsum(axis=0)
-    # tensor = prep(tensor)
+    tensor = np.random.randn(100, 32, 64).cumsum(axis=0)
+    tensor = prep(tensor)
     plot(
         tensor,
         animated=True,

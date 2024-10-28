@@ -1,7 +1,8 @@
 target/
 **/*.pdf
 #**/*.html
-**/*.svg
+#**/*.html
+**/__pycache__
 **/node_modules/
 **/*.bib
 dist/

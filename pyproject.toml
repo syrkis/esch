@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "esch"
-version = "0.2.1"
+version = "0.2.2"
 description = "esch (v.) : to turn matricies into high quality svg (animations)"
 authors = ["Noah Syrkis <noah@syrkis.com>"]
 readme = "README.md"
@@ -9,7 +9,7 @@ readme = "README.md"
 python = "^3.11"
 svgwrite = "^1.4.3"
 tqdm = "^4.66.5"
-jax = "^0.4.35"
+numpy = "^2.1.2"
 
 
 [build-system]

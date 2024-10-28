@@ -3,11 +3,10 @@
 # by: Noah Syrkis
 
 from typing import Optional, Union
-from jax import Array
-import jax.numpy as jnp
 from . import draw, data
 from tqdm import tqdm
 from typing import List
+from numpy import ndarray
 
 
 class Plot:
@@ -15,7 +14,7 @@ class Plot:
 
     def __init__(
         self,
-        array: Array,
+        array: ndarray,
         rate: int = 20,
         size: int = 10,
         xlabel: Optional[str] = None,
@@ -53,11 +52,11 @@ class Plot:
                 self.animate()
             else:
                 self.static()
-        self._dwg.saveas(path)
+        self._dwg.saveas(path)  # type: ignore
 
 
 def plot(
-    array: Array,
+    array: ndarray,
     animated: bool = False,
     rate: int = 20,
     size: int = 10,

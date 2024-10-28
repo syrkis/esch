@@ -63,7 +63,7 @@ def make(
     non_zero = jnp.nonzero(x)
     for i, j in zip(non_zero[0], non_zero[1]):
         value = x[i, j]
-        props = get_rect_properties(value, size)
+        props = get_rect_properties(value, size)  # type: ignore
         pos_y, pos_x = calculate_position(i, j, size, props["offset"])
 
         group.add(
@@ -172,45 +172,52 @@ def add_ticks_and_labels(
 
 def create_animation_values(frames: List[Array], i: int, j: int, size: int) -> dict:
     """Create animation values for a specific position."""
-    frames = [frame.T for frame in frames]
     values = [frame[i, j] for frame in frames]
-    sizes = [jnp.abs(v) for v in values]
+    sizes = [float(jnp.abs(v)) for v in values]  # Convert to float
     rect_widths = [s * size * 0.8 for s in sizes]
     offsets = [(size - w) / 2 for w in rect_widths]
 
-    cell_x = j * size
-    cell_y = i * size
+    start_pos_x, start_pos_y = calculate_position(j, i, size, float(offsets[0]))  # Swap i,j and convert offset to float
 
     return {
         "size_str": ";".join(f"{w:.1f}" for w in rect_widths),
-        "x_position_str": ";".join(f"{cell_x + offset:.1f}" for offset in offsets),
-        "y_position_str": ";".join(f"{cell_y + offset:.1f}" for offset in offsets),
-        "initial_pos": (cell_x + offsets[0], cell_y + offsets[0]),
+        "initial_pos": (start_pos_x, start_pos_y),
+        "x_position_str": ";".join(f"{i * size + offset:.1f}" for offset in offsets),  # Use j for x
+        "y_position_str": ";".join(f"{j * size + offset:.1f}" for offset in offsets),  # Use i for y
         "values": values,
     }
 
 
-def play(frames: Array, rate: int = 20) -> svgwrite.Drawing:
+def play(
+    frames,
+    xlabel: str,
+    ylabel: str,
+    xticks: Optional[List] = None,
+    yticks: Optional[List] = None,
+    size: int = 10,
+    rate: int = 20,
+) -> svgwrite.Drawing:
     """Create single SVG with animated rectangles."""
     if len(frames) == 0:
         raise ValueError("No frames provided")
 
+    frames = [frame.T for frame in frames]
     width, height = frames[0].shape
-    size = 10
-    dwg = setup_drawing(width, height, size)
+    padding = size * 2
+    dwg = setup_drawing(width, height, size, padding)
     base_group = dwg.g()
 
     non_zero = jnp.nonzero(frames[0])
     total_elements = len(non_zero[0])
 
     for i, j in tqdm(zip(non_zero[0], non_zero[1]), total=total_elements):
-        anim_values = create_animation_values(frames, i, j, size)  # type: ignore
+        anim_values = create_animation_values(frames, i, j, size)
         props = get_rect_properties(anim_values["values"][0], size)
 
         rect = dwg.rect(
-            insert=(f"{anim_values['initial_pos'][1]:.1f}", f"{anim_values['initial_pos'][0]:.1f}"),
-            width="0",
-            height="0",
+            insert=(f"{anim_values['initial_pos'][0]:.1f}", f"{anim_values['initial_pos'][1]:.1f}"),
+            width=f"{props['rect_width']:.1f}",
+            height=f"{props['rect_width']:.1f}",
             fill=props["fill_color"],
             stroke=props["stroke"],
             stroke_width=props["stroke_width"],
@@ -228,4 +235,5 @@ def play(frames: Array, rate: int = 20) -> svgwrite.Drawing:
         base_group.add(rect)
 
     dwg.add(base_group)
+    add_ticks_and_labels(dwg, size, width, height, xlabel, ylabel, xticks, yticks)
     return dwg

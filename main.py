@@ -23,9 +23,17 @@ def main():
     )
 
     # Animated plot
-    # tensor = random.normal(key, (100, 64, 128)).cumsum(axis=0)
+    tensor = random.normal(key, (32, 16, 32)).cumsum(axis=0)
     # tensor = prep(tensor)
-    # plot(tensor, animated=True, path="temp.svg")
+    plot(
+        tensor,
+        animated=True,
+        path="temp.svg",
+        xlabel="time",
+        ylabel="task",
+        xticks=[(0, "a"), (16, "b")],
+        yticks=[(0, "ℙ"), (1, 2), (2, 3)],
+    )
 
 
 if __name__ == "__main__":

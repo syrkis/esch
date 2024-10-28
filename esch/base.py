@@ -44,7 +44,7 @@ class Plot:
             raise ValueError("Data must be 3D for animation")
 
         # Pass entire data tensor at once
-        self._dwg = draw.play(self.data, self.rate)
+        self._dwg = draw.play(self.data, self.xlabel, self.ylabel, self.xticks, self.yticks, self.size, self.rate)
 
     def save(self, path: str) -> None:
         """Save plot to file."""

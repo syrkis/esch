@@ -7,6 +7,7 @@ from . import draw, data
 from tqdm import tqdm
 from typing import List
 from numpy import ndarray
+import numpy as np
 
 
 class Plot:
@@ -56,7 +57,7 @@ class Plot:
 
 
 def plot(
-    array: ndarray,
+    array,
     animated: bool = False,
     rate: int = 20,
     size: int = 10,
@@ -66,6 +67,7 @@ def plot(
     yticks: Optional[List] = None,
     path: Optional[str] = None,
 ) -> Optional[Plot]:
+    array = np.array(array)
     """Create and optionally save a Hinton plot."""
     # if yticks is not None:
     # y_ticks = [((array.shape[-2] - pos) % array.shape[-2], label) for pos, label in yticks]

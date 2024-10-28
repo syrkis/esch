@@ -23,8 +23,7 @@ def main():
     )
 
     # Animated plot
-    tensor = np.random.random((100, 37, 37))
-    tensor = np.cumsum(tensor, axis=-3) / np.arange(1, 38)[None, None, ...]
+    tensor = np.random.randn(100, 37, 37)
     plot(
         tensor,
         animated=True,

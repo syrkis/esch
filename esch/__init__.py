@@ -1,3 +1,5 @@
-from .plot import hinton_animation as hinton
+# esch/esch/__init__.py
+from .base import plot
+from .data import prep
 
-__all__ = ["hinton"]
+__all__ = ["plot", "prep"]

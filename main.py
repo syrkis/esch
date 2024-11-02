@@ -1,21 +1,23 @@
-# main.py
+# %% main.py
 # example usage of esch
 # by: Noah Syrkis
 
-# from jax import random
+# %% from jax import random
 from esch import plot, prep
 import numpy as np
+from IPython.display import SVG, HTML, display
 
 
+# %%
 def main():
     """Example usage of esch plotting."""
     # Generate some data
 
     # Static plot
     matrix = np.random.randn(16, 32)
-    plot(
+    drawing = plot(
         matrix,
-        path="static.svg",
+        # path="static.svg",
         xticks=[(0, "a"), (16, "b")],
         yticks=[(37, "ℙ"), (1, 2), (2, 3)],
         xlabel="time",
@@ -23,8 +25,8 @@ def main():
     )
 
     # Animated plot
-    tensor = np.random.randn(100, 37, 37)
-    plot(
+    tensor = np.random.randn(1001, 113, 113)
+    anim = plot(
         tensor,
         animated=True,
         path="temp.svg",
@@ -34,6 +36,7 @@ def main():
         yticks=[(36, "ℙ"), (1, 2), (2, 3)],
     )
 
+    return drawing
 
-if __name__ == "__main__":
-    main()
+
+svg = main()

@@ -60,14 +60,19 @@ def plot(
     array,
     animated: bool = False,
     rate: int = 20,
-    size: int = 10,
+    size: int = 10,  # not sure this is needed
     xlabel: Optional[str] = None,
     ylabel: Optional[str] = None,
     xticks: Optional[List] = None,
     yticks: Optional[List] = None,
     path: Optional[str] = None,
-) -> Optional[Plot]:
+) -> Optional[Plot]:  # todo dynamically chagne rate and step size, to keep it small
     array = np.array(array)
+    # max frames around 1000
+    if animated:
+        step_size = int(np.floor(array.shape[0] / 1000) + 1)
+        rate = int(rate / step_size)
+        array = array[::step_size]
     """Create and optionally save a Hinton plot."""
     # if yticks is not None:
     # y_ticks = [((array.shape[-2] - pos) % array.shape[-2], label) for pos, label in yticks]

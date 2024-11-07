@@ -1,11 +1,11 @@
 # draw.py
 import svgwrite
 from tqdm import tqdm
-from typing import Dict, Optional, Union, Tuple, List
+from typing import Tuple, List
 from numpy import ndarray
 import numpy as np
 from functools import lru_cache
-from .edge import EdgeConfig, EdgeConfigs, add_ticks_and_labels
+from .edge import EdgeConfigs, add_ticks_and_labels
 
 
 def setup_drawing(

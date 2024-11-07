@@ -14,12 +14,13 @@ def main():
     # Generate some data
 
     # Static plot
-    matrix = np.random.randn(10, 6, 32)
-    left = esch.EdgeConfig(ticks=[(0, "a"), (24, "b")], label="Time", show_on="first")
-    edge = esch.EdgeConfigs(bottom=left)
+    matrix = np.random.randn(3, 100, 20, 6)
+    left = esch.EdgeConfig(ticks=[(0, "a"), (1, "b")], label="Time", show_on="first")
+    top = esch.EdgeConfig(ticks=[(0, "a"), (3, "c")], label="Time", show_on="first")
+    edge = esch.EdgeConfigs(left=left, top=top)
     drawing = esch.plot(
         matrix,
-        # animated=True,
+        animated=True,
         edge=edge,
         path="noah.svg",
     )
@@ -28,5 +29,5 @@ def main():
 
 
 main()
-plt.show()
+# plt.show()
 # print(anim.figure)

@@ -33,6 +33,27 @@ def should_show_edge(config: EdgeConfig, plot_idx: int, n_plots: int) -> bool:
     return False
 
 
+def draw_tick_line(dwg, x1, y1, x2, y2):
+    """Draw a tick line."""
+    return dwg.line(start=(x1, y1), end=(x2, y2), stroke="black", stroke_width=0.5)
+
+
+def add_tick_label(dwg, text, x, y, anchor, rotation=None):
+    """Add tick label text to the drawing."""
+    text_params = {"insert": (x, y), "text_anchor": anchor, "dominant_baseline": "middle", "font_size": "6px"}
+    if rotation:
+        text_params["transform"] = rotation
+    return dwg.text(text, **text_params)
+
+
+def add_axis_label(dwg, label, x, y, anchor, rotation=None):
+    """Add an axis label to the drawing."""
+    text_params = {"insert": (x, y), "text_anchor": anchor, "font_size": "6px"}
+    if rotation:
+        text_params["transform"] = rotation
+    return dwg.text(label, **text_params)
+
+
 def add_ticks_and_labels(
     dwg: svgwrite.Drawing,
     size: int,
@@ -49,9 +70,6 @@ def add_ticks_and_labels(
     text_offset = size * 0.6
     tick_offset = size * 0.4
 
-    y_start, x_start = 0, 0
-
-    # Create group for ticks and labels
     tick_group = dwg.g()
 
     for edge_name, config in edge_configs.__dict__.items():
@@ -60,68 +78,59 @@ def add_ticks_and_labels(
             label = config.label
 
             if edge_name == "bottom" and ticks:
+                y_start = height * size + tick_offset + y_offset
                 for pos, tick_label in ticks:
                     x = pos * size + size / 2 + x_offset
-                    y_start = height * size + tick_offset + y_offset
+                    tick_group.add(draw_tick_line(dwg, x, y_start, x, y_start + tick_length))
+                    tick_group.add(add_tick_label(dwg, tick_label, x, y_start + tick_length + text_offset, "middle"))
 
-                    # Draw tick mark at the bottom
-                    tick_group.add(
-                        dwg.line(
-                            start=(x, y_start),
-                            end=(x, y_start + tick_length),
-                            stroke="black",
-                            stroke_width=0.5,
-                        )
-                    )
-                    tick_group.add(
-                        dwg.text(
-                            tick_label,
-                            insert=(x, y_start + tick_length + text_offset),
-                            text_anchor="middle",
-                            dominant_baseline="hanging",
-                            font_size=f"{size * 0.6}px",
-                        )
-                    )
-                # Add X-axis label if provided
                 if label:
                     tick_group.add(
-                        dwg.text(
-                            label,
-                            insert=(width * size / 2 + x_offset, y_start + tick_length + size),
-                            text_anchor="middle",
-                            font_size=f"{size * 0.6}px",
-                        )
+                        add_axis_label(dwg, label, width * size / 2 + x_offset, y_start + tick_length + size, "middle")
                     )
 
             elif edge_name == "left" and ticks:
+                x_start = -tick_offset + x_offset
                 for pos, tick_label in ticks:
                     y = pos * size + size / 2 + y_offset
-                    x_start = -tick_offset + x_offset
+                    tick_group.add(draw_tick_line(dwg, x_start, y, x_start - tick_length, y))
+                    tick_group.add(add_tick_label(dwg, tick_label, x_start - tick_length - text_offset, y, "end"))
 
-                    # Draw tick mark on the left
-                    tick_group.add(
-                        dwg.line(start=(x_start, y), end=(x_start - tick_length, y), stroke="black", stroke_width=0.5)
-                    )
-                    tick_group.add(
-                        dwg.text(
-                            tick_label,
-                            insert=(x_start - tick_length - text_offset, y),
-                            text_anchor="end",
-                            dominant_baseline="middle",
-                            font_size=f"{size * 0.6}px",
-                        )
-                    )
-                # Add Y-axis label if provided
                 if label:
                     tick_group.add(
-                        dwg.text(
+                        add_axis_label(
+                            dwg,
                             label,
-                            insert=(x_start - tick_length - size, height * size / 2 + y_offset),
-                            text_anchor="middle",
-                            font_size=f"{size * 0.6}px",
-                            transform=f"rotate(-90, {x_start - tick_length - size}, {height * size / 2 + y_offset})",
+                            x_start - tick_length - size,
+                            height * size / 2 + y_offset,
+                            "middle",
+                            f"rotate(-90, {x_start - tick_length - size}, {height * size / 2 + y_offset})",
                         )
                     )
+
             # Extend logic to 'top' and 'right' edges if needed
+            #
+            elif edge_name == "top" and ticks:
+                y = height - size
+                for pos, tick_label in ticks:
+                    x = pos * size + size / 2 + x_offset
+                    tick_group.add(draw_tick_line(dwg, x, y, x, y - tick_length))
+                    tick_group.add(add_tick_label(dwg, tick_label, x, y - tick_length - text_offset, "middle"))
+                if label:
+                    tick_group.add(
+                        add_axis_label(dwg, label, width * size / 2 + x_offset, y - tick_length - size, "middle")
+                    )
+
+            elif edge_name == "right" and ticks:
+                x = width - size
+                for pos, tick_label in ticks:
+                    y = pos * size + size / 2 + y_offset
+                    tick_group.add(draw_tick_line(dwg, x, y, x + tick_length, y))
+                    tick_group.add(add_tick_label(dwg, tick_label, x + tick_length + text_offset, y, "start"))
+
+                if label:
+                    tick_group.add(
+                        add_axis_label(dwg, label, x + tick_length + size, height * size / 2 + y_offset, "middle")
+                    )
 
     dwg.add(tick_group)

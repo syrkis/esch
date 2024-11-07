@@ -227,6 +227,6 @@ def play(
                 rect.add(dwg.animate(attributeName=attr, values=values, dur=duration, repeatCount="indefinite"))
 
             plot_group.add(rect)
+            add_ticks_and_labels(dwg, size, width, height, edge, plot_idx, n_plots, x_offset, y_offset)
         dwg.add(plot_group)
-        add_ticks_and_labels(dwg, size, width, height, edge, 0, 1, 0, 0)
     return dwg

@@ -5,7 +5,6 @@
 # %% from jax import random
 import esch
 import numpy as np
-import matplotlib.pyplot as plt
 
 
 # %%
@@ -14,9 +13,12 @@ def main():
     # Generate some data
 
     # Static plot
-    matrix = np.random.randn(3, 100, 20, 6)
-    left = esch.EdgeConfig(ticks=[(0, "a"), (1, "b")], label="Time", show_on="first")
-    top = esch.EdgeConfig(ticks=[(0, "a"), (3, "c")], label="Time", show_on="first")
+    matrix = np.random.randn(3, 100, 6, 6)
+    left = esch.EdgeConfig(
+        ticks=[(0, "a"), (1, "b")],
+        show_on="all",
+    )
+    top = esch.EdgeConfig(ticks=[], label=["a", "b", "c"], show_on="all")
     edge = esch.EdgeConfigs(left=left, top=top)
     drawing = esch.plot(
         matrix,

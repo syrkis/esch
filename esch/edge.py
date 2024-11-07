@@ -6,7 +6,7 @@ import svgwrite
 @dataclass
 class EdgeConfig:
     ticks: Optional[List[Tuple[float, str]]] = None
-    label: Optional[str] = None
+    label: Optional[Union[str, List[str]]] = None
     show_on: Union[str, List[int], None] = None
 
 
@@ -77,30 +77,48 @@ def add_ticks_and_labels(
             ticks = config.ticks
             label = config.label
 
-            if edge_name == "bottom" and ticks:
+            if edge_name == "bottom":
                 y_start = height * size + tick_offset + y_offset
-                for pos, tick_label in ticks:
-                    x = pos * size + size / 2 + x_offset
-                    tick_group.add(draw_tick_line(dwg, x, y_start, x, y_start + tick_length))
-                    tick_group.add(add_tick_label(dwg, tick_label, x, y_start + tick_length + text_offset, "middle"))
+                if ticks:
+                    for pos, tick_label in ticks:
+                        x = pos * size + size / 2 + x_offset
+                        tick_group.add(draw_tick_line(dwg, x, y_start, x, y_start + tick_length))
+                        tick_group.add(
+                            add_tick_label(dwg, tick_label, x, y_start + tick_length + text_offset, "middle")
+                        )
 
-                if label:
+                # Use plot-specific label if label is a list
+                if isinstance(label, list) and plot_idx < len(label):
+                    axis_label = label[plot_idx]
+                else:
+                    axis_label = label
+
+                if axis_label:
                     tick_group.add(
-                        add_axis_label(dwg, label, width * size / 2 + x_offset, y_start + tick_length + size, "middle")
+                        add_axis_label(
+                            dwg, axis_label, width * size / 2 + x_offset, y_start + tick_length + size, "middle"
+                        )
                     )
 
-            elif edge_name == "left" and ticks:
+            elif edge_name == "left":
                 x_start = -tick_offset + x_offset
-                for pos, tick_label in ticks:
-                    y = pos * size + size / 2 + y_offset
-                    tick_group.add(draw_tick_line(dwg, x_start, y, x_start - tick_length, y))
-                    tick_group.add(add_tick_label(dwg, tick_label, x_start - tick_length - text_offset, y, "end"))
+                if ticks:
+                    for pos, tick_label in ticks:
+                        y = pos * size + size / 2 + y_offset
+                        tick_group.add(draw_tick_line(dwg, x_start, y, x_start - tick_length, y))
+                        tick_group.add(add_tick_label(dwg, tick_label, x_start - tick_length - text_offset, y, "end"))
 
-                if label:
+                # Use plot-specific label if label is a list
+                if isinstance(label, list) and plot_idx < len(label):
+                    axis_label = label[plot_idx]
+                else:
+                    axis_label = label
+
+                if axis_label:
                     tick_group.add(
                         add_axis_label(
                             dwg,
-                            label,
+                            axis_label,
                             x_start - tick_length - size,
                             height * size / 2 + y_offset,
                             "middle",
@@ -109,28 +127,40 @@ def add_ticks_and_labels(
                     )
 
             # Extend logic to 'top' and 'right' edges if needed
-            #
-            elif edge_name == "top" and ticks:
+            elif edge_name == "top":
                 y = height - size
-                for pos, tick_label in ticks:
-                    x = pos * size + size / 2 + x_offset
-                    tick_group.add(draw_tick_line(dwg, x, y, x, y - tick_length))
-                    tick_group.add(add_tick_label(dwg, tick_label, x, y - tick_length - text_offset, "middle"))
-                if label:
+                if ticks:
+                    for pos, tick_label in ticks:
+                        x = pos * size + size / 2 + x_offset
+                        tick_group.add(draw_tick_line(dwg, x, y, x, y - tick_length))
+                        tick_group.add(add_tick_label(dwg, tick_label, x, y - tick_length - text_offset, "middle"))
+
+                if isinstance(label, list) and plot_idx < len(label):
+                    axis_label = label[plot_idx]
+                else:
+                    axis_label = label
+
+                if axis_label:
                     tick_group.add(
-                        add_axis_label(dwg, label, width * size / 2 + x_offset, y - tick_length - size, "middle")
+                        add_axis_label(dwg, axis_label, width * size / 2 + x_offset, y - tick_length - size, "middle")
                     )
 
-            elif edge_name == "right" and ticks:
+            elif edge_name == "right":
                 x = width - size
-                for pos, tick_label in ticks:
-                    y = pos * size + size / 2 + y_offset
-                    tick_group.add(draw_tick_line(dwg, x, y, x + tick_length, y))
-                    tick_group.add(add_tick_label(dwg, tick_label, x + tick_length + text_offset, y, "start"))
+                if ticks:
+                    for pos, tick_label in ticks:
+                        y = pos * size + size / 2 + y_offset
+                        tick_group.add(draw_tick_line(dwg, x, y, x + tick_length, y))
+                        tick_group.add(add_tick_label(dwg, tick_label, x + tick_length + text_offset, y, "start"))
 
-                if label:
+                if isinstance(label, list) and plot_idx < len(label):
+                    axis_label = label[plot_idx]
+                else:
+                    axis_label = label
+
+                if axis_label:
                     tick_group.add(
-                        add_axis_label(dwg, label, x + tick_length + size, height * size / 2 + y_offset, "middle")
+                        add_axis_label(dwg, axis_label, x + tick_length + size, height * size / 2 + y_offset, "middle")
                     )
 
     dwg.add(tick_group)

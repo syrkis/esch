@@ -1,10 +1,11 @@
 # draw.py
 import svgwrite
 from tqdm import tqdm
-from typing import Optional, Tuple, List, Any
+from typing import Dict, Optional, Union, Tuple, List
 from numpy import ndarray
 import numpy as np
 from functools import lru_cache
+from .edge import EdgeConfig, EdgeConfigs, add_ticks_and_labels
 
 
 def setup_drawing(
@@ -97,10 +98,7 @@ def calculate_position(i: int, j: int, size: int, offset: float) -> Tuple[float,
 
 def make(
     x: ndarray,
-    xlabel: Optional[str] = None,
-    ylabel: Optional[str] = None,
-    xticks: Optional[List] = None,
-    yticks: Optional[List] = None,
+    edge: EdgeConfigs,
     size: int = 10,
 ) -> svgwrite.Drawing:
     """Create SVG drawing for single or multiple plots.
@@ -113,7 +111,6 @@ def make(
     if x.ndim == 2:
         x = x[np.newaxis, ...]  # Add frame dimension
 
-    # x = x.transpose(0, 2, 1)  # Transpose each frame
     n_plots, height, width = x.shape
 
     # Setup drawing with correct number of plots
@@ -152,108 +149,9 @@ def make(
         dwg.add(plot_group)
 
         # Add ticks and labels for this plot
-        add_ticks_and_labels(
-            dwg,
-            size,
-            width,
-            height,
-            xlabel if plot_idx == n_plots - 1 else None,  # Only add xlabel to last plot for column layout
-            ylabel if plot_idx == 0 else None,  # Only add ylabel to first plot
-            xticks,
-            yticks,
-            x_offset,
-            y_offset,
-        )
+        add_ticks_and_labels(dwg, size, width, height, edge, plot_idx, n_plots, x_offset, y_offset)
 
     return dwg
-
-
-def add_ticks_and_labels(
-    dwg: svgwrite.Drawing,
-    size: int,
-    width: int,
-    height: int,
-    xlabel: Optional[str],
-    ylabel: Optional[str],
-    xticks: Optional[List],
-    yticks: Optional[List],
-    x_offset: float = 0,
-    y_offset: float = 0,
-) -> None:
-    """Add axis ticks and labels to the drawing with offset support."""
-    tick_length = size * 0.3
-    text_offset = size * 0.6
-    tick_offset = size * 0.4
-
-    # Create group for ticks and labels
-    tick_group = dwg.g()
-
-    # Generate default ticks if none provided
-    # Add x-axis ticks and labels
-    if xticks is not None:
-        for pos, label in xticks:
-            x = pos * size + size / 2
-            # Draw tick mark, moved down by tick_offset
-            tick_group.add(
-                dwg.line(
-                    start=(x, height * size + tick_offset),
-                    end=(x, height * size + tick_offset + tick_length),
-                    stroke="black",
-                    stroke_width=0.5,
-                )
-            )
-            tick_group.add(
-                dwg.text(
-                    label,
-                    insert=(x, height * size + tick_offset + tick_length + text_offset),  # Adjusted spacing
-                    text_anchor="middle",
-                    dominant_baseline="hanging",  # Align text from top
-                    font_size=f"{size * 0.6}px",
-                )
-            )
-
-    if yticks is not None:
-        for pos, label in yticks:
-            y = pos * size + size / 2
-            # Draw tick mark, moved left by tick_offset
-            tick_group.add(
-                dwg.line(start=(-tick_offset, y), end=(-tick_offset - tick_length, y), stroke="black", stroke_width=0.5)
-            )
-            # Add tick label, adjusted position
-            tick_group.add(
-                dwg.text(
-                    label,
-                    insert=(-tick_offset - tick_length - text_offset, y),
-                    text_anchor="end",
-                    dominant_baseline="middle",
-                    font_size=f"{size * 0.6}px",
-                )
-            )
-
-    # X-axis label
-    if xlabel is not None:
-        tick_group.add(
-            dwg.text(
-                xlabel,
-                insert=(width * size / 2, height * size + (size) + (tick_offset / 4)),
-                text_anchor="middle",
-                font_size=f"{size * 0.6}px",
-            )
-        )
-
-    # Y-axis label
-    if ylabel is not None:
-        tick_group.add(
-            dwg.text(
-                ylabel,
-                insert=(-size - tick_offset, height * size / 2),
-                text_anchor="middle",
-                font_size=f"{size * 0.6}px",
-                transform=f"rotate(-90, {- (size/ 2) - (tick_offset)}, {height * size / 2})",
-            )
-        )
-
-    dwg.add(tick_group)
 
 
 def create_animation_values(frames: List[ndarray], i: int, j: int, size: int) -> dict:
@@ -276,10 +174,7 @@ def create_animation_values(frames: List[ndarray], i: int, j: int, size: int) ->
 
 def play(
     frames,
-    xlabel: str | None,
-    ylabel: str | None,
-    xticks: Optional[List] = None,
-    yticks: Optional[List] = None,
+    edge: EdgeConfigs,
     size: int = 10,
     rate: int = 20,
 ) -> svgwrite.Drawing:
@@ -287,39 +182,51 @@ def play(
     if len(frames) == 0:
         raise ValueError("No frames provided")
 
-    frames = [frame.T for frame in frames]
-    width, height = frames[0].shape
+    if frames.ndim == 3:
+        # frames = [frame[np.newaxis, ...] for frame in frames]
+        frames = frames[np.newaxis, ...]
+    frames = frames.transpose(0, 1, 3, 2)
+    # frames = np.array([frame.transpose(0, 2, 1) for frame in frames])
+    # width, height = frames[0].shape
+    n_plots, n_frames, width, height = frames.shape
+
     padding = size * 2
-    dwg = setup_drawing(width, height, size, 1, padding)
-    base_group = dwg.g()
+    dwg = setup_drawing(width, height, size, n_plots, padding)
+    for plot_idx in range(n_plots):
+        frame_sequence = frames[plot_idx]
+        x_offset, y_offset = get_plot_offset(plot_idx, width, height, size, padding)
 
-    non_zero = np.nonzero(frames[0])
-    total_elements = len(non_zero[0])
+        plot_group = dwg.g()
 
-    for i, j in tqdm(zip(non_zero[0], non_zero[1]), total=total_elements):
-        anim_values = create_animation_values(frames, i, j, size)
-        props = get_rect_properties(anim_values["values"][0], size)
+        non_zero = np.nonzero(frame_sequence[0])
+        total_elements = len(non_zero[0])
 
-        rect = dwg.rect(
-            insert=(f"{anim_values['initial_pos'][0]:.1f}", f"{anim_values['initial_pos'][1]:.1f}"),
-            width=f"{props['rect_width']:.1f}",
-            height=f"{props['rect_width']:.1f}",
-            fill=props["fill_color"],
-            stroke=props["stroke"],
-            stroke_width=props["stroke_width"],
-        )
+        for i, j in tqdm(zip(non_zero[0], non_zero[1]), total=total_elements):
+            anim_values = create_animation_values(frame_sequence, i, j, size)
+            props = get_rect_properties(anim_values["values"][0], size)
 
-        duration = f"{len(frames)/rate}s"
-        for attr, values in [
-            ("width", anim_values["size_str"]),
-            ("height", anim_values["size_str"]),
-            ("x", anim_values["x_position_str"]),
-            ("y", anim_values["y_position_str"]),
-        ]:
-            rect.add(dwg.animate(attributeName=attr, values=values, dur=duration, repeatCount="indefinite"))
+            rect = dwg.rect(
+                insert=(
+                    f"{anim_values['initial_pos'][0] + x_offset:.1f}",
+                    f"{anim_values['initial_pos'][1] + y_offset:.1f}",
+                ),
+                width=f"{props['rect_width']:.1f}",
+                height=f"{props['rect_width']:.1f}",
+                fill=props["fill_color"],
+                stroke=props["stroke"],
+                stroke_width=props["stroke_width"],
+            )
 
-        base_group.add(rect)
+            duration = f"{n_frames / rate}s"
+            for attr, values in [
+                ("width", anim_values["size_str"]),
+                ("height", anim_values["size_str"]),
+                ("x", ";".join(f"{float(pos_x) + x_offset:.1f}" for pos_x in anim_values["x_position_str"].split(";"))),
+                ("y", ";".join(f"{float(pos_y) + y_offset:.1f}" for pos_y in anim_values["y_position_str"].split(";"))),
+            ]:
+                rect.add(dwg.animate(attributeName=attr, values=values, dur=duration, repeatCount="indefinite"))
 
-    dwg.add(base_group)
-    add_ticks_and_labels(dwg, size, width, height, xlabel, ylabel, xticks, yticks)
+            plot_group.add(rect)
+        dwg.add(plot_group)
+        add_ticks_and_labels(dwg, size, width, height, edge, 0, 1, 0, 0)
     return dwg

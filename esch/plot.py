@@ -3,8 +3,9 @@
 # by: Noah Syrkis
 
 from typing import Optional
-from . import draw, data
-from typing import List
+from . import draw, data, edge
+
+# im
 from numpy import ndarray
 import numpy as np
 import matplotlib.pyplot as plt
@@ -22,18 +23,20 @@ class Plot:
         array: ndarray,
         rate: int = 20,
         size: int = 10,
-        xlabel: Optional[str] = None,
-        ylabel: Optional[str] = None,
-        xticks: Optional[List] = None,  # Add these parameters
-        yticks: Optional[List] = None,
+        edge: edge.EdgeConfigs = edge.EdgeConfigs(),
+        # xlabel: Optional[str] = None,
+        # ylabel: Optional[str] = None,
+        # xticks: Optional[List] = None,  # Add these parameters
+        # yticks: Optional[List] = None,
     ):
         self.data = data.prep(array)
         self.rate = rate
         self.size = size
-        self.xlabel = xlabel
-        self.ylabel = ylabel
-        self.xticks = xticks
-        self.yticks = yticks
+        self.edge = edge
+        # self.low_label = xlabel
+        # self.left_label = ylabel
+        # self.low_ticks = xticks
+        # self.left_ticks = yticks
         self._dwg = None
         self.png: Optional[bytes] = None
 
@@ -41,7 +44,7 @@ class Plot:
         """Create static plot."""
         # if len(self.data.shape) > 2:
         # self.data = self.data[0]  # take first frame if animated
-        self._dwg = draw.make(self.data, self.xlabel, self.ylabel, self.xticks, self.yticks, self.size)
+        self._dwg = draw.make(self.data, self.edge, self.size)
 
     def animate(self) -> None:
         """Create animated plot with optimized SVG."""
@@ -49,15 +52,15 @@ class Plot:
         # raise ValueError("Data must be 3D for animation")
 
         # Pass entire data tensor at once
-        self._dwg = draw.play(self.data, self.xlabel, self.ylabel, self.xticks, self.yticks, self.size, self.rate)
+        self._dwg = draw.play(self.data, self.edge, self.size, self.rate)
 
     def save(self, path: str) -> None:
         """Save plot to file."""
-        if self._dwg is None:
-            if len(self.data.shape) > 2:
-                self.animate()
-            else:
-                self.static()
+        # if self._dwg is None:
+        # if len(self.data.shape) > 2:
+        # self.animate()
+        # else:
+        # self.static()
         self._dwg.saveas(path)  # type: ignore
 
 
@@ -66,11 +69,12 @@ def plot(
     animated: bool = False,
     rate: int = 20,
     size: int = 10,  # not sure this is needed
-    xlabel: Optional[str] = None,
-    ylabel: Optional[str] = None,
-    xticks: Optional[List] = None,
-    yticks: Optional[List] = None,
+    # xlabel: Optional[str] = None,
+    # ylabel: Optional[str] = None,
+    # xticks: Optional[List] = None,
+    # yticks: Optional[List] = None,
     path: Optional[str] = None,
+    edge: edge.EdgeConfigs = edge.EdgeConfigs(),
 ) -> Optional[Plot]:  # todo dynamically chagne rate and step size, to keep it small
     array = np.array(array)
     # max frames around 1000
@@ -79,7 +83,7 @@ def plot(
         rate = int(rate / step_size)
         array = array[::step_size]
     """Create and optionally save a Hinton plot."""
-    p = Plot(array, rate, size, xlabel, ylabel, xticks, yticks)
+    p = Plot(array, rate, size, edge)
 
     if animated:
         p.animate()
@@ -87,7 +91,7 @@ def plot(
         p.static()
 
     # p.figure = esch_nb(p)
-    p.png = esch_nb(p)
+    p.png = esch_nb(p)  # type: ignore
     if path:
         p.save(path)
         return p

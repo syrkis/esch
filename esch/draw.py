@@ -4,12 +4,37 @@ from tqdm import tqdm
 from typing import Optional, Tuple, List, Any
 from numpy import ndarray
 import numpy as np
+from functools import lru_cache
 
 
-def setup_drawing(width: int, height: int, size: int, padding: int = 0) -> svgwrite.Drawing:
-    """Initialize and setup SVG drawing with common properties."""
-    total_width = width * size + (padding * 2)
-    total_height = height * size + (padding * 2)
+def setup_drawing(
+    width: int,  # width of single plot
+    height: int,  # height of single plot
+    size: int,
+    n_plots: int = 1,  # number of plots
+    padding: int = 0,
+) -> svgwrite.Drawing:
+    """Initialize and setup SVG drawing with common properties.
+
+    Layout direction is determined by the aspect ratio of individual plots:
+    - If width > height: arrange plots in a column
+    - If width <= height: arrange plots in a row
+    """
+    plot_width = width * size
+    plot_height = height * size
+    plot_spacing = padding  # Using padding as plot spacing for now
+
+    # Determine layout based on aspect ratio
+    is_column_layout = plot_width > plot_height
+
+    if is_column_layout:
+        # Column layout
+        total_width = plot_width + (padding * 2)
+        total_height = (plot_height * n_plots) + (plot_spacing * (n_plots - 1)) + (padding * 2)
+    else:
+        # Row layout
+        total_width = (plot_width * n_plots) + (plot_spacing * (n_plots - 1)) + (padding * 2)
+        total_height = plot_height + (padding * 2)
 
     dwg = svgwrite.Drawing(size=(f"{total_width}px", f"{total_height}px"))
     dwg.viewbox(-padding, -padding, total_width, total_height)
@@ -27,6 +52,34 @@ def setup_drawing(width: int, height: int, size: int, padding: int = 0) -> svgwr
     return dwg
 
 
+def get_plot_offset(plot_index: int, width: int, height: int, size: int, padding: int = 0) -> tuple[float, float]:
+    """Calculate offset for a plot.
+
+    Args:
+        plot_index: Index of the plot (0-based)
+        width: Width of a single plot in units
+        height: Height of a single plot in units
+        size: Size of each unit
+        padding: Padding between plots
+
+    Returns:
+        tuple[float, float]: (x, y) coordinate offsets for the plot
+    """
+    plot_width = width * size
+    plot_height = height * size
+    is_column_layout = plot_width > plot_height
+
+    if is_column_layout:
+        x_offset = 0
+        y_offset = plot_index * (plot_height + padding)
+    else:
+        x_offset = plot_index * (plot_width + padding)
+        y_offset = 0
+
+    return x_offset, y_offset
+
+
+@lru_cache
 def get_rect_properties(value: float, size: int) -> dict:
     """Calculate common rectangle properties based on value."""
     rect_size = np.abs(value)
@@ -50,36 +103,67 @@ def make(
     yticks: Optional[List] = None,
     size: int = 10,
 ) -> svgwrite.Drawing:
-    """Create optimized SVG drawing."""
-    x = x.T
-    width, height = x.shape
-    # Add padding for ticks and labels
+    """Create SVG drawing for single or multiple plots.
+
+    Args:
+        x: 2D array (height × width) or 3D array (frames × height × width)
+        ...
+    """
+    # Handle both 2D and 3D arrays
+    if x.ndim == 2:
+        x = x[np.newaxis, ...]  # Add frame dimension
+
+    # x = x.transpose(0, 2, 1)  # Transpose each frame
+    n_plots, height, width = x.shape
+
+    # Setup drawing with correct number of plots
     padding = size * 2
-    dwg = setup_drawing(width, height, size, padding)
+    dwg = setup_drawing(width, height, size, n_plots, padding)
 
-    # Create group for rectangles
-    group = dwg.g()
+    # Create plots one by one
+    for plot_idx in range(n_plots):
+        frame = x[plot_idx]
+        x_offset, y_offset = get_plot_offset(plot_idx, width, height, size, padding)
 
-    non_zero = np.nonzero(x)
-    for i, j in zip(non_zero[0], non_zero[1]):
-        value = x[i, j]
-        props = get_rect_properties(value, size)  # type: ignore
-        pos_y, pos_x = calculate_position(i, j, size, props["offset"])
+        # Create group for this plot
+        plot_group = dwg.g()
 
-        group.add(
-            dwg.rect(
-                insert=(f"{pos_x:.1f}", f"{pos_y:.1f}"),
-                size=(f"{props['rect_width']:.1f}", f"{props['rect_width']:.1f}"),
-                fill=props["fill_color"],
-                stroke=props["stroke"],
-                stroke_width=props["stroke_width"],
+        # Draw rectangles for this frame
+        non_zero = np.nonzero(frame)
+        for i, j in zip(non_zero[0], non_zero[1]):
+            value = frame[i, j]
+            props = get_rect_properties(value, size)
+            pos_x, pos_y = calculate_position(i, j, size, props["offset"])
+
+            # Adjust positions by offset
+            pos_x += x_offset
+            pos_y += y_offset
+
+            plot_group.add(
+                dwg.rect(
+                    insert=(f"{pos_x:.1f}", f"{pos_y:.1f}"),
+                    size=(f"{props['rect_width']:.1f}", f"{props['rect_width']:.1f}"),
+                    fill=props["fill_color"],
+                    stroke=props["stroke"],
+                    stroke_width=props["stroke_width"],
+                )
             )
+
+        dwg.add(plot_group)
+
+        # Add ticks and labels for this plot
+        add_ticks_and_labels(
+            dwg,
+            size,
+            width,
+            height,
+            xlabel if plot_idx == n_plots - 1 else None,  # Only add xlabel to last plot for column layout
+            ylabel if plot_idx == 0 else None,  # Only add ylabel to first plot
+            xticks,
+            yticks,
+            x_offset,
+            y_offset,
         )
-
-    dwg.add(group)
-
-    # Add ticks and labels
-    add_ticks_and_labels(dwg, size, width, height, xlabel, ylabel, xticks, yticks)
 
     return dwg
 
@@ -93,8 +177,10 @@ def add_ticks_and_labels(
     ylabel: Optional[str],
     xticks: Optional[List],
     yticks: Optional[List],
+    x_offset: float = 0,
+    y_offset: float = 0,
 ) -> None:
-    """Add axis ticks and labels to the drawing."""
+    """Add axis ticks and labels to the drawing with offset support."""
     tick_length = size * 0.3
     text_offset = size * 0.6
     tick_offset = size * 0.4
@@ -204,7 +290,7 @@ def play(
     frames = [frame.T for frame in frames]
     width, height = frames[0].shape
     padding = size * 2
-    dwg = setup_drawing(width, height, size, padding)
+    dwg = setup_drawing(width, height, size, 1, padding)
     base_group = dwg.g()
 
     non_zero = np.nonzero(frames[0])

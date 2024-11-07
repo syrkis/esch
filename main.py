@@ -3,9 +3,11 @@
 # by: Noah Syrkis
 
 # %% from jax import random
-from esch import plot, prep
+from esch import plot
 import numpy as np
-from IPython.display import SVG, HTML, display
+from aim import Image as AImage
+from PIL import Image as PImage
+import matplotlib.pyplot as plt
 
 
 # %%
@@ -14,7 +16,7 @@ def main():
     # Generate some data
 
     # Static plot
-    matrix = np.random.randn(16, 32)
+    matrix = np.random.randn(32, 16)
     drawing = plot(
         matrix,
         # path="static.svg",
@@ -25,18 +27,20 @@ def main():
     )
 
     # Animated plot
-    tensor = np.random.randn(1001, 113, 113)
-    anim = plot(
-        tensor,
-        animated=True,
-        path="temp.svg",
-        xlabel="time",
-        ylabel="task",
-        xticks=[(0, "a"), (16, "b")],
-        yticks=[(36, "ℙ"), (1, 2), (2, 3)],
-    )
+    # tensor = np.random.randn(200, 37, 37)
+    # anim = plot(
+    #     tensor,
+    #     animated=True,
+    #     path="temp.svg",
+    #     xlabel="time",
+    #     ylabel="task",
+    #     xticks=[(0, "a"), (16, "b")],
+    #     yticks=[(36, "ℙ"), (1, 2), (2, 3)],
+    # )
 
     return drawing
 
 
-svg = main()
+main()
+plt.show()
+# print(anim.figure)

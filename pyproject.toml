@@ -1,18 +1,25 @@
 [tool.poetry]
 name = "esch"
-version = "0.2.5"
+version = "0.3.6"
 description = "esch (v.) : to turn matricies into high quality svg (animations)"
 authors = ["Noah Syrkis <noah@syrkis.com>"]
 readme = "README.md"
 
 [tool.poetry.dependencies]
-python = "^3.11"
+python = "^3.11,<3.12"
 svgwrite = "^1.4.3"
 tqdm = "^4.66.5"
 numpy = "^2.1.2"
 ipython = "^8.29.0"
 cairosvg = "^2.7.1"
+darkdetect = "^0.8.0"
+matplotlib = "^3.9.2"
+cairocffi = "^1.7.1"
 
+
+[tool.poetry.group.dev.dependencies]
+macholib = "^1.16.3"
+aim = "^3.25.1"
 
 [build-system]
 requires = ["poetry-core"]

@@ -2,12 +2,16 @@
 # main hinton plot interface
 # by: Noah Syrkis
 
-from typing import Optional, Union
+from typing import Optional
 from . import draw, data
-from tqdm import tqdm
 from typing import List
 from numpy import ndarray
 import numpy as np
+import matplotlib.pyplot as plt
+import matplotlib.image as mpimg
+from cairosvg import svg2png
+import darkdetect
+import io
 
 
 class Plot:
@@ -31,17 +35,18 @@ class Plot:
         self.xticks = xticks
         self.yticks = yticks
         self._dwg = None
+        self.png: Optional[bytes] = None
 
     def static(self) -> None:
         """Create static plot."""
-        if len(self.data.shape) > 2:
-            self.data = self.data[0]  # take first frame if animated
+        # if len(self.data.shape) > 2:
+        # self.data = self.data[0]  # take first frame if animated
         self._dwg = draw.make(self.data, self.xlabel, self.ylabel, self.xticks, self.yticks, self.size)
 
     def animate(self) -> None:
         """Create animated plot with optimized SVG."""
-        if len(self.data.shape) < 3:
-            raise ValueError("Data must be 3D for animation")
+        # if len(self.data.shape) < 3:
+        # raise ValueError("Data must be 3D for animation")
 
         # Pass entire data tensor at once
         self._dwg = draw.play(self.data, self.xlabel, self.ylabel, self.xticks, self.yticks, self.size, self.rate)
@@ -70,12 +75,10 @@ def plot(
     array = np.array(array)
     # max frames around 1000
     if animated:
-        step_size = int(np.floor(array.shape[0] / 1000) + 1)
+        step_size = int(np.floor(array.shape[0] / 1001) + 1)
         rate = int(rate / step_size)
         array = array[::step_size]
     """Create and optionally save a Hinton plot."""
-    # if yticks is not None:
-    # y_ticks = [((array.shape[-2] - pos) % array.shape[-2], label) for pos, label in yticks]
     p = Plot(array, rate, size, xlabel, ylabel, xticks, yticks)
 
     if animated:
@@ -83,7 +86,40 @@ def plot(
     else:
         p.static()
 
+    # p.figure = esch_nb(p)
+    p.png = esch_nb(p)
     if path:
         p.save(path)
-        return None
+        return p
     return p
+
+
+def esch_nb(p):
+    # Convert SVG to PNG with high scale
+    is_dark = darkdetect.isDark()
+    if is_dark:
+        plt.style.use("dark_background")
+    else:
+        plt.style.use("default")
+    fig, ax = plt.subplots(figsize=(5, 5), dpi=200)
+    ax.axis("off")
+    svg_png = svg2png(
+        p._dwg.tostring(),
+        scale=4,  # Increase scale factor
+    )
+    # Display the image with higher quality
+    bytes = io.BytesIO(svg_png)  # type: ignore
+    img = mpimg.imread(bytes, format="png")  # type: ignore
+    # flip color if dark
+    # set ax facecolor to black
+    # img = img / img.max()
+    if is_dark:
+        img = (img.min(axis=(-1)) - img.max(axis=(-1))) < 0
+    ax.imshow(
+        img,
+        interpolation="hermite",
+        cmap="gray",
+    )
+    plt.tight_layout()
+    # plt.show()
+    return bytes

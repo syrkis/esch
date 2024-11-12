@@ -20,7 +20,7 @@ class EdgeConfigs:
 
 def should_show_edge(config: EdgeConfig, plot_idx: int, n_plots: int) -> bool:
     """Determine if a particular edge should be shown on a plot."""
-    if config is None or config.show_on is None:
+    if config is None:
         return False
     if config.show_on == "all":
         return True

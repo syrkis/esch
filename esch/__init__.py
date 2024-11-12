@@ -1,6 +1,9 @@
-from ctypes.macholib import dyld  # type: ignore
+import platform
 
-dyld.DEFAULT_LIBRARY_FALLBACK.append("/opt/homebrew/lib")
+if platform.system() == "Darwin":
+    from ctypes.macholib import dyld  # type: ignore
+
+    dyld.DEFAULT_LIBRARY_FALLBACK.append("/opt/homebrew/lib")
 from .plot import plot  # noqa
 from .data import prep  # noqa
 from .edge import EdgeConfig, EdgeConfigs  # noqa

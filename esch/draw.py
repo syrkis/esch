@@ -83,8 +83,8 @@ def get_plot_offset(plot_index: int, width: int, height: int, size: int, padding
 @lru_cache
 def get_rect_properties(value: float, size: int) -> dict:
     """Calculate common rectangle properties based on value."""
-    rect_size = np.abs(value)
-    rect_width = rect_size * size * 0.8
+    rect_size = np.sqrt(np.abs(value))
+    rect_width = rect_size * size * 0.95
     fill_color = "white" if value < 0 else "black"
     stroke = {"stroke": "black", "stroke_width": "0.5"} if value < 0 else {"stroke": "none", "stroke_width": "0"}
     offset = (size - rect_width) / 2
@@ -158,7 +158,7 @@ def create_animation_values(frames: List[ndarray], i: int, j: int, size: int) ->
     """Create animation values for a specific position."""
     values = [frame[i, j] for frame in frames]
     sizes = [float(np.abs(v)) for v in values]  # Convert to float
-    rect_widths = [s * size * 0.8 for s in sizes]
+    rect_widths = [s * size * 0.95 for s in sizes]
     offsets = [(size - w) / 2 for w in rect_widths]
 
     start_pos_x, start_pos_y = calculate_position(j, i, size, float(offsets[0]))  # Swap i,j and convert offset to float

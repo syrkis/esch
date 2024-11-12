@@ -47,8 +47,13 @@ def setup_drawing(
     # Add style element for FiraCode font
     style = dwg.style("""
         @import url(https://cdn.jsdelivr.net/npm/firacode@6.2.0/distr/fira_code.css);
-        text { font-family: 'Fira Code', monospace; }
+        text {
+            font-family: 'STIX Two', 'STIX Two Math', 'STIXMath', 'DejaVu Math TeX Glyph',
+                        'DejaVu Serif', 'Cambria Math', 'Latin Modern Math', 'FiraCode',
+                        'serif';
+        }
     """)
+    dwg.defs.add(style)
     dwg.defs.add(style)
 
     return dwg

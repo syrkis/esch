@@ -13,16 +13,16 @@ def main():
     # Generate some data
 
     # Static plot
-    matrix = np.random.randn(3, 100, 6, 6)
+    matrix = np.random.randn(3, 100, 100)
     left = esch.EdgeConfig(
         ticks=[(0, "a"), (1, "b")],
         show_on="all",
     )
-    top = esch.EdgeConfig(ticks=[], label=["a", "b", "c"], show_on="all")
+    top = esch.EdgeConfig(label=["a", "b", "c"], show_on="all", ticks=[(0, "a"), (1, "b")])
     edge = esch.EdgeConfigs(left=left, top=top)
     drawing = esch.plot(
         matrix,
-        animated=True,
+        # animated=True,
         edge=edge,
         path="noah.svg",
     )

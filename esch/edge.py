@@ -128,7 +128,7 @@ def add_ticks_and_labels(
 
             # Extend logic to 'top' and 'right' edges if needed
             elif edge_name == "top":
-                y = height - size
+                y = y_offset - tick_offset  # Correct positioning taking into account y_offset
                 if ticks:
                     for pos, tick_label in ticks:
                         x = pos * size + size / 2 + x_offset

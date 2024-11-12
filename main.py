@@ -13,13 +13,16 @@ def main():
     # Generate some data
 
     # Static plot
-    matrix = np.random.randn(3, 100, 100)
+    matrix = np.random.randn(3, 11, 11)
     left = esch.EdgeConfig(
         ticks=[(0, "a"), (1, "b")],
+        label="Train Y ||",
         show_on="all",
     )
     top = esch.EdgeConfig(label=["a", "b", "c"], show_on="all", ticks=[(0, "a"), (1, "b")])
-    edge = esch.EdgeConfigs(left=left, top=top)
+    bottom = esch.EdgeConfig(label=["a", "b", "c"], show_on="all", ticks=[(0, "a"), (1, "b")])
+    right = esch.EdgeConfig(label="RIGHT ON MOTHERUFCKS", show_on="all", ticks=[(0, "a"), (1, "b")])
+    edge = esch.EdgeConfigs(left=left, top=top, bottom=bottom)  # right=right)
     drawing = esch.plot(
         matrix,
         # animated=True,

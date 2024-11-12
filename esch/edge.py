@@ -145,22 +145,27 @@ def add_ticks_and_labels(
                         add_axis_label(dwg, axis_label, width * size / 2 + x_offset, y - tick_length - size, "middle")
                     )
 
-            elif edge_name == "right":
-                x = width - size
+            elif edge_name == "right":  # Correct approach for the right edge
+                x = width * size + tick_offset + x_offset
                 if ticks:
                     for pos, tick_label in ticks:
                         y = pos * size + size / 2 + y_offset
                         tick_group.add(draw_tick_line(dwg, x, y, x + tick_length, y))
                         tick_group.add(add_tick_label(dwg, tick_label, x + tick_length + text_offset, y, "start"))
 
-                if isinstance(label, list) and plot_idx < len(label):
-                    axis_label = label[plot_idx]
-                else:
-                    axis_label = label
-
+                axis_label = (
+                    label if not isinstance(label, list) else (label[plot_idx] if plot_idx < len(label) else None)
+                )
                 if axis_label:
                     tick_group.add(
-                        add_axis_label(dwg, axis_label, x + tick_length + size, height * size / 2 + y_offset, "middle")
+                        add_axis_label(
+                            dwg,
+                            axis_label,
+                            x + tick_length + size,
+                            height * size / 2 + y_offset,
+                            "middle",
+                            f"rotate(90, {x + tick_length + size}, {height * size / 2 + y_offset})",
+                        )
                     )
 
     dwg.add(tick_group)

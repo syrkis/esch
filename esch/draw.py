@@ -13,7 +13,7 @@ def setup_drawing(
     height: int,  # height of single plot
     size: int,
     n_plots: int = 1,  # number of plots
-    padding: int = 0,
+    padding: int = 10,
 ) -> svgwrite.Drawing:
     """Initialize and setup SVG drawing with common properties.
 
@@ -21,6 +21,7 @@ def setup_drawing(
     - If width > height: arrange plots in a column
     - If width <= height: arrange plots in a row
     """
+    padding = size * 3  # Original padding might have been size * 2
     plot_width = width * size
     plot_height = height * size
     plot_spacing = padding  # Using padding as plot spacing for now

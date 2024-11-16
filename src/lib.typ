@@ -1,4 +1,4 @@
-#import "@preview/touying:0.5.2": *
+#import "@preview/touying:0.5.3": *
 
 #let slide(
   config: (:),
@@ -10,11 +10,23 @@
   let header(self) = {
     // text(utils.call-or-display(self, self.store.header))
     set text(size: 1.3em)
-    place(left, dx: 1.5em, dy: 1.5em, utils.call-or-display(self, utils.call-or-display(self, self.store.header)))
+    place(
+      left,
+      dx: 1.5em,
+      dy: 1.5em,
+      utils.call-or-display(
+        self,
+        utils.call-or-display(self, self.store.header),
+      ),
+    )
   }
   let footer(self) = {
     set text(size: 0.8em)
-    place(right, dx: -2em, utils.slide-counter.display() + " of " + utils.last-slide-number)
+    place(
+      right,
+      dx: -2em,
+      context utils.slide-counter.display() + " of " + utils.last-slide-number,
+    )
 
   }
   let self = utils.merge-dicts(
@@ -24,13 +36,20 @@
       footer: footer,
     ),
   )
-  touying-slide(self: self, config: config, repeat: repeat, setting: setting, composer: composer, ..bodies)
+  touying-slide(
+    self: self,
+    config: config,
+    repeat: repeat,
+    setting: setting,
+    composer: composer,
+    ..bodies,
+  )
 })
 
 
 /// Outline slide for the presentation.
 #let cover-slide(leading: 50pt) = touying-slide-wrapper(self => {
-  set text(size: 28pt)
+  set text(size: 25pt)
   set par(leading: leading)
 
   let body = {
@@ -41,30 +60,30 @@
       align(
         center + horizon,
         {
-          set par(leading: 20pt)
+          set par(leading: 1.5em)
           context {
-              text(self.info.title)
-              v(1em)
-              text(size: 20pt, weight: "regular", self.info.author)
-              if self.info.institution != none {
-                v(0.1em)
-                text(size: 20pt, weight: "regular", self.info.institution)
-              }
-              if self.info.date != none {
-                v(0.1em)
-                text(
-                  size: 14pt,
-                  utils.display-info-date(self),
-                )
-              }
+            text(self.info.title)
+            v(1.5em)
+            text(size: 18pt, weight: "regular", self.info.author)
+            if self.info.institution != none {
+              v(0.1em)
+              text(size: 20pt, weight: "regular", self.info.institution)
+            }
+            if self.info.date != none {
+              v(0.1em)
+              text(
+                size: 14pt,
+                utils.display-info-date(self),
+              )
             }
           }
+        },
       ),
       align(
         left + horizon,
         {
           set par(leading: leading)
-          set text(size: 24pt)
+          set text(size: 22pt)
           components.custom-progressive-outline(
             level: none,
             depth: 1,
@@ -77,10 +96,8 @@
   }
   self = utils.merge-dicts(
     self,
-    config-common(freeze-slide-counter: true),
-    config-page(
-      margin: 0em,
-    ),
+    // config-common(freeze-slide-counter: true),
+    config-page(margin: 0em),
   )
   touying-slide(self: self, body)
 })
@@ -89,7 +106,7 @@
 #let focus-slide(body) = touying-slide-wrapper(self => {
   self = utils.merge-dicts(
     self,
-    config-common(freeze-slide-counter: true),
+    // config-common(freeze-slide-counter: true),
   )
   touying-slide(self: self, align(horizon + center, body))
 })
@@ -133,7 +150,7 @@
   )
 
   // Global style ////////////////////////////////////////////////
-  set text(font: "New Computer Modern")
+  set text(font: "New Computer Modern", size: 18pt)
   set par(leading: 1.5em)
   set align(horizon)
   set list(marker: "▶")

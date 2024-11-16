@@ -24,10 +24,6 @@ class Plot:
         rate: int = 20,
         size: int = 10,
         edge: edge.EdgeConfigs = edge.EdgeConfigs(),
-        # xlabel: Optional[str] = None,
-        # ylabel: Optional[str] = None,
-        # xticks: Optional[List] = None,  # Add these parameters
-        # yticks: Optional[List] = None,
     ):
         self.data = data.prep(array)
         self.rate = rate

@@ -21,7 +21,7 @@ def setup_drawing(
     - If width > height: arrange plots in a column
     - If width <= height: arrange plots in a row
     """
-    padding = size * 3  # Original padding might have been size * 2
+    # padding = size * 3  # Original padding might have been size * 2
     plot_width = width * size
     plot_height = height * size
     plot_spacing = padding  # Using padding as plot spacing for now
@@ -120,7 +120,7 @@ def make(
     n_plots, height, width = x.shape
 
     # Setup drawing with correct number of plots
-    padding = size * 2
+    padding = size * 4
     dwg = setup_drawing(width, height, size, n_plots, padding)
 
     # Create plots one by one

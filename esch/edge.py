@@ -38,17 +38,22 @@ def draw_tick_line(dwg, x1, y1, x2, y2):
     return dwg.line(start=(x1, y1), end=(x2, y2), stroke="black", stroke_width=0.5)
 
 
-def add_tick_label(dwg, text, x, y, anchor, rotation=None):
+def add_tick_label(dwg, text, x, y, anchor, rotation=None, font_size=0.9):
     """Add tick label text to the drawing."""
-    text_params = {"insert": (x, y), "text_anchor": anchor, "dominant_baseline": "middle", "font_size": "6px"}
+    text_params = {
+        "insert": (x, y),
+        "text_anchor": anchor,
+        "dominant_baseline": "middle",
+        "font_size": f"{font_size}em",
+    }
     if rotation:
         text_params["transform"] = rotation
     return dwg.text(text, **text_params)
 
 
-def add_axis_label(dwg, label, x, y, anchor, rotation=None):
+def add_axis_label(dwg, label, x, y, anchor, rotation=None, font_size=0.9):
     """Add an axis label to the drawing."""
-    text_params = {"insert": (x, y), "text_anchor": anchor, "font_size": "6px"}
+    text_params = {"insert": (x, y), "text_anchor": anchor, "font_size": f"{font_size}em"}
     if rotation:
         text_params["transform"] = rotation
     return dwg.text(label, **text_params)
@@ -64,11 +69,12 @@ def add_ticks_and_labels(
     n_plots: int,
     x_offset: float = 0,
     y_offset: float = 0,
+    font_size: float = 0.9,
 ) -> None:
     """Add axis ticks and labels to the drawing with offset support."""
-    tick_length = size * 0.3
-    text_offset = size * 0.6
-    tick_offset = size * 0.4
+    tick_length = size * 0.6
+    text_offset = size * 1.2
+    tick_offset = size * 0.6
 
     tick_group = dwg.g()
 
@@ -84,7 +90,9 @@ def add_ticks_and_labels(
                         x = pos * size + size / 2 + x_offset
                         tick_group.add(draw_tick_line(dwg, x, y_start, x, y_start + tick_length))
                         tick_group.add(
-                            add_tick_label(dwg, tick_label, x, y_start + tick_length + text_offset, "middle")
+                            add_tick_label(
+                                dwg, tick_label, x, y_start + tick_length + text_offset, "middle", font_size=font_size
+                            )
                         )
 
                 # Use plot-specific label if label is a list
@@ -96,7 +104,12 @@ def add_ticks_and_labels(
                 if axis_label:
                     tick_group.add(
                         add_axis_label(
-                            dwg, axis_label, width * size / 2 + x_offset, y_start + tick_length + size, "middle"
+                            dwg,
+                            axis_label,
+                            width * size / 2 + x_offset,
+                            y_start + tick_length + size,
+                            "middle",
+                            font_size=font_size,
                         )
                     )
 

@@ -24,6 +24,7 @@ class Plot:
         rate: int = 20,
         size: int = 10,
         edge: edge.EdgeConfigs = edge.EdgeConfigs(),
+        font_size: float = 0.9,
     ):
         self.data = data.prep(array)
         self.rate = rate
@@ -35,12 +36,13 @@ class Plot:
         # self.left_ticks = yticks
         self._dwg = None
         self.png: Optional[bytes] = None
+        self.font_size = font_size
 
     def static(self) -> None:
         """Create static plot."""
         # if len(self.data.shape) > 2:
         # self.data = self.data[0]  # take first frame if animated
-        self._dwg = draw.make(self.data, self.edge, self.size)
+        self._dwg = draw.make(self.data, self.edge, self.size, self.font_size)
 
     def animate(self) -> None:
         """Create animated plot with optimized SVG."""
@@ -48,7 +50,7 @@ class Plot:
         # raise ValueError("Data must be 3D for animation")
 
         # Pass entire data tensor at once
-        self._dwg = draw.play(self.data, self.edge, self.size, self.rate)
+        self._dwg = draw.play(self.data, self.edge, self.size, self.rate, self.font_size)
 
     def save(self, path: str) -> None:
         """Save plot to file."""
@@ -71,6 +73,7 @@ def plot(
     # yticks: Optional[List] = None,
     path: Optional[str] = None,
     edge: edge.EdgeConfigs = edge.EdgeConfigs(),
+    font_size: float = 0.9,
 ) -> Optional[Plot]:  # todo dynamically chagne rate and step size, to keep it small
     array = np.array(array)
     # max frames around 1000
@@ -79,7 +82,7 @@ def plot(
         rate = int(rate / step_size)
         array = array[::step_size]
     """Create and optionally save a Hinton plot."""
-    p = Plot(array, rate, size, edge)
+    p = Plot(array, rate, size, edge, font_size)
 
     if animated:
         p.animate()

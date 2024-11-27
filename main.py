@@ -6,10 +6,10 @@ import numpy as np
 def main():
     """Example usage of esch plotting."""
     # Generate some data
-    matrix = np.abs(np.random.randn(11, 11)).cumsum(axis=1)
+    matrix = np.abs(np.random.randn(57, 113)).cumsum(axis=1)
 
     # Correct LaTeX syntax with single `$` for inline math
-    left = EdgeConfig(ticks=[(i, "voxel " + str(i) + "Δ") for i in range(11)], show_on="all")
+    left = EdgeConfig(ticks=[(i * 2, "voxel " + str(i) + "Δ") for i in range(11)], show_on="all")
     bottom = EdgeConfig(label="Epochs", show_on="all", ticks=[(0, "a"), (1, "b")])
     edge = EdgeConfigs(left=left, bottom=bottom)  # right=right)
 
@@ -18,6 +18,7 @@ def main():
         # animated=True,
         edge=edge,
         path="noah.svg",
+        font_size=1,
     )
 
     return drawing

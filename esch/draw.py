@@ -106,6 +106,7 @@ def make(
     x: ndarray,
     edge: EdgeConfigs,
     size: int = 10,
+    font_size: float = 0.9,
 ) -> svgwrite.Drawing:
     """Create SVG drawing for single or multiple plots.
 
@@ -155,7 +156,7 @@ def make(
         dwg.add(plot_group)
 
         # Add ticks and labels for this plot
-        add_ticks_and_labels(dwg, size, width, height, edge, plot_idx, n_plots, x_offset, y_offset)
+        add_ticks_and_labels(dwg, size, width, height, edge, plot_idx, n_plots, x_offset, y_offset, font_size)
 
     return dwg
 
@@ -183,6 +184,7 @@ def play(
     edge: EdgeConfigs,
     size: int = 10,
     rate: int = 20,
+    font_size: float = 0.9,
 ) -> svgwrite.Drawing:
     """Create single SVG with animated rectangles."""
     if len(frames) == 0:
@@ -233,6 +235,6 @@ def play(
                 rect.add(dwg.animate(attributeName=attr, values=values, dur=duration, repeatCount="indefinite"))
 
             plot_group.add(rect)
-            add_ticks_and_labels(dwg, size, width, height, edge, plot_idx, n_plots, x_offset, y_offset)
+            add_ticks_and_labels(dwg, size, width, height, edge, plot_idx, n_plots, x_offset, y_offset, font_size)
         dwg.add(plot_group)
     return dwg

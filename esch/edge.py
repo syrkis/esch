@@ -44,7 +44,7 @@ def add_tick_label(dwg, text, x, y, anchor, rotation=None, font_size=0.9):
         "insert": (x, y),
         "text_anchor": anchor,
         "dominant_baseline": "middle",
-        "font_size": f"{font_size}em",
+        "font_size": f"{font_size}px",
     }
     if rotation:
         text_params["transform"] = rotation
@@ -53,7 +53,7 @@ def add_tick_label(dwg, text, x, y, anchor, rotation=None, font_size=0.9):
 
 def add_axis_label(dwg, label, x, y, anchor, rotation=None, font_size=0.9):
     """Add an axis label to the drawing."""
-    text_params = {"insert": (x, y), "text_anchor": anchor, "font_size": f"{font_size}em"}
+    text_params = {"insert": (x, y), "text_anchor": anchor, "font_size": f"{font_size}px"}
     if rotation:
         text_params["transform"] = rotation
     return dwg.text(label, **text_params)
@@ -119,7 +119,11 @@ def add_ticks_and_labels(
                     for pos, tick_label in ticks:
                         y = pos * size + size / 2 + y_offset
                         tick_group.add(draw_tick_line(dwg, x_start, y, x_start - tick_length, y))
-                        tick_group.add(add_tick_label(dwg, tick_label, x_start - tick_length - text_offset, y, "end"))
+                        tick_group.add(
+                            add_tick_label(
+                                dwg, tick_label, x_start - tick_length - text_offset, y, "end", font_size=font_size
+                            )
+                        )
 
                 # Use plot-specific label if label is a list
                 if isinstance(label, list) and plot_idx < len(label):
@@ -136,6 +140,7 @@ def add_ticks_and_labels(
                             height * size / 2 + y_offset,
                             "middle",
                             f"rotate(-90, {x_start - tick_length - size}, {height * size / 2 + y_offset})",
+                            font_size=font_size,
                         )
                     )
 
@@ -146,7 +151,11 @@ def add_ticks_and_labels(
                     for pos, tick_label in ticks:
                         x = pos * size + size / 2 + x_offset
                         tick_group.add(draw_tick_line(dwg, x, y, x, y - tick_length))
-                        tick_group.add(add_tick_label(dwg, tick_label, x, y - tick_length - text_offset, "middle"))
+                        tick_group.add(
+                            add_tick_label(
+                                dwg, tick_label, x, y - tick_length - text_offset, "middle", font_size=font_size
+                            )
+                        )
 
                 if isinstance(label, list) and plot_idx < len(label):
                     axis_label = label[plot_idx]
@@ -155,7 +164,14 @@ def add_ticks_and_labels(
 
                 if axis_label:
                     tick_group.add(
-                        add_axis_label(dwg, axis_label, width * size / 2 + x_offset, y - tick_length - size, "middle")
+                        add_axis_label(
+                            dwg,
+                            axis_label,
+                            width * size / 2 + x_offset,
+                            y - tick_length - size,
+                            "middle",
+                            font_size=font_size,
+                        )
                     )
 
             elif edge_name == "right":  # Correct approach for the right edge
@@ -164,7 +180,11 @@ def add_ticks_and_labels(
                     for pos, tick_label in ticks:
                         y = pos * size + size / 2 + y_offset
                         tick_group.add(draw_tick_line(dwg, x, y, x + tick_length, y))
-                        tick_group.add(add_tick_label(dwg, tick_label, x + tick_length + text_offset, y, "start"))
+                        tick_group.add(
+                            add_tick_label(
+                                dwg, tick_label, x + tick_length + text_offset, y, "start", font_size=font_size
+                            )
+                        )
 
                 axis_label = (
                     label if not isinstance(label, list) else (label[plot_idx] if plot_idx < len(label) else None)
@@ -178,6 +198,7 @@ def add_ticks_and_labels(
                             height * size / 2 + y_offset,
                             "middle",
                             f"rotate(90, {x + tick_length + size}, {height * size / 2 + y_offset})",
+                            font_size=font_size,
                         )
                     )
 

@@ -18,7 +18,7 @@ def main():
         # animated=True,
         edge=edge,
         path="noah.svg",
-        font_size=1,
+        font_size=12,
     )
 
     return drawing

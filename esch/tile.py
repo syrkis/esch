@@ -62,7 +62,7 @@ class Plot:
         self._dwg.saveas(path)  # type: ignore
 
 
-def plot(
+def tile(
     array,
     animated: bool = False,
     rate: int = 20,

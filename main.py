@@ -1,27 +1,41 @@
-from esch.plot import plot
-from esch.edge import EdgeConfigs, EdgeConfig
+import esch
 import numpy as np
+import matplotlib.pyplot as plt
 
 
-def main():
-    """Example usage of esch plotting."""
-    # Generate some data
-    matrix = np.abs(np.random.randn(57, 113)).cumsum(axis=1)
-
-    # Correct LaTeX syntax with single `$` for inline math
-    left = EdgeConfig(ticks=[(i * 2, "voxel " + str(i) + "Δ") for i in range(11)], show_on="all")
-    bottom = EdgeConfig(label="Epochs", show_on="all", ticks=[(0, "a"), (1, "b")])
-    edge = EdgeConfigs(left=left, bottom=bottom)  # right=right)
-
-    drawing = plot(
-        matrix,
-        # animated=True,
-        edge=edge,
-        path="noah.svg",
-        font_size=12,
-    )
-
-    return drawing
+def the_tile():
+    x = np.random.randn(10, 20)
+    esch.tile(x, path="paper/figs/the_2d_tile.svg")
+    x = np.random.randn(3, 11, 10)
+    esch.tile(x, path="paper/figs/the_3d_tile.svg")
 
 
-main()
+def the_ring():
+    x = np.random.randint(0, 10, size=(10,))
+    esch.ring(x, path="paper/figs/the_1d_ring.svg")
+
+
+def the_line():
+    arr = np.random.randn(2, 50).cumsum(1)
+    assert arr.ndim <= 2
+    linestyles = ["-", "--", "-.", ":"]
+    # for i, y in enumerate(arr):
+    # x = np.arange(y.shape[-1])
+    # plt.plot(x, y, patterns[i % len(patterns)], color="black")
+    if arr.ndim == 1:
+        arr = arr[np.newaxis, ...]
+    for i, y in enumerate(arr):
+        x = np.arange(y.shape[-1])
+        plt.step(x, y, color="black", linestyle=linestyles[i % len(linestyles)])
+
+    # x = np.tile(np.arange(arr.shape[-1]), arr.shape[-2] if arr.ndim > 1 else 1).reshape(arr.shape)
+    # x = np.arange(arr.shape[-1])[None, :].repeat(arr.shape[-2], axis=0).reshape(arr.shape)
+    # x = np.random.randn(10)
+    # plt.step(x, arr, color="black")
+    plt.savefig("paper/figs/the_line.svg")
+
+
+if __name__ == "__main__":
+    # the_ring()
+    # the_tile()
+    the_line()

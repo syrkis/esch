@@ -21,13 +21,13 @@ class Plot:
     def __init__(
         self,
         array: ndarray,
-        rate: int = 20,
+        fps: int = 20,
         size: int = 10,
         edge: edge.EdgeConfigs = edge.EdgeConfigs(),
         font_size: float = 0.9,
     ):
         self.data = data.prep(array)
-        self.rate = rate
+        self.rate = fps
         self.size = size
         self.edge = edge
         # self.low_label = xlabel
@@ -50,6 +50,7 @@ class Plot:
         # raise ValueError("Data must be 3D for animation")
 
         # Pass entire data tensor at once
+        # self.data = np.concat((self.data[-1][np.newaxis, ...], self.data), axis=0)
         self._dwg = draw.play(self.data, self.edge, self.size, self.rate, self.font_size)
 
     def save(self, path: str) -> None:
@@ -65,7 +66,7 @@ class Plot:
 def tile(
     array,
     animated: bool = False,
-    rate: int = 20,
+    fps: int = 20,
     size: int = 10,  # not sure this is needed
     # xlabel: Optional[str] = None,
     # ylabel: Optional[str] = None,
@@ -79,10 +80,10 @@ def tile(
     # max frames around 1000
     if animated:
         step_size = int(np.floor(array.shape[0] / 1001) + 1)
-        rate = int(rate / step_size)
+        fps = int(fps / step_size)
         array = array[::step_size]
     """Create and optionally save a Hinton plot."""
-    p = Plot(array, rate, size, edge, font_size)
+    p = Plot(array, fps, size, edge, font_size)
 
     if animated:
         p.animate()

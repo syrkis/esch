@@ -193,6 +193,7 @@ def play(
     if frames.ndim == 3:
         # frames = [frame[np.newaxis, ...] for frame in frames]
         frames = frames[np.newaxis, ...]
+    frames = np.concat((frames[:, -1][:, np.newaxis, ...], frames), axis=1)
     frames = frames.transpose(0, 1, 3, 2)
     # frames = np.array([frame.transpose(0, 2, 1) for frame in frames])
     # width, height = frames[0].shape

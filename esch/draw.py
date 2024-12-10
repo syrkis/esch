@@ -4,7 +4,7 @@ from tqdm import tqdm
 from typing import Tuple, List
 from numpy import ndarray
 import numpy as np
-from functools import lru_cache
+from functools import cache
 from .edge import EdgeConfigs, add_ticks_and_labels
 
 
@@ -86,7 +86,7 @@ def get_plot_offset(plot_index: int, width: int, height: int, size: int, padding
     return x_offset, y_offset
 
 
-@lru_cache
+@cache
 def get_rect_properties(value: float, size: int) -> dict:
     """Calculate common rectangle properties based on value."""
     rect_size = np.sqrt(np.abs(value))

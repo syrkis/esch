@@ -27,23 +27,8 @@ def display_fn(img):
 
         img = np.array(images[0]) / 255.0
 
-        # Set default maximum figure size (in inches)
-        max_width = 12
-        max_height = 8
-
-        # Calculate figure size maintaining aspect ratio
-        img_height, img_width = img.shape[:2]
-        aspect_ratio = img_width / img_height
-
-        if img_width / max_width > img_height / max_height:
-            fig_width = max_width
-            fig_height = fig_width / aspect_ratio
-        else:
-            fig_height = max_height
-            fig_width = fig_height * aspect_ratio
-
         # Create figure with calculated size
-        fig, ax = plt.subplots(1, 1, figsize=(fig_width, fig_height))
+        fig, ax = plt.subplots(1, 1, figsize=(20, 20))
         ax.imshow(1 - img if darkdetect.isDark() else img)
         ax.set_xticks([])
         ax.set_yticks([])

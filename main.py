@@ -6,6 +6,6 @@
 import numpy as np
 import esch
 
-x = np.abs(np.random.randn(2, 20, 100))
-img = esch.mesh(x)
+x = np.random.randn(10)
+img = esch.mesh(x, path="test.svg")
 esch.util.display_fn(img)

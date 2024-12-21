@@ -6,16 +6,12 @@
 from functools import partial, reduce
 
 import jax.numpy as jnp
-import matplotlib.pyplot as plt
 import numpy as np
-import tensorflow_datasets as tfds
 from chex import dataclass
 from einops import rearrange
 from jax import lax, nn, random, tree, value_and_grad
-from jax_tqdm import scan_tqdm
 from jaxtyping import Array, PyTree
 
-import esch
 
 # %% Constants
 stride = (2, 2)
@@ -34,9 +30,9 @@ class Params:
 
 
 # %% load mnist
-ds = tfds.load("mnist", split="train")
-data = rearrange(jnp.array([x["image"] for x in tfds.as_numpy(ds)]), "(s b) h w c -> s b c h w", b=batch_size) / 255.0
-y = rearrange(jnp.array([x["label"] for x in tfds.as_numpy(ds)]), "(s b) -> s b", b=batch_size)
+# ds = tfds.load("mnist", split="train")
+# data = rearrange(jnp.array([x["image"] for x in tfds.as_numpy(ds)]), "(s b) h w c -> s b c h w", b=batch_size) / 255.0
+# y = rearrange(jnp.array([x["label"] for x in tfds.as_numpy(ds)]), "(s b) -> s b", b=batch_size)
 
 
 # %% Apply functions
@@ -107,7 +103,7 @@ def update_fn(carry, x):
 
 
 def train_fn(params, data, epochs, scope_fn=lambda *_: None):
-    @scan_tqdm(epochs)
+    # @scan_tqdm(epochs)
     def epoch_fn(params, epoch):
         params, loss = lax.scan(update_fn, params, data)
         scope = scope_fn(params, data[0])
@@ -121,9 +117,9 @@ def train_fn(params, data, epochs, scope_fn=lambda *_: None):
 cnn_dims, mlp_dims = [1, 16, 32], [1568, 64]
 rng = random.PRNGKey(0)
 params = init_fn(rng, cnn_dims, mlp_dims)
-params, (scope, loss) = train_fn(params, data, epochs=20, scope_fn=apply_fn)
+# params, (scope, loss) = train_fn(params, data, epochs=20, scope_fn=apply_fn)
 
 # %%
-plt.plot(loss.flatten())
-out = rearrange(scope.squeeze(), "t b h w -> b t h w")
-esch.tile(out[:3], animated=True, path="out.svg", fps=1)
+# plt.plot(loss.flatten())
+# out = rearrange(scope.squeeze(), "t b h w -> b t h w")
+# esch.tile(out[:3], animated=True, path="out.svg", fps=1)

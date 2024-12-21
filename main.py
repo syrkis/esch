@@ -6,6 +6,11 @@
 import numpy as np
 import esch
 
-x = np.random.randn(10)
-img = esch.mesh(x, path="test.svg")
-esch.util.display_fn(img)
+# %%
+# act = np.abs(np.random.randn(5, 20, 10, 10)) ** 0.1 # activation
+act = np.random.randn(5, 400, 5, 5)
+img = esch.mesh(act, path="test.svg", fps=1)
+pos = np.random.randn(5, 2)
+act = np.random.randn(400, 5)
+img = esch.mesh(act, pos, path="test.svg", fps=1)
+# esch.util.display_fn(img)

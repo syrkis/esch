@@ -104,6 +104,7 @@ def calculate_position(i: int, j: int, size: int, offset: float) -> Tuple[float,
 
 def make(
     x: ndarray,
+    pos: ndarray,
     edge: EdgeConfigs,
     size: int = 10,
     font_size: float = 0.9,
@@ -115,10 +116,12 @@ def make(
         ...
     """
     # Handle both 2D and 3D arrays
-    if x.ndim == 2:
-        x = x[np.newaxis, ...]  # Add frame dimension
-
+    # if x.ndim == 2:
+    # x = x[np.newaxis, ...]  # Add frame dimension
     n_plots, height, width = x.shape
+    if pos.size != 0:
+        height, width = max(pos[:, 0]) + 1, max(pos[:, 1]) + 1
+    pos += np.abs(np.min(pos, axis=0))
 
     # Setup drawing with correct number of plots
     padding = size * 4
@@ -134,8 +137,9 @@ def make(
 
         # Draw rectangles for this frame
         non_zero = np.nonzero(frame)
-        for i, j in zip(non_zero[0], non_zero[1]):
-            value = frame[i, j]
+        loop_through = zip(non_zero[0], non_zero[1]) if pos.size == 0 else zip(pos[:, 0], pos[:, 1])
+        for idx, (i, j) in enumerate(loop_through):
+            value = frame[i, j] if pos.size == 0 else frame.squeeze()[idx]
             props = get_rect_properties(value, size)
             pos_x, pos_y = calculate_position(i, j, size, props["offset"])
 
@@ -161,9 +165,10 @@ def make(
     return dwg
 
 
-def create_animation_values(frames: List[ndarray], i: int, j: int, size: int) -> dict:
+def create_animation_values(frames, pos, idx, i: int, j: int, size: int) -> dict:
     """Create animation values for a specific position."""
-    values = [frame[i, j] for frame in frames]
+
+    values = [frame[(i, j) if pos.size == 0 else idx] for frame in frames.squeeze()]
     sizes = [float(np.abs(v)) for v in values]  # Convert to float
     rect_widths = [s * size * 0.95 for s in sizes]
     offsets = [(size - w) / 2 for w in rect_widths]
@@ -181,6 +186,7 @@ def create_animation_values(frames: List[ndarray], i: int, j: int, size: int) ->
 
 def play(
     frames,
+    pos,
     edge: EdgeConfigs,
     size: int = 10,
     rate: int = 20,
@@ -208,10 +214,10 @@ def play(
         plot_group = dwg.g()
 
         non_zero = np.nonzero(frame_sequence[0])
-        total_elements = len(non_zero[0])
+        loop_through = zip(non_zero[0], non_zero[1]) if pos.size == 0 else zip(pos[:, 0], pos[:, 1])
 
-        for i, j in tqdm(zip(non_zero[0], non_zero[1]), total=total_elements):
-            anim_values = create_animation_values(frame_sequence, i, j, size)
+        for idx, (i, j) in enumerate(loop_through):
+            anim_values = create_animation_values(frame_sequence, pos, idx, i, j, size)
             props = get_rect_properties(anim_values["values"][0], size)
 
             rect = dwg.rect(

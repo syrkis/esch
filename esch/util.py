@@ -5,7 +5,6 @@
 # imports
 import tempfile
 
-import os
 import darkdetect
 import matplotlib.pyplot as plt
 import numpy as np

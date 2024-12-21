@@ -45,4 +45,4 @@ def display_fn(img):
         ax.spines["right"].set_visible(False)
         ax.spines["bottom"].set_visible(False)
         ax.spines["left"].set_visible(False)
-        plt.show()
+        # plt.show()

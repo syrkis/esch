@@ -203,7 +203,8 @@ def play(
     # frames = np.array([frame.transpose(0, 2, 1) for frame in frames])
     # width, height = frames[0].shape
     n_plots, n_frames, width, height = frames.shape
-
+    if pos.size != 0:
+        height, width = max(pos[:, 0]) + 1, max(pos[:, 1]) + 1
     padding = size * 2
     dwg = setup_drawing(width, height, size, n_plots, padding)
     for plot_idx in range(n_plots):

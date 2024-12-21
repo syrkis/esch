@@ -7,7 +7,7 @@ import numpy as np
 from einops import rearrange
 from . import data, draw, edge
 
-from esch.util import Array
+from esch.util import Array, display_fn
 
 
 def mesh(
@@ -52,4 +52,5 @@ def mesh(
         dwg = draw.make(act, pos, edge, size, font_size)
     if path:
         dwg.saveas(path)
+    display_fn(dwg)
     return dwg

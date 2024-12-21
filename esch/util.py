@@ -11,13 +11,20 @@ import numpy as np
 from pdf2image import convert_from_path
 from reportlab.graphics import renderPDF
 from svglib import svglib
+from jaxtyping import Array as JaxArray
+
+
+# Types
+Array = np.ndarray | JaxArray
 
 
 def display_fn(img):
-    with tempfile.NamedTemporaryFile(suffix=".svg") as svg_file, tempfile.NamedTemporaryFile(
-        suffix=".pdf"
-    ) as pdf_file, tempfile.NamedTemporaryFile(suffix=".png") as png_file:
-        img.save(svg_file.name)
+    with (
+        tempfile.NamedTemporaryFile(suffix=".svg") as svg_file,
+        tempfile.NamedTemporaryFile(suffix=".pdf") as pdf_file,
+        tempfile.NamedTemporaryFile(suffix=".png") as png_file,
+    ):
+        img.saveas(svg_file.name)
         img = svglib.svg2rlg(svg_file.name)
         assert img is not None
         renderPDF.drawToFile(img, pdf_file.name)

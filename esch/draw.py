@@ -1,11 +1,10 @@
 # draw.py
 import svgwrite
-from tqdm import tqdm
-from typing import Tuple, List
-from numpy import ndarray
+from typing import Tuple
 import numpy as np
 from functools import cache
 from .edge import EdgeConfigs, add_ticks_and_labels
+from esch.util import Array
 
 
 def setup_drawing(
@@ -86,8 +85,8 @@ def get_plot_offset(plot_index: int, width: int, height: int, size: int, padding
     return x_offset, y_offset
 
 
-@cache
-def get_rect_properties(value: float, size: int) -> dict:
+@cache  # why am i caching this?
+def get_rect_properties(value, size: int) -> dict:
     """Calculate common rectangle properties based on value."""
     rect_size = np.sqrt(np.abs(value))
     rect_width = rect_size * size * 0.95
@@ -103,8 +102,8 @@ def calculate_position(i: int, j: int, size: int, offset: float) -> Tuple[float,
 
 
 def make(
-    x: ndarray,
-    pos: ndarray,
+    x: Array,
+    pos: Array,
     edge: EdgeConfigs,
     size: int = 10,
     font_size: float = 0.9,

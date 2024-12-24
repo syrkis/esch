@@ -9,8 +9,12 @@ from esch.plot import plot
 # %% Functions
 def mesh(act, pos, **kwargs):
     """Create mesh plot for activations."""
-    act = act.reshape((1,) * (3 - act.ndim) + act.shape)
-    pos = pos.reshape((1,) * (3 - pos.ndim) + pos.shape)
-    assert act.shape[-1] == pos.shape[-2], "we need more (or less) coords"
+    # print(act.shape, pos.shape)
+
+    # print(act.shape, pos.shape)
+    # exit()
+    pos = pos - pos.min(axis=0)
+    act = act.reshape((1,) * (3 - act.ndim) + act.shape + (1,) * (2 - act.ndim))
+    act = act / 10
     dwg = plot(act, pos, **kwargs)
     return dwg

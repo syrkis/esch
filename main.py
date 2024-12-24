@@ -3,6 +3,7 @@
 # by: Noah Syrkis
 
 # Imports
+import jax.numpy as jnp
 import numpy as np
 import esch
 
@@ -17,12 +18,11 @@ import esch
 # esch.grid(act, path="3d.svg")
 
 act = np.random.randn(5, 10, 40, 10)
-esch.grid(act, path="4d.svg")
+esch.grid(act, shp="circle", path="4d.svg")
 
 # %% MESH TEST
 # act = np.random.randn(10)
 # pos = np.random.randn(10, 2)
-# esch.mesh(act, pos)
 
 # exit()
 # act = np.random.randn(10, 100).T
@@ -31,8 +31,11 @@ esch.grid(act, path="4d.svg")
 # esch.mesh(act, pos, path="test.svg")
 #
 #
-# act = np.array(jnp.load("bolds.npy").T)
-# pos = np.array(jnp.load("coords.npy").transpose(1, 0, 2))
+act = np.array(jnp.load("data/bolds.npy")).transpose(1, 0)
+pos = np.array(jnp.load("data/coords.npy"))[0]
+# print(act.shape, pos.shape)
+# ()
+esch.mesh(act, pos, shp="circle", path="1d.svg")
 # pos = (pos - pos.mean()) / pos.std()
 # print(act[:2], pos[:2])
 # esch.mesh(act, pos, path="test.svg")

@@ -32,10 +32,10 @@ esch.grid(act, shp="circle", path="4d.svg")
 #
 #
 act = np.array(jnp.load("data/bolds.npy")).transpose(1, 0)
-pos = np.array(jnp.load("data/coords.npy"))[0]
+pos = np.array(jnp.load("data/coords.npy"))[0][:, [1, 0]]
 # print(act.shape, pos.shape)
 # ()
-esch.mesh(act, pos, shp="circle", path="1d.svg")
+esch.mesh(act, pos, shp="circle", path="neuroscope.svg")
 # pos = (pos - pos.mean()) / pos.std()
 # print(act[:2], pos[:2])
 # esch.mesh(act, pos, path="test.svg")

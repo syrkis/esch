@@ -52,9 +52,9 @@ def play(acts, pos, shp, edge: EdgeConfigs):  # -> svgwrite.Drawing:
 
 def setup_drawing(act: Array, pos: Array) -> svgwrite.Drawing:
     n_plots, n_shapes, n_steps = act.shape
-    width, height = pos[:, 0].max().item() + 2 * PADDING, pos[:, 1].max().item() + 2 * PADDING
-    total_width = width if height < width else width * n_plots
-    total_height = height if height > width else height * n_plots
+    width, height = pos[:, 0].max().item() + 0 * PADDING, pos[:, 1].max().item() + 0 * PADDING
+    total_width = width if height < width else (width + 2 * PADDING) * n_plots
+    total_height = height if height > width else (height + 2 * PADDING) * n_plots
     dwg = svgwrite.Drawing(size=(f"{total_width}px", f"{total_height}px"))
     dwg["width"], dwg["height"] = "100%", "100%"
     dwg["preserveAspectRatio"] = "xMidYMid meet"

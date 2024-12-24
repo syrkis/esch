@@ -11,11 +11,18 @@ import numpy as np
 from pdf2image import convert_from_path
 from reportlab.graphics import renderPDF
 from svglib import svglib
-from jaxtyping import Array as JaxArray
+from typing import Union
+import jax.numpy as jnp
 
 
 # Types
-Array = np.ndarray | JaxArray
+Array = Union[np.ndarray, jnp.ndarray]
+
+# Constants
+BASE_SIZE: int = 1
+PADDING = 0.1
+# BASE_FONT_SIZE: int = 10
+# PADDING: int = 10
 
 
 def display_fn(img):

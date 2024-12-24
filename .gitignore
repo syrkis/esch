@@ -1,5 +1,6 @@
 target/
 **/*.pdf
+data/
 #**/*.html
 **/*.svg
 **/__pycache__

@@ -18,11 +18,11 @@ def norm(x: Array) -> Array:
     return x / np.max(np.abs(x))
 
 
-def clip(x: Array) -> Array:
+def clip(x: Array):
     """Get rid of zeros"""
     return np.where(np.abs(x) < MIN_ABS_VALUE, np.where(x < 0, -MIN_ABS_VALUE, MIN_ABS_VALUE), x)
 
 
-def prep(x: Array) -> Array:
+def prep(x: Array):
     """Preprocess data for visualization."""
     return clip(norm(x))

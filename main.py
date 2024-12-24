@@ -6,11 +6,33 @@
 import numpy as np
 import esch
 
-# %%
-# act = np.abs(np.random.randn(5, 20, 10, 10)) ** 0.1 # activation
-act = np.random.randn(5, 400, 5, 5)
-dwg = esch.mesh(act, path="test.svg", fps=1)
-pos = np.random.randn(5, 2)
-act = np.random.randn(400, 5)
-dwg = esch.mesh(act, pos, path="test.svg", fps=1)
-esch.util.display_fn(dwg)
+# GRID TESTS
+# act = np.random.randn(10)
+# esch.grid(act, path="1d.svg")
+#
+# act = np.random.randn(10, 20)
+# esch.grid(act, path="2d.svg")
+
+# act = np.random.randn(20, 10, 5)
+# esch.grid(act, path="3d.svg")
+
+act = np.random.randn(5, 10, 40, 10)
+esch.grid(act, path="4d.svg")
+
+# %% MESH TEST
+# act = np.random.randn(10)
+# pos = np.random.randn(10, 2)
+# esch.mesh(act, pos)
+
+# exit()
+# act = np.random.randn(10, 100).T
+# pos = np.random.randn(10, 100, 2).transpose(1, 0, 2)
+# print(act[:2], pos[:2])
+# esch.mesh(act, pos, path="test.svg")
+#
+#
+# act = np.array(jnp.load("bolds.npy").T)
+# pos = np.array(jnp.load("coords.npy").transpose(1, 0, 2))
+# pos = (pos - pos.mean()) / pos.std()
+# print(act[:2], pos[:2])
+# esch.mesh(act, pos, path="test.svg")

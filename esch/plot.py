@@ -40,7 +40,7 @@ def setup_drawing(act: Array, pos: Array) -> svgwrite.Drawing:
     dwg = svgwrite.Drawing(size=(f"{total_width}px", f"{total_height}px"))
     dwg["width"], dwg["height"] = "100%", "100%"
     dwg["preserveAspectRatio"] = "xMidYMid meet"
-    print(width, height, total_height, total_width)
+    # print(width, height, total_height, total_width)
     dwg.viewbox(0, 0, total_width, total_height)  # TODO: add padding
     dwg.defs.add(dwg.style("text {font-family: 'Computer Modern', 'serif';}"))
     return dwg

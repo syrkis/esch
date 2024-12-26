@@ -25,23 +25,22 @@ PADDING = 0.1
 # PADDING: int = 10
 
 
-def display_fn(img):
+def display_fn(img, dpi=300):
     with (
         tempfile.NamedTemporaryFile(suffix=".svg") as svg_file,
         tempfile.NamedTemporaryFile(suffix=".pdf") as pdf_file,
-        tempfile.NamedTemporaryFile(suffix=".png") as png_file,
+        # tempfile.NamedTemporaryFile(suffix=".png") as png_file,
     ):
         img.saveas(svg_file.name)
         img = svglib.svg2rlg(svg_file.name)
         assert img is not None
         renderPDF.drawToFile(img, pdf_file.name)
-        images = convert_from_path(pdf_file.name)
-        images[0].save(png_file.name, "PNG")
-
-        img = np.array(images[0]) / 255.0
+        img = np.array(convert_from_path(pdf_file.name, dpi=2000)[0])
+        img = img / 255.0
+        # images.save(png_file.name, "PNG")
 
         # Create figure with calculated size
-        fig, ax = plt.subplots(1, 1, figsize=(20, 20))
+        fig, ax = plt.subplots(1, 1, figsize=(12, 12))
         ax.imshow(1 - img if darkdetect.isDark() else img)
         ax.set_xticks([])
         ax.set_yticks([])

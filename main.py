@@ -58,6 +58,7 @@ with open("state.pkl", "rb") as f:
 poss = [state.pos]
 for i in range(10):
     poss.append(poss[-1] + np.random.randn(*poss[-1].shape) * 0.1)
-poss = np.stack(poss).transpose(1, 2, 0)[None, ...]
+poss = np.stack(poss).transpose(1, 2, 0)
 
-esch.sims(np.eye(100), poss, path="paper/figs/sims.svg")
+# esch.sims(np.eye(100), poss, path="paper/figs/sims.svg")
+#

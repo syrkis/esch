@@ -6,25 +6,27 @@
 import jax.numpy as jnp
 import numpy as np
 import esch
+import pickle
+from jaxtyping import Array
+from chex import dataclass
 
-# GRID TESTS
-# act = np.random.randn(10)
-# esch.grid(act, path="1d.svg")
-#
-# act = np.random.randn(10, 20)
-# esch.grid(act, path="2d.svg")
+# %% GRID TESTS
+act = np.random.randn(10)
+esch.grid(act, path="paper/figs/1d.svg")
 
-# act = np.random.randn(20, 10, 5)
-# esch.grid(act, path="3d.svg")
+act = np.random.randn(2, 20)
+esch.grid(act, path="paper/figs/2d.svg")
 
-act = np.random.randn(5, 10, 40, 10)
-esch.grid(act, shp="circle", path="4d.svg")
+act = np.random.randn(2, 20, 5)
+esch.grid(act, path="paper/figs/3d.svg")
+
+act = np.random.randn(2, 3, 40, 10)
+esch.grid(act, shp="circle", path="paper/figs/4d.svg")
 
 # %% MESH TEST
 # act = np.random.randn(10)
 # pos = np.random.randn(10, 2)
 
-# exit()
 # act = np.random.randn(10, 100).T
 # pos = np.random.randn(10, 100, 2).transpose(1, 0, 2)
 # print(act[:2], pos[:2])
@@ -34,8 +36,28 @@ esch.grid(act, shp="circle", path="4d.svg")
 act = np.array(jnp.load("data/bolds.npy")).transpose(1, 0)
 pos = np.array(jnp.load("data/coords.npy"))[0][:, [1, 0]]
 # print(act.shape, pos.shape)
-# ()
+#
 esch.mesh(act, pos, shp="dot")
 # pos = (pos - pos.mean()) / pos.std()
 # print(act[:2], pos[:2])
-# esch.mesh(act, pos, path="test.svg")
+esch.mesh(act, pos, path="paper/figs/mesh.svg")
+
+
+@dataclass
+class State:
+    pos: Array
+    types: Array
+    teams: Array
+    health: Array
+
+
+with open("state.pkl", "rb") as f:
+    state = pickle.load(f)
+
+
+poss = [state.pos]
+for i in range(10):
+    poss.append(poss[-1] + np.random.randn(*poss[-1].shape) * 0.1)
+poss = np.stack(poss).transpose(1, 2, 0)[None, ...]
+
+esch.sims(np.eye(100), poss, path="paper/figs/sims.svg")

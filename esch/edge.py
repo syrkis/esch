@@ -1,3 +1,8 @@
+# %% edge.py
+#     esch edge functions
+# by: Noah Syrkis
+
+
 from dataclasses import dataclass
 from typing import List, Tuple, Optional, Union
 import svgwrite

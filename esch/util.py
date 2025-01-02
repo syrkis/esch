@@ -13,6 +13,7 @@ from reportlab.graphics import renderPDF
 from svglib import svglib
 from typing import Union
 import jax.numpy as jnp
+import svgwrite
 
 
 # Types
@@ -52,3 +53,27 @@ def display_fn(img, dpi=300):
         ax.spines["bottom"].set_visible(False)
         ax.spines["left"].set_visible(False)
         # plt.show()
+
+
+# %% utils stuff that should probably be in a separate file #######################
+def setup_drawing(act: Array, pos: Array) -> svgwrite.Drawing:
+    n_plots, n_shapes, n_steps = act.shape
+    width = pos[:, 0].max().item()
+    height = pos[:, 1].max().item()
+    total_width = width + 2 * PADDING if height < width else (width + 2 * PADDING) * n_plots + PADDING
+    total_height = height + 2 * PADDING if width < height else (height + 2 * PADDING) * n_plots + PADDING
+    dwg = svgwrite.Drawing(size=(f"{total_width}px", f"{total_height}px"))
+    dwg["width"], dwg["height"] = "100%", "100%"
+    dwg["preserveAspectRatio"] = "xMidYMid meet"
+    # print(width, height, total_height, total_width)
+    dwg.viewbox(0, 0, total_width, total_height)  # TODO: add padding
+    dwg.defs.add(dwg.style("text {font-family: 'Computer Modern', 'serif';}"))
+    return dwg
+
+
+def subplot_offset(idx: int, pos: Array):
+    width, height = pos[:, 1].max().item(), pos[:, 0].max().item()
+    x_offset = PADDING if width > height else ((width + 2 * PADDING) * idx + PADDING)
+    y_offset = PADDING if x_offset != PADDING else ((height + 2 * PADDING) * idx + PADDING)
+    offset = np.array([x_offset, y_offset])
+    return offset[::-1]

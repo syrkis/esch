@@ -5,93 +5,56 @@
 # Imports
 import numpy as np
 import svgwrite
+from esch.util import Array, subplot_offset
 
-from esch.edge import EdgeConfigs
-from esch.util import Array, display_fn, PADDING
+
+DEBUG = True
 
 
 # Functions
-def plot(act: Array, pos: Array, shp: str = "rect", path: str | None = None, text: EdgeConfigs = EdgeConfigs()):
-    dwg = play(act, pos, shp, text)
-    dwg.saveas(path) if path else display_fn(dwg)
+def draw(dwg, ink: Array, pos: Array, shp: str = "rect"):
+    print(f"Drawing {ink.shape} {pos.shape}", end="\n\n") if DEBUG else None
+    for i in range(len(ink)):  # for every subplot (usually just one)
+        p = pos + subplot_offset(i, pos)
+        dwg = add_shp(dwg, ink[i], p, shp)
     return dwg
 
 
-def play(acts, pos, shp, edge: EdgeConfigs):  # -> svgwrite.Drawing:
-    n_plots, n_shapes, n_steps = acts.shape
-    dwg = setup_drawing(acts, pos)
-
-    for idx, act in enumerate(acts):
-        group = dwg.g()
-
-        for a, (x, y) in zip(act, pos + subplot_offset(idx, pos)):
-            group = rect_fn(group, dwg, a, x, y) if shp == "rect" else circle_fn(group, dwg, a, x, y)
-
-        # add group
-        dwg.add(group)
+def add_shp(dwg: svgwrite.Drawing, ink: Array, pos: Array, shp: str = "rect"):
+    print(f"Drawing {ink.shape} {pos.shape}", end="\n\n") if DEBUG else None
+    group = dwg.g()
+    shp_fn = rect_fn if shp == "rect" else circle_fn
+    for i, (x, y) in enumerate(pos):
+        group = shp_fn(group, dwg, ink[i], x, y)
+    dwg.add(group)
     return dwg
 
 
-def setup_drawing(act: Array, pos: Array) -> svgwrite.Drawing:
-    n_plots, n_shapes, n_steps = act.shape
-    width, height = pos[:, 0].max().item() + 0 * PADDING, pos[:, 1].max().item() + 0 * PADDING
-    total_width = width if height < width else (width + 2 * PADDING) * n_plots
-    total_height = height if height > width else (height + 2 * PADDING) * n_plots
-    dwg = svgwrite.Drawing(size=(f"{total_width}px", f"{total_height}px"))
-    dwg["width"], dwg["height"] = "100%", "100%"
-    dwg["preserveAspectRatio"] = "xMidYMid meet"
-    # print(width, height, total_height, total_width)
-    dwg.viewbox(0, 0, total_width, total_height)  # TODO: add padding
-    dwg.defs.add(dwg.style("text {font-family: 'Computer Modern', 'serif';}"))
-    return dwg
+def rect_fn(group, dwg, ink: Array, x, y):
+    ink, col = np.abs(ink), np.sign(ink)  # noqa  TODO: color for white or black fill
+    fill = "black" if col[0] > 0 else "white"
+    pos = (f"{x - ink[0] / 2}", f"{y - ink[0] / 2}")
+    rect = dwg.rect(size=(f"{ink[0]}", f"{ink[0]}"), insert=pos, fill=fill, stroke="black", stroke_width="0.002")
 
-
-def subplot_offset(idx: int, pos: Array):
-    width, height = pos[:, 1].max().item(), pos[:, 0].max().item()
-    x_offset = 0 if width > height else ((width + 2 * PADDING) * idx + PADDING)
-    y_offset = 0 if x_offset != 0 else ((height + 2 * PADDING) * idx + PADDING)
-    offset = np.array([x_offset, y_offset])
-    return offset[::-1]
-
-
-def rect_fn(group, dwg, a, x, y):
-    a = np.abs(a)
-    rect = dwg.rect(insert=(f"{x - a[0] / 2}", f"{y - a[0] / 2}"), size=(f"{a[0]}", f"{a[0]}"))
-
-    # anim seqs
-    sizes = ";".join([f"{s.item()}" for s in a])
-    x_offsets = ";".join([f"{x - s.item() / 2}" for s in a])
-    y_offsets = ";".join([f"{y - s.item() / 2}" for s in a])
-
-    # size anim
-    rect.add(dwg.animate(attributeName="width", values=sizes, dur=f"{a.shape[0]}s", repeatCount="indefinite"))
-    rect.add(dwg.animate(attributeName="height", values=sizes, dur=f"{a.shape[0]}s", repeatCount="indefinite"))
-
-    # pos anim
-    rect.add(dwg.animate(attributeName="x", values=x_offsets, dur=f"{a.shape[0]}s", repeatCount="indefinite"))
-    rect.add(dwg.animate(attributeName="y", values=y_offsets, dur=f"{a.shape[0]}s", repeatCount="indefinite"))
-
-    # add shape
-    group.add(rect)
+    ss = ";".join([f"{s.item():.4f}" for s in ink])
+    xo, yo = ";".join([f"{x-s.item()/2:.4f}" for s in ink]), ";".join([f"{y-s.item()/2:.4f}" for s in ink])
+    col = ";".join([f"{'black' if c.item() > 0 else 'white'}" for c in col])
+    # rect.add(dwg.animate(attributeName="fill", values=col, dur=f"{ink.shape[0]}s", repeatCount="indefinite"))
+    rect.add(dwg.animate(attributeName="width", values=ss, dur=f"{ink.shape[0]}s", repeatCount="indefinite"))
+    rect.add(dwg.animate(attributeName="height", values=ss, dur=f"{ink.shape[0]}s", repeatCount="indefinite"))
+    rect.add(dwg.animate(attributeName="x", values=xo, dur=f"{ink.shape[0]}s", repeatCount="indefinite"))
+    rect.add(dwg.animate(attributeName="y", values=yo, dur=f"{ink.shape[0]}s", repeatCount="indefinite"))
+    group.add(rect)  # add shape
     return group
 
 
-def circle_fn(group, dwg, a, x, y):
-    a = np.abs(a)
-    circle = dwg.circle(center=(f"{x}", f"{y}"), r=f"{a[0] / 2}")
-
-    # anim seqs
-    sizes = ";".join([f"{s.item()}" for s in a])
-    x_offsets = ";".join([f"{x}" for s in a])
-    y_offsets = ";".join([f"{y}" for s in a])
-
-    # size anim
-    circle.add(dwg.animate(attributeName="r", values=sizes, dur=f"{a.shape[0]}s", repeatCount="indefinite"))
-
-    # pos anim
-    circle.add(dwg.animate(attributeName="cx", values=x_offsets, dur=f"{a.shape[0]}s", repeatCount="indefinite"))
-    circle.add(dwg.animate(attributeName="cy", values=y_offsets, dur=f"{a.shape[0]}s", repeatCount="indefinite"))
-
-    # add shape
-    group.add(circle)
+def circle_fn(group, dwg, act, x, y):
+    a = np.abs(act)
+    ss = ";".join([f"{s.item()}" for s in a])  # anim sizes
+    xo, yo = ";".join([f"{x}" for s in a]), ";".join([f"{y}" for s in a])  # anim offsets
+    circle = dwg.circle(center=(f"{x}", f"{y}"), r=f"{a[0] / 2}")  # create circle
+    circle.add(dwg.animate(attributeName="r", values=ss, dur=f"{a.shape[0]}s", repeatCount="indefinite"))
+    circle.add(dwg.animate(attributeName="cx", values=xo, dur=f"{a.shape[0]}s", repeatCount="indefinite"))
+    circle.add(dwg.animate(attributeName="cy", values=yo, dur=f"{a.shape[0]}s", repeatCount="indefinite"))
+    group.add(circle)  # add shape
     return group

@@ -14,14 +14,13 @@ from esch.util import display_fn
 def grid(ink, path=None, **kwargs):
     """Create grid plot for activations."""
     ink, pos = grid_pos_fn(ink)
-    print(ink.shape, pos.shape)
     dwg = draw(setup_drawing(ink, pos), ink, pos)
     dwg.saveas(path) if path else display_fn(dwg)
     return dwg
 
 
 def grid_pos_fn(ink):  # n points x 2
-    reshape_dict = {1: lambda x: x[None, None, :, None], 2: lambda x: x[None, :, None], 3: lambda x: x[None, :]}
+    reshape_dict = {1: lambda x: x[None, None, ..., None], 2: lambda x: x[None, ..., None], 3: lambda x: x[None, ...]}
     ink = reshape_dict[ink.ndim](ink) if ink.ndim < 4 else ink
     n_plots, n_rows, n_cols, n_steps = ink.shape
     width = n_rows / max(n_rows, n_cols)

@@ -1,5 +1,7 @@
 target/
 **/*.pdf
+**/*.pkl
+
 data/
 #**/*.html
 **/*.svg

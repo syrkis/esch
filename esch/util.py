@@ -60,9 +60,9 @@ def setup_drawing(act: Array, pos: Array) -> svgwrite.Drawing:
     n_plots, n_shapes, n_steps = act.shape
     width = pos[:, 0].max().item()
     height = pos[:, 1].max().item()
-    total_width = width + 2 * PADDING if height < width else (width + 2 * PADDING) * n_plots + PADDING
-    total_height = height + 2 * PADDING if width < height else (height + 2 * PADDING) * n_plots + PADDING
-    dwg = svgwrite.Drawing(size=(f"{total_width}px", f"{total_height}px"))
+    total_width = width + 1 * PADDING if height <= width else (width + 2 * PADDING) * n_plots + PADDING
+    total_height = height + 1 * PADDING if width <= height else (height + 2 * PADDING) * n_plots + PADDING
+    dwg = svgwrite.Drawing(size=(f"{total_width}pt", f"{total_height}pt"))
     dwg["width"], dwg["height"] = "100%", "100%"
     dwg["preserveAspectRatio"] = "xMidYMid meet"
     # print(width, height, total_height, total_width)
@@ -73,7 +73,7 @@ def setup_drawing(act: Array, pos: Array) -> svgwrite.Drawing:
 
 def subplot_offset(idx: int, pos: Array):
     width, height = pos[:, 1].max().item(), pos[:, 0].max().item()
-    x_offset = PADDING if width > height else ((width + 2 * PADDING) * idx + PADDING)
-    y_offset = PADDING if x_offset != PADDING else ((height + 2 * PADDING) * idx + PADDING)
+    x_offset = 1 * PADDING if width >= height else ((width + 1 * PADDING) * idx + PADDING)
+    y_offset = 1 * PADDING if width < height else ((height + 1 * PADDING) * idx + PADDING)
     offset = np.array([x_offset, y_offset])
     return offset[::-1]

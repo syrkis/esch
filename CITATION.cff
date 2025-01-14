@@ -1,0 +1,26 @@
+# This CITATION.cff file was generated with cffinit.
+# Visit https://bit.ly/cffinit to generate yours today!
+
+cff-version: 1.2.0
+title: esch
+message: >-
+  If you use this software, please cite it using the
+  metadata from this file.
+type: software
+authors:
+  - given-names: Noah
+    family-names: Syrkis
+    orcid: 'https://orcid.org/0000-0002-6553-1115'
+identifiers:
+  - type: url
+    value: 'https://github.com/syrkis/esch'
+    description: Git Repository
+keywords:
+    - Data Visualization
+    - Plotting
+    - Visualization
+    - Python
+    - Typography
+    - Artistic Rendering
+license: GPL-3.0
+date-released: '2024-11-29'

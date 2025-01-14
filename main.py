@@ -14,8 +14,10 @@ from chex import dataclass
 act = np.random.randn(10)
 esch.grid(act, path="paper/figs/1d.svg")
 
-act = np.random.randn(2, 20)
+act = np.random.randn(3, 2, 20)
 esch.grid(act, path="paper/figs/2d.svg")
+
+exit()
 
 act = np.random.randn(2, 20, 5)
 esch.grid(act, path="paper/figs/3d.svg")
@@ -41,6 +43,9 @@ esch.mesh(act, pos, shp="dot")
 # pos = (pos - pos.mean()) / pos.std()
 # print(act[:2], pos[:2])
 esch.mesh(act, pos, path="paper/figs/mesh.svg")
+
+
+exit()
 
 
 @dataclass

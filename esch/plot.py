@@ -9,12 +9,12 @@ from esch.util import Array, subplot_offset, display_fn, setup_drawing
 
 
 # Constants
-DEBUG = True
+# DEBUG = True
 
 
 # %% Functions
 def mesh(ink, pos, shp="circle", path=None):  # mesh plot
-    reshape_dict = {1: lambda x: x[None, ..., None], 2: lambda x: x[None, ...], 3: lambda x: x}
+    reshape_dict = {1: lambda x: x[None, ..., None], 2: lambda x: x[None, ..., None], 3: lambda x: x}
     ink = reshape_dict[ink.ndim](ink) / ink.max() ** 4  # this is severly suboptimal
     pos = (pos - pos.min(axis=0)) / (pos - pos.min(axis=0)).max()
     print(ink.shape, pos.shape)
@@ -26,6 +26,7 @@ def mesh(ink, pos, shp="circle", path=None):  # mesh plot
 # Functions
 def draw(dwg, ink: Array, pos: Array, shp: str = "rect"):
     # print(f"Drawing {ink.shape} {pos.shape}", end="\n\n") if DEBUG else None
+    print(pos.shape, ink.shape)
     for i in range(len(ink)):  # for every subplot (usually just one)
         p = pos + subplot_offset(i, pos)
         dwg = add_shp(dwg, ink[i], p, shp)

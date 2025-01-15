@@ -56,24 +56,28 @@ def display_fn(img, dpi=300):
 
 
 # %% utils stuff that should probably be in a separate file #######################
-def setup_drawing(act: Array, pos: Array) -> svgwrite.Drawing:
-    n_plots, n_shapes, n_steps = act.shape
-    width = pos[:, 0].max().item()
-    height = pos[:, 1].max().item()
-    total_width = width + 1 * PADDING if height <= width else (width + 2 * PADDING) * n_plots + PADDING
-    total_height = height + 1 * PADDING if width <= height else (height + 2 * PADDING) * n_plots + PADDING
+def setup_drawing(ink: Array, pos: Array):
+    n_plots, n_points, n_steps = ink.shape
+    print(f"n_plots: {n_plots}, n_points: {n_points}, n_steps: {n_steps}")
+    print(f"width: {pos[:, 0].max()}, height: {pos[:, 1].max()}")
+    sub_plot_width, sub_plot_height = pos[:, 0].max().item() + PADDING, pos[:, 1].max().item() + PADDING
+    ratio = sub_plot_width / sub_plot_height
+    # exit()
+    if ratio >= 1:
+        total_width = sub_plot_width + PADDING
+        total_height = (sub_plot_height) * ink.shape[0] + PADDING
+        offset = np.array([0, sub_plot_height])
+    else:
+        total_width = (sub_plot_width) * ink.shape[0] + PADDING
+        total_height = sub_plot_height + PADDING
+        offset = np.array([sub_plot_width, 0])
+
     dwg = svgwrite.Drawing(size=(f"{total_width}pt", f"{total_height}pt"))
     dwg["width"], dwg["height"] = "100%", "100%"
     dwg["preserveAspectRatio"] = "xMidYMid meet"
     # print(width, height, total_height, total_width)
     dwg.viewbox(0, 0, total_width, total_height)  # TODO: add padding
     dwg.defs.add(dwg.style("text {font-family: 'Computer Modern', 'serif';}"))
-    return dwg
-
-
-def subplot_offset(idx: int, pos: Array):
-    width, height = pos[:, 1].max().item(), pos[:, 0].max().item()
-    x_offset = 1 * PADDING if width >= height else ((width + 1 * PADDING) * idx + PADDING)
-    y_offset = 1 * PADDING if width < height else ((height + 1 * PADDING) * idx + PADDING)
-    offset = np.array([x_offset, y_offset])
-    return offset[::-1]
+    # print(total_width, total_height)
+    # exit()
+    return dwg, offset

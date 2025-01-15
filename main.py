@@ -11,19 +11,21 @@ from jaxtyping import Array
 from chex import dataclass
 
 # %% GRID TESTS
-act = np.random.randn(10)
-esch.grid(act, path="paper/figs/1d.svg")
+# act = np.abs(np.random.randn(3, 4))  # 1 x 1 x 1 x 10
+# esch.grid(act, path="paper/figs/1d.svg")
 
-act = np.random.randn(3, 2, 20)
-esch.grid(act, path="paper/figs/2d.svg")
+# act = np.random.randn(6, 7)
+# esch.grid(act, path="paper/figs/2d.svg")
 
+act = np.abs(np.random.randn(100, 3, 20, 10))
+esch.grid(act, path="paper/figs/3d.svg")
 exit()
 
-act = np.random.randn(2, 20, 5)
-esch.grid(act, path="paper/figs/3d.svg")
 
-act = np.random.randn(2, 3, 40, 10)
-esch.grid(act, shp="circle", path="paper/figs/4d.svg")
+act = np.random.randn(100, 3, 40, 10)
+esch.grid(act, path="paper/figs/4d.svg")
+
+exit()
 
 # %% MESH TEST
 # act = np.random.randn(10)

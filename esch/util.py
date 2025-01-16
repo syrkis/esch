@@ -57,13 +57,20 @@ def display_fn(img, dpi=300):
 
 # %% utils stuff that should probably be in a separate file #######################
 def setup_drawing(ink: Array, pos: Array):
+    # pos = pos[0, 0, :, :]
+    # print(pos.shape, ink.shape)
+    # exit()
     n_plots, n_points, n_steps = ink.shape
     print(f"n_plots: {n_plots}, n_points: {n_points}, n_steps: {n_steps}")
-    print(f"width: {pos[:, 0].max()}, height: {pos[:, 1].max()}")
-    sub_plot_width, sub_plot_height = pos[:, 0].max().item() + PADDING, pos[:, 1].max().item() + PADDING
+    if pos.ndim == 2:
+        print(f"width: {pos[:, 0].max()}, height: {pos[:, 1].max()}")
+        sub_plot_width, sub_plot_height = pos[:, 0].max().item() + PADDING, pos[:, 1].max().item() + PADDING
+    else:
+        print(f"width: {pos[:, :, :, 0].max()}, height: {pos[:, :, 1].max()}")
+        sub_plot_width, sub_plot_height = pos[:, :, :, 0].max().item() + PADDING, pos[:, :, :, 1].max().item() + PADDING
     ratio = sub_plot_width / sub_plot_height
     # exit()
-    if ratio >= 1:
+    if ratio > 1:
         total_width = sub_plot_width + PADDING
         total_height = (sub_plot_height) * ink.shape[0] + PADDING
         offset = np.array([0, sub_plot_height])
@@ -71,6 +78,8 @@ def setup_drawing(ink: Array, pos: Array):
         total_width = (sub_plot_width) * ink.shape[0] + PADDING
         total_height = sub_plot_height + PADDING
         offset = np.array([sub_plot_width, 0])
+
+    offset = offset if pos.ndim == 2 else offset[None, None, :, None]
 
     dwg = svgwrite.Drawing(size=(f"{total_width}pt", f"{total_height}pt"))
     dwg["width"], dwg["height"] = "100%", "100%"

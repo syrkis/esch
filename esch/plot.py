@@ -4,31 +4,42 @@
 
 # Imports
 import numpy as np
-import svgwrite
+
+# import svgwrite
 from esch import util
 from einops import rearrange
 
 
 # Interfaces
-def sims(ink, pos, path=None):
-    raise NotImplementedError
+def sims(pos, path=None):
+    ink, pos = sims_fn(pos)
+    dwg = draw(ink, pos, path)
+    dwg.saveas(path) if path else util.display_fn(dwg)
+    return dwg
 
 
 def grid(ink, path=None):
     ink, pos = grid_fn(ink)
     dwg = draw(ink, pos, path)
+    dwg.saveas(path) if path else util.display_fn(dwg)
     return dwg
 
 
 def mesh(ink, pos, path=None):  # mesh plot
-    dwg = mesh_fn(ink, pos)
+    ink, pos = mesh_fn(ink, pos)
+    dwg = draw(ink, pos, path)
     dwg.saveas(path) if path else util.display_fn(dwg)
     return dwg
 
 
 # Functions
-def sims_fn(pos) -> svgwrite.Drawing:
-    raise NotImplementedError
+def sims_fn(pos):
+    assert pos.ndim >= 3 and pos.ndim <= 4, "pos must be 3 or 4 dimensions"
+    pos = pos[:, None, ...] if pos.ndim == 3 else pos
+    pos = pos - pos.min(axis=1, keepdims=True)
+    ink = np.ones(pos.shape[1:-1])[None, ...] / np.sqrt(pos.shape[-2]) / 10
+    pos = rearrange(pos, "n_steps n_plots n_points n_dims -> n_plots n_points n_dims n_steps")
+    return ink, pos
 
 
 def grid_fn(ink):
@@ -42,38 +53,52 @@ def grid_fn(ink):
 
 
 # %% Functions
-def mesh_fn(ink, pos) -> svgwrite.Drawing:
-    reshape_dict = {1: lambda x: x[None, ..., None], 2: lambda x: x[None, ..., None], 3: lambda x: x}
-    ink = reshape_dict[ink.ndim](ink) / ink.max() ** 4  # this is severly suboptimal
-    pos = (pos - pos.min(axis=0)) / (pos - pos.min(axis=0)).max()
-    dwg = draw(ink, pos)  # shp)
-    return dwg
+def mesh_fn(ink, pos):
+    pos = pos - pos.min(axis=0)
+    pos = pos / pos.max(axis=0)
+    reshape_dict = {1: lambda x: x[None, None, ...], 2: lambda x: x[None, ...], 3: lambda x: x}
+    ink = reshape_dict[ink.ndim](ink)
+    ink = ink / ink.max(axis=(-1), keepdims=True) / np.sqrt(len(pos))
+    return ink, pos
 
 
 # Functions
 def draw(ink, pos, path=None):
     ink = rearrange(ink, "n_steps n_plots n_points -> n_plots n_points n_steps")
+    # pos = rearrange(pos, "n_plots n_points n_dims -> n_plots n_points n_dims")
     dwg, offset = util.setup_drawing(ink, pos)
     n_plots, n_points, n_steps = ink.shape
     for i in range(n_plots):  # for every subplot (usually just one)
+        # print(offset.shape, pos.shape)
+        # exit()
         p = pos + i * offset + util.PADDING  # util.subplot_offset(i, pos)
         group = dwg.g()
-        for j, (x, y) in zip(range(n_points), p):  # for every point
-            group = circle_fn(group, dwg, ink[i][j], x, y)
+        for j in range(n_points):  # for every point
+            if pos.ndim == 4:
+                group = circle_fn(group, dwg, ink[i][j], p[i][j][0], p[i][j][1])
+            else:
+                # print(p.shape)
+                group = circle_fn(group, dwg, ink[i][j], p[j][0], p[j][1])
         dwg.add(group)
     dwg.saveas(path) if path else util.display_fn(dwg)
+    print()
     return dwg
 
 
 def circle_fn(group, dwg, point, x, y):
-    # print(x, y)
-    point /= 2
-    circle = dwg.circle(center=(f"{x:.3f}", f"{y:.3f}"), r=f"{point[-1] / 2}")  # create circle
-    ss = ";".join([f"{s.item():.3f}" for s in point])  # anim sizes
-    circle.add(dwg.animate(attributeName="r", values=ss, dur=f"{point.shape[0]}s", repeatCount="indefinite"))
-    # xo, yo = ";".join([f"{x}" for s in a]), ";".join([f"{y}" for s in a])  # account for sims
-    # circle.add(dwg.animate(attributeName="cx", values=xo, dur=f"{a.shape[0]}s", repeatCount="indefinite"))
-    # circle.add(dwg.animate(attributeName="cy", values=yo, dur=f"{a.shape[0]}s", repeatCount="indefinite"))
+    point /= 2  # radius, not diameter
+    start_x, start_y = (x, y) if x.ndim == 0 else (x[-1], y[-1])  # start pos
+    circle = dwg.circle(center=(f"{start_x:.3f}", f"{start_y:.3f}"), r=f"{point[-1] / 2}")
+
+    if point.ndim > 0:  # animate sizes
+        ss = ";".join([f"{s.item():.3f}" for s in point])  # anim sizes
+        circle.add(dwg.animate(attributeName="r", values=ss, dur=f"{point.shape[0]}s", repeatCount="indefinite"))
+
+    if x.ndim > 0:  # animate x and y
+        xo, yo = ";".join([f"{x}" for s in x]), ";".join([f"{y}" for s in y])  # account for sims
+        circle.add(dwg.animate(attributeName="cx", values=xo, dur=f"{point.shape[0]}s", repeatCount="indefinite"))
+        circle.add(dwg.animate(attributeName="cy", values=yo, dur=f"{point.shape[0]}s", repeatCount="indefinite"))
+
     group.add(circle)  # add shape
     return group
 

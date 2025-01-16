@@ -3,69 +3,40 @@
 # by: Noah Syrkis
 
 # Imports
-import jax.numpy as jnp
 import numpy as np
 import esch
-import pickle
-from jaxtyping import Array
-from chex import dataclass
+
 
 # %% GRID TESTS
-# act = np.abs(np.random.randn(3, 4))  # 1 x 1 x 1 x 10
-# esch.grid(act, path="paper/figs/1d.svg")
+act = np.abs(np.random.randn(10))  # 1 x 1 x 1 x 10
+esch.grid(act, path="paper/figs/grid_1d.svg")
 
-# act = np.random.randn(6, 7)
-# esch.grid(act, path="paper/figs/2d.svg")
+act = np.abs(np.random.randn(6, 7))
+esch.grid(act, path="paper/figs/grid_2d.svg")
+
+act = np.abs(np.random.randn(3, 20, 10))
+esch.grid(act, path="paper/figs/grid_3d.svg")
 
 act = np.abs(np.random.randn(100, 3, 20, 10))
-esch.grid(act, path="paper/figs/3d.svg")
-exit()
-
-
-act = np.random.randn(100, 3, 40, 10)
-esch.grid(act, path="paper/figs/4d.svg")
-
-exit()
+esch.grid(act, path="paper/figs/grid_4d.svg")
 
 # %% MESH TEST
-# act = np.random.randn(10)
-# pos = np.random.randn(10, 2)
+act = np.abs(np.random.randn(10))
+pos = np.abs(np.random.randn(10, 2))
+esch.mesh(act, pos, path="paper/figs/mesh_2d.svg")
 
-# act = np.random.randn(10, 100).T
-# pos = np.random.randn(10, 100, 2).transpose(1, 0, 2)
-# print(act[:2], pos[:2])
-# esch.mesh(act, pos, path="test.svg")
-#
-#
-act = np.array(jnp.load("data/bolds.npy")).transpose(1, 0)
-pos = np.array(jnp.load("data/coords.npy"))[0][:, [1, 0]]
-# print(act.shape, pos.shape)
-#
-esch.mesh(act, pos, shp="dot")
-# pos = (pos - pos.mean()) / pos.std()
-# print(act[:2], pos[:2])
-esch.mesh(act, pos, path="paper/figs/mesh.svg")
+act = np.abs(np.random.randn(3, 10))
+pos = np.abs(np.random.randn(10, 2))
+esch.mesh(act, pos, path="paper/figs/mesh_3d.svg")
+
+act = np.abs(np.random.randn(100, 1, 450))
+pos = np.random.uniform(0, 1, (450, 2)) * np.array([1, 2])[None, :]
+esch.mesh(act, pos, path="paper/figs/mesh_4d.svg")
 
 
-exit()
+# %% SIMS TEST
+pos = np.abs(np.random.normal(0, 1, (100, 10, 2)).cumsum(axis=1))
+esch.sims(pos, path="paper/figs/sims_3d.svg")
 
-
-@dataclass
-class State:
-    pos: Array
-    types: Array
-    teams: Array
-    health: Array
-
-
-with open("state.pkl", "rb") as f:
-    state = pickle.load(f)
-
-
-poss = [state.pos]
-for i in range(10):
-    poss.append(poss[-1] + np.random.randn(*poss[-1].shape) * 0.1)
-poss = np.stack(poss).transpose(1, 2, 0)
-
-# esch.sims(np.eye(100), poss, path="paper/figs/sims.svg")
-#
+# pos = np.random.normal(0, 1, (100, 3, 20, 2)).cumsum(axis=1)
+# esch.sims(pos, path="paper/figs/sims_4d.svg")

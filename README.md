@@ -1,5 +1,23 @@
 # esch
 
+`esch` is a layered visualization library, supporting SVG animation.
+
+```python
+import esch
+import numpy as np
+
+x = np.random.randn((3, 100, 100))  # <- init data
+e = esch.init(x.shape)              # <- make a plot object with shape (small_multiples x height x width)
+e = esch.tile(e, x)                 # <- add data to the e object
+```
+
+`esch` is best used by making a function constructuor
+
+```python
+def tile_fn(x):
+    return esch.tile(esch.init(x.shape), x)
+```
+
 TODO:
 
 0. [ ] sims stuff variable pos.

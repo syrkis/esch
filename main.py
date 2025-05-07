@@ -1,42 +1,43 @@
-# %% main.py
-#   esch main file for testing
-# by: Noah Syrkis
+# %% main.py  ###################
+#   esch main file for testing  #
+# by: Noah Syrkis  ##############
 
-# Imports
-import numpy as np
+# Imports  ##########
 import esch
+import numpy as np
+from itertools import product
 
 
-# %% GRID TESTS
-act = np.abs(np.random.randn(10))  # 1 x 1 x 1 x 10
-esch.grid(act, path="paper/figs/grid_1d.svg")
+# %% GRID TEST
+def grid_fn(shape):
+    x = np.random.random(shape)
+    e = esch.init(*shape[:-1])
+    e = esch.grid(e, x)
+    esch.save(e, path=f"paper/figs/grid_{x.shape}.svg")
+    # print()
 
-act = np.abs(np.random.randn(6, 7))
-esch.grid(act, path="paper/figs/grid_2d.svg")
 
-act = np.abs(np.random.randn(3, 20, 10))
-esch.grid(act, path="paper/figs/grid_3d.svg")
-
-act = np.abs(np.random.randn(100, 3, 20, 10))
-esch.grid(act, path="paper/figs/grid_4d.svg")
+options = [(3, 1), (5, 1), (7, 1), (101, 1)]
+list(map(grid_fn, list(product(*options))))
 
 # %% MESH TEST
-act = np.abs(np.random.randn(10))
-pos = np.abs(np.random.randn(10, 2))
-esch.mesh(act, pos, path="paper/figs/mesh_2d.svg")
+# def mesh_fn(shape):
+# x, y = np.abs(np.random.randn(*shape)), np.random.uniform(size=shape)
 
-act = np.abs(np.random.randn(3, 10))
-pos = np.abs(np.random.randn(10, 2))
-esch.mesh(act, pos, path="paper/figs/mesh_3d.svg")
 
-act = np.abs(np.random.randn(100, 1, 450))
-pos = np.random.uniform(0, 1, (450, 2)) * np.array([1, 2])[None, :]
-esch.mesh(act, pos, path="paper/figs/mesh_4d.svg")
+# options = [(3, 1), (5, 1), (7, 1), (101, 1)]
+# map(mesh_fn, list(product(*options)))
 
 
 # %% SIMS TEST
-pos = np.abs(np.random.normal(0, 1, (100, 10, 2)).cumsum(axis=1))
-esch.sims(pos, path="paper/figs/sims_3d.svg")
+# pos = np.random.uniform(size=(100, 42, 2))
+# pos = np.abs(pos / pos.max())
+# dwg = esch.init()
+# dwg = esch.sims(dwg, pos)
+# esch.save(dwg, path="paper/figs/sims_3d.svg")
 
-# pos = np.random.normal(0, 1, (100, 3, 20, 2)).cumsum(axis=1)
-# esch.sims(pos, path="paper/figs/sims_4d.svg")
+# pos = np.random.uniform(size=(100, 3, 20, 2)).cumsum(axis=1)
+# pos = np.abs(pos / pos.max())
+# dwg = esch.init(num=3)
+# dwg = esch.sims(dwg, pos)
+# esch.save(dwg, path="paper/figs/sims_4d.svg")

@@ -1,30 +1,29 @@
-[tool.poetry]
+[project]
 name = "esch"
 version = "1.1.14"
 description = "esch (v.) : to turn matricies into high quality svg (animations)"
-authors = ["Noah Syrkis <noah@syrkis.com>"]
+authors = [{ name = "Noah Syrkis", email = "noah@syrkis.com" }]
+requires-python = ">=3.11,<3.12"
 readme = "README.md"
-
-[tool.poetry.dependencies]
-python = "^3.11,<3.12"
-svgwrite = "^1.4.3"
-tqdm = "^4.66.5"
-ipython = "^8.29.0"
-darkdetect = "^0.8.0"
-matplotlib = "^3.9.2"
-chex = "^0.1.87"
-jaxtyping = "^0.2.36"
-einops = "^0.8.0"
-svglib = "^1.5.1"
-jupyterlab = "^4.3.3"
-ipywidgets = "^8.1.5"
-pdf2image = "^1.17.0"
-jax = "^0.6.0"
-
+dependencies = [
+    "svgwrite>=1.4.3,<2",
+    "tqdm>=4.66.5,<5",
+    "ipython>=8.29.0,<9",
+    "darkdetect>=0.8.0,<0.9",
+    "matplotlib>=3.9.2,<4",
+    "chex>=0.1.87,<0.2",
+    "jaxtyping>=0.2.36,<0.3",
+    "einops>=0.8.0,<0.9",
+    "svglib>=1.5.1,<2",
+    "jupyterlab>=4.3.3,<5",
+    "ipywidgets>=8.1.5,<9",
+    "pdf2image>=1.17.0,<2",
+    "jax>=0.6.0,<0.7",
+]
 
 [build-system]
-requires = ["poetry-core"]
-build-backend = "poetry.core.masonry.api"
+requires = ["hatchling"]
+build-backend = "hatchling.build"
 
 [tool.pyright]
 venvPath = "."

@@ -8,8 +8,8 @@ import numpy as np
 
 
 # %% grid test
-dwg = esch.init(5, 10)
-arr = np.ones((5, 10))
+dwg = esch.init(50, 100)
+arr = np.ones((50, 100))
 esch.grid_fn(arr, dwg)
 esch.save(dwg, "paper/figs/grid.svg")
 

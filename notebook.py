@@ -4,75 +4,84 @@ import numpy as np
 
 
 # %% Globals
-x_range, y_range = 5, 10
+steps_per_sec = 10
 
 
-def init_fn(x_range, y_range):
+def init_fn(x_range, y_range, rows=1, cols=1):
     dwg = svgwrite.Drawing(preserveAspectRatio="xMidYMid meet")
-    dwg.viewbox(-1, -1, x_range + 1, y_range + 1)
+    dwg.viewbox(-1, -1, (x_range + 1) * rows, (y_range + 1) * cols)
     return dwg
 
 
 # # %% Main
-def grid_fn(dwg, arr):
+def grid_fn(arr, dwg, group=None):
+    group = dwg if group is None else group
     assert arr.ndim == 2
     for i in range(arr.shape[0]):
         for j in range(arr.shape[1]):
-            circle = dwg.circle(center=(i, j), r=arr[i, j] / arr.shape[1] ** 0.5)
-            dwg.add(circle)
+            circle = dwg.circle(center=(i, j), r=arr[i, j] ** 0.5 / (min(arr.shape) ** 0.5))
+            group.add(circle)
 
 
-def anim_grid_fn(dwg, arr):
+def anim_grid_fn(arr, dwg, group=None):
+    group = dwg if group is None else group
     assert arr.ndim == 3
     for i in range(arr.shape[0]):
         for j in range(arr.shape[1]):
-            circle = dwg.circle(center=(i, j), r=arr[i, j, -1] / arr.shape[1] ** 0.5)
-            radii = ";".join([f"{s.item() / 2:.3f}" for s in arr[i, j]])  # anim sizes
-            anim = dwg.animate(attributeName="r", values=radii, dur=f"{arr.shape[2]}s", repeatCount="indefinite")
+            circle = dwg.circle(center=(i, j), r=arr[i, j, -1] ** 0.5 / min(arr[:, :, -1].shape) ** 0.5)
+            radii = ";".join([f"{s.item() ** 0.5 / min(arr[:, :, -1].shape) ** 0.5}" for s in arr[i, j]])
+            anim = dwg.animate(
+                attributeName="r", values=radii, dur=f"{arr.shape[2] / steps_per_sec}s", repeatCount="indefinite"
+            )
             circle.add(anim)
-            dwg.add(circle)
+            group.add(circle)
 
 
-def mesh_fn(dwg, pos, arr):
+def mesh_fn(pos, arr, dwg, group=None):
+    group = dwg if group is None else group
     assert arr.ndim == 1
     for (x, y), r in zip(pos, arr):
         circle = dwg.circle(center=(x, y), r=r / len(arr) ** 0.5)
-        dwg.add(circle)
+        group.add(circle)
 
 
-def anim_mesh_fn(dwg, pos, arr):
+def anim_mesh_fn(pos, arr, dwg, group=None):
+    group = dwg if group is None else group
     assert arr.ndim == 2
     for (x, y), r in zip(pos, arr):
-        circle = dwg.circle(center=(x, y), r=r[0] / len(pos) ** 0.5)
-        radii = ";".join([f"{s.item() / 2:.3f}" for s in r])  # anim sizes
-        anim = dwg.animate(attributeName="r", values=radii, dur=f"{arr.shape[1]}s", repeatCount="indefinite")
+        circle = dwg.circle(center=(x, y), r=r[-1] / len(pos) ** 0.5)
+        radii = ";".join([f"{s.item() / len(pos) ** 0.5:.3f}" for s in r])  # anim sizes
+        anim = dwg.animate(
+            attributeName="r", values=radii, dur=f"{arr.shape[1] / steps_per_sec}s", repeatCount="indefinite"
+        )
         circle.add(anim)
-        dwg.add(circle)
+        group.add(circle)
 
 
-def anim_sims_fn(dwg, pos):
+def anim_sims_fn(arr, dwg, group=None):
+    group = dwg if group is None else group
     assert pos.ndim == 3
     for x, y in pos:
         circle = dwg.circle(center=(x[0], y[0]), r=1 / len(pos) ** 0.5)
         xs = ";".join([f"{x.item():.3f}" for x in x])
         ys = ";".join([f"{y.item():.3f}" for y in y])
-        animcx = dwg.animate(attributeName="cx", values=xs, dur=f"{len(xs)}s", repeatCount="indefinite")
-        animcy = dwg.animate(attributeName="cy", values=ys, dur=f"{len(ys)}s", repeatCount="indefinite")
+        animcx = dwg.animate(attributeName="cx", values=xs, dur=f"{len(xs) / steps_per_sec}s", repeatCount="indefinite")
+        animcy = dwg.animate(attributeName="cy", values=ys, dur=f"{len(ys) / steps_per_sec}s", repeatCount="indefinite")
         circle.add(animcx)
         circle.add(animcy)
-        dwg.add(circle)
+        group.add(circle)
 
 
 # %% grid test
 dwg = init_fn(5, 10)
-arr = np.random.uniform(0, 1, (5, 10))
-grid_fn(dwg, arr)
+arr = np.ones((5, 10))
+grid_fn(arr, dwg)
 dwg.saveas("grid.svg")
 
 # %% anim grid test
 dwg = init_fn(10, 5)
-arr = np.random.uniform(0, 1, (10, 5, 10))
-anim_grid_fn(dwg, arr)
+arr = np.absolute(np.random.randn(10, 5, 10).cumsum(2))
+anim_grid_fn(arr / arr.max(), dwg)
 dwg.saveas("anim_grid.svg")
 
 # %% test mesh
@@ -80,22 +89,48 @@ dwg = init_fn(10, 5)
 pos = np.stack((np.random.uniform(0, 10, 10), np.random.uniform(0, 5, 10))).T
 arr = np.random.uniform(0, 1, 10)
 pos, arr = np.random.uniform(0, 9, (10, 2)), np.random.uniform(0, 1, 9)
-mesh_fn(dwg, pos, arr)
+mesh_fn(pos, arr, dwg)
 dwg.saveas("mesh.svg")
-
 
 # %% test anim mesh
 dwg = init_fn(10, 5)
 pos = np.stack((np.random.uniform(0, 10, 10), np.random.uniform(0, 5, 10))).T
-arr = np.random.uniform(0, 1, (10, 20))
-anim_mesh_fn(dwg, pos, arr)
+arr = np.abs(np.random.randn(10, 20).cumsum(1))
+anim_mesh_fn(pos, arr / arr.max(), dwg)
 dwg.saveas("anim_mesh.svg")
-# pos, arr = np.random.uniform(0, 9, (10, 2)), np.random.uniform(0, 1, (9, 10))
-# anim_mesh_fn(dwg, pos, arr)
-
 
 # %% test sims
 dwg = init_fn(10, 5)
-pos = np.random.randn(100, 2, 10).cumsum(axis=2) + np.array((5, 2.5))[..., None]
-anim_sims_fn(dwg, pos)
+pos = np.random.randn(100, 2, 200).cumsum(axis=2) * 0.1 + np.array((4.5, 2.25))[..., None]
+anim_sims_fn(pos, dwg)
 dwg.saveas("anim_sims.svg")
+
+# %% test mix
+dwg = init_fn(10, 5)
+pos = np.random.randn(100, 2, 200).cumsum(axis=2) * 0.1 + np.array((4.5, 2.25))[..., None]
+anim_sims_fn(pos, dwg)
+arr = np.random.uniform(0, 1, (10, 5))
+grid_fn(arr, dwg)
+dwg.saveas("anim_mix.svg")
+
+
+# %% test multi
+dwg = init_fn(10, 5, cols=3)
+arr = np.absolute(np.random.randn(3, 10, 5))
+for i in range(len(arr)):
+    group = dwg.g()
+    group.translate(0, (5 + 1) * i)
+    grid_fn(arr[i] / arr[i].max(), dwg, group)
+    dwg.add(group)
+dwg.saveas("multi.svg")
+
+
+# %% test anim multi
+dwg = init_fn(10, 5, cols=3)
+arr = np.absolute(np.random.randn(3, 10, 5, 10).cumsum(3))
+for i in range(len(arr)):
+    group = dwg.g()
+    group.translate(0, (5 + 1) * i)
+    anim_grid_fn(arr[i] / arr[i].max(), dwg, group)
+    dwg.add(group)
+dwg.saveas("anim_multi.svg")

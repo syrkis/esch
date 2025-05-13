@@ -1,7 +1,7 @@
 target/
 **/*.pdf
 **/*.pkl
-
+.venv/
 data/
 #**/*.html
 **/*.svg

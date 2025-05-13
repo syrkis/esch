@@ -5,39 +5,67 @@
 # Imports  ##########
 import esch
 import numpy as np
-from itertools import product
 
 
-# %% GRID TEST
-def grid_fn(shape):
-    x = np.random.random(shape)
-    e = esch.init(*shape[:-1])
-    e = esch.grid(e, x)
-    esch.save(e, path=f"paper/figs/grid_{x.shape}.svg")
-    # print()
+# %% grid test
+dwg = esch.init(5, 10)
+arr = np.ones((5, 10))
+esch.grid_fn(arr, dwg)
+esch.save(dwg, "paper/figs/grid.svg")
+
+# %% anim grid test
+dwg = esch.init(10, 5)
+arr = np.absolute(np.random.randn(10, 5, 10).cumsum(2))
+esch.anim_grid_fn(arr / arr.max(), dwg)
+esch.save(dwg, "paper/figs/anim_grid.svg")
+
+# %% test mesh
+dwg = esch.init(10, 5)
+pos = np.stack((np.random.uniform(0, 10, 10), np.random.uniform(0, 5, 10))).T
+arr = np.random.uniform(0, 1, 10)
+pos, arr = np.random.uniform(0, 9, (10, 2)), np.random.uniform(0, 1, 9)
+esch.mesh_fn(pos, arr, dwg)
+esch.save(dwg, "paper/figs/mesh.svg")
+
+# %% test anim mesh
+dwg = esch.init(10, 5)
+pos = np.stack((np.random.uniform(0, 10, 10), np.random.uniform(0, 5, 10))).T
+arr = np.abs(np.random.randn(10, 20).cumsum(1))
+esch.anim_mesh_fn(pos, arr / arr.max(), dwg)
+esch.save(dwg, "paper/figs/anim_mesh.svg")
+
+# %% test sims
+dwg = esch.init(10, 5)
+pos = np.random.randn(100, 2, 200).cumsum(axis=2) * 0.1 + np.array((4.5, 2.25))[..., None]
+esch.anim_sims_fn(pos, dwg)
+esch.save(dwg, "paper/figs/anim_sims.svg")
+
+# %% test mix
+dwg = esch.init(10, 5)
+pos = np.random.randn(100, 2, 200).cumsum(axis=2) * 0.1 + np.array((4.5, 2.25))[..., None]
+esch.anim_sims_fn(pos, dwg)
+arr = np.random.uniform(0, 1, (10, 5))
+esch.grid_fn(arr, dwg)
+esch.save(dwg, "paper/figs/anim_mix.svg")
 
 
-options = [(3, 1), (5, 1), (7, 1), (101, 1)]
-list(map(grid_fn, list(product(*options))))
+# %% test multi
+dwg = esch.init(10, 5, cols=3)
+arr = np.absolute(np.random.randn(3, 10, 5))
+for i in range(len(arr)):
+    group = dwg.g()
+    group.translate(0, (5 + 1) * i)
+    esch.grid_fn(arr[i] / arr[i].max(), dwg, group)
+    dwg.add(group)
+esch.save(dwg, "paper/figs/multi.svg")
 
-# %% MESH TEST
-# def mesh_fn(shape):
-# x, y = np.abs(np.random.randn(*shape)), np.random.uniform(size=shape)
 
-
-# options = [(3, 1), (5, 1), (7, 1), (101, 1)]
-# map(mesh_fn, list(product(*options)))
-
-
-# %% SIMS TEST
-# pos = np.random.uniform(size=(100, 42, 2))
-# pos = np.abs(pos / pos.max())
-# dwg = esch.init()
-# dwg = esch.sims(dwg, pos)
-# esch.save(dwg, path="paper/figs/sims_3d.svg")
-
-# pos = np.random.uniform(size=(100, 3, 20, 2)).cumsum(axis=1)
-# pos = np.abs(pos / pos.max())
-# dwg = esch.init(num=3)
-# dwg = esch.sims(dwg, pos)
-# esch.save(dwg, path="paper/figs/sims_4d.svg")
+# %% test anim multi
+dwg = esch.init(10, 5, cols=3)
+arr = np.absolute(np.random.randn(3, 10, 5, 10).cumsum(3))
+for i in range(len(arr)):
+    group = dwg.g()
+    group.translate(0, (5 + 1) * i)
+    esch.anim_grid_fn(arr[i] / arr[i].max(), dwg, group)
+    dwg.add(group)
+esch.save(dwg, "paper/figs/anim_multi.svg")

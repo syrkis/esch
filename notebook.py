@@ -8,9 +8,13 @@ steps_per_sec = 10
 
 
 def init_fn(x_range, y_range, rows=1, cols=1):
-    dwg = svgwrite.Drawing(preserveAspectRatio="xMidYMid meet")
+    dwg = svgwrite.Drawing(size=None, preserveAspectRatio="xMidYMid meet")
     dwg.viewbox(-1, -1, (x_range + 1) * rows, (y_range + 1) * cols)
     return dwg
+
+
+def save_fn(dwg, filename, scale=80):
+    dwg.saveas(filename)
 
 
 # # %% Main
@@ -72,17 +76,55 @@ def anim_sims_fn(arr, dwg, group=None):
         group.add(circle)
 
 
+# %%
+def tick_fn(xticks, yticks, dwg, group=None):
+    group = dwg if group is None else group
+    tick_len = 0.15  # length of tick marks
+    label_offset = 0.25  # offset for labels from ticks
+
+    # x-axis ticks (assume y=0 for axis)
+    for x, label in xticks:
+        # Tick mark
+        line = dwg.line(start=(x, -tick_len / 2), end=(x, tick_len / 2), stroke="black")
+        group.add(line)
+        # Label
+        text = dwg.text(
+            str(label),
+            insert=(x, tick_len / 2 + label_offset),
+            text_anchor="middle",
+            alignment_baseline="hanging",
+            # font_size="1pt",
+        )
+        group.add(text)
+
+    # y-axis ticks (assume x=0 for axis)
+    for y, label in yticks:
+        # Tick mark
+        line = dwg.line(start=(-tick_len / 2, y), end=(tick_len / 2, y), stroke="black")
+        group.add(line)
+        # Label
+        text = dwg.text(
+            str(label),
+            insert=(tick_len / 2 + label_offset, y),
+            text_anchor="start",
+            alignment_baseline="middle",
+            # font_size="1pt",
+        )
+        group.add(text)
+
+
 # %% grid test
 dwg = init_fn(5, 10)
 arr = np.ones((5, 10))
 grid_fn(arr, dwg)
-dwg.saveas("grid.svg")
+# tick_fn([(2, "l")], [(1, "0")], dwg)
+save_fn(dwg, "paper/figs/grid.svg")
 
 # %% anim grid test
 dwg = init_fn(10, 5)
 arr = np.absolute(np.random.randn(10, 5, 10).cumsum(2))
 anim_grid_fn(arr / arr.max(), dwg)
-dwg.saveas("anim_grid.svg")
+save_fn(dwg, "paper/figs/anim_grid.svg")
 
 # %% test mesh
 dwg = init_fn(10, 5)
@@ -90,20 +132,20 @@ pos = np.stack((np.random.uniform(0, 10, 10), np.random.uniform(0, 5, 10))).T
 arr = np.random.uniform(0, 1, 10)
 pos, arr = np.random.uniform(0, 9, (10, 2)), np.random.uniform(0, 1, 9)
 mesh_fn(pos, arr, dwg)
-dwg.saveas("mesh.svg")
+save_fn(dwg, "paper/figs/mesh.svg")
 
 # %% test anim mesh
 dwg = init_fn(10, 5)
 pos = np.stack((np.random.uniform(0, 10, 10), np.random.uniform(0, 5, 10))).T
 arr = np.abs(np.random.randn(10, 20).cumsum(1))
 anim_mesh_fn(pos, arr / arr.max(), dwg)
-dwg.saveas("anim_mesh.svg")
+save_fn(dwg, "paper/figs/anim_mesh.svg")
 
 # %% test sims
 dwg = init_fn(10, 5)
 pos = np.random.randn(100, 2, 200).cumsum(axis=2) * 0.1 + np.array((4.5, 2.25))[..., None]
 anim_sims_fn(pos, dwg)
-dwg.saveas("anim_sims.svg")
+save_fn(dwg, "paper/figs/anim_sims.svg")
 
 # %% test mix
 dwg = init_fn(10, 5)
@@ -111,7 +153,7 @@ pos = np.random.randn(100, 2, 200).cumsum(axis=2) * 0.1 + np.array((4.5, 2.25))[
 anim_sims_fn(pos, dwg)
 arr = np.random.uniform(0, 1, (10, 5))
 grid_fn(arr, dwg)
-dwg.saveas("anim_mix.svg")
+save_fn(dwg, "paper/figs/anim_mix.svg")
 
 
 # %% test multi
@@ -122,7 +164,7 @@ for i in range(len(arr)):
     group.translate(0, (5 + 1) * i)
     grid_fn(arr[i] / arr[i].max(), dwg, group)
     dwg.add(group)
-dwg.saveas("multi.svg")
+save_fn(dwg, "paper/figs/multi.svg")
 
 
 # %% test anim multi
@@ -133,4 +175,4 @@ for i in range(len(arr)):
     group.translate(0, (5 + 1) * i)
     anim_grid_fn(arr[i] / arr[i].max(), dwg, group)
     dwg.add(group)
-dwg.saveas("anim_multi.svg")
+save_fn(dwg, "paper/figs/anim_multi.svg")

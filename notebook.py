@@ -13,7 +13,7 @@ def init_fn(x_range, y_range, rows=1, cols=1):
     return dwg
 
 
-def save_fn(dwg, filename, scale=80):
+def save_fn(dwg, filename):
     dwg.saveas(filename)
 
 
@@ -76,48 +76,10 @@ def anim_sims_fn(arr, dwg, group=None):
         group.add(circle)
 
 
-# %%
-def tick_fn(xticks, yticks, dwg, group=None):
-    group = dwg if group is None else group
-    tick_len = 0.15  # length of tick marks
-    label_offset = 0.25  # offset for labels from ticks
-
-    # x-axis ticks (assume y=0 for axis)
-    for x, label in xticks:
-        # Tick mark
-        line = dwg.line(start=(x, -tick_len / 2), end=(x, tick_len / 2), stroke="black")
-        group.add(line)
-        # Label
-        text = dwg.text(
-            str(label),
-            insert=(x, tick_len / 2 + label_offset),
-            text_anchor="middle",
-            alignment_baseline="hanging",
-            # font_size="1pt",
-        )
-        group.add(text)
-
-    # y-axis ticks (assume x=0 for axis)
-    for y, label in yticks:
-        # Tick mark
-        line = dwg.line(start=(-tick_len / 2, y), end=(tick_len / 2, y), stroke="black")
-        group.add(line)
-        # Label
-        text = dwg.text(
-            str(label),
-            insert=(tick_len / 2 + label_offset, y),
-            text_anchor="start",
-            alignment_baseline="middle",
-            # font_size="1pt",
-        )
-        group.add(text)
-
-
 # %% grid test
 dwg = init_fn(5, 10)
 arr = np.ones((5, 10))
 grid_fn(arr, dwg)
-# tick_fn([(2, "l")], [(1, "0")], dwg)
 save_fn(dwg, "paper/figs/grid.svg")
 
 # %% anim grid test

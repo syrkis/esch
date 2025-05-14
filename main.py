@@ -15,7 +15,7 @@ esch.save(dwg, "paper/figs/grid.svg")
 
 # %% anim grid test
 dwg = esch.init(10, 5)
-arr = np.absolute(np.random.randn(10, 5, 10).cumsum(2))
+arr = np.absolute(np.random.randn(10, 5, 100).cumsum(2))
 esch.anim_grid_fn(arr / arr.max(), dwg, shape="square")
 esch.save(dwg, "paper/figs/anim_grid.svg")
 

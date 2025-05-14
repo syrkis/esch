@@ -2,13 +2,16 @@
 #     main esch plot interface  #
 # by: Noah Syrkis
 
+
+# imports
+import numpy as np
+
 # Config
-fps = 24
+fps = 10
 
 
 # # %% Functions
 def sphere_fn(size, x, y, dwg, group):
-    size *= 2
     circle = dwg.circle(center=(x, y), r=size)
     group.add(circle)
 
@@ -19,7 +22,8 @@ def square_fn(size, x, y, dwg, group):
     group.add(square)
 
 
-def anim_sphere_fn(size, x, y, dwg, group):
+def anim_sphere_fn(size, x, y, dwg, group, fps):
+    size = np.concat((size[-1][..., None], size))
     circle = dwg.circle(center=(x, y), r=size[0] ** 0.5 / 2.1)  # / min(arr[:, :, -1].shape) ** 0.5)
     radii = ";".join([f"{elm.item() ** 0.5 / 2.1}" for elm in size])
     anim = dwg.animate(attributeName="r", values=radii, dur=f"{len(size) / fps}s", repeatCount="indefinite")
@@ -27,7 +31,9 @@ def anim_sphere_fn(size, x, y, dwg, group):
     group.add(circle)
 
 
-def anim_square_fn(size, x, y, dwg, group):
+def anim_square_fn(size, x, y, dwg, group, fps):
+    size = np.concat((size[-1][..., None], size))
+    size *= 2
     square = dwg.rect(insert=(x - size[0] / 2, y - size[0] / 2), size=(size[0], size[0]))
     sizes = ";".join([f"{s.item()}" for s in size])
     xs = ";".join([f"{x - s.item() / 2}" for s in size])
@@ -52,13 +58,13 @@ def grid_fn(arr, dwg, group=None, shape="sphere"):
             (sphere_fn if shape == "sphere" else square_fn)(size, x, y, dwg, group)
 
 
-def anim_grid_fn(arr, dwg, group=None, shape="sphere"):
+def anim_grid_fn(arr, dwg, group=None, shape="sphere", fps=fps):
     group = dwg if group is None else group
     assert arr.ndim == 3
     for x in range(arr.shape[0]):
         for y in range(arr.shape[1]):
             size = arr[x, y] ** 0.5 / 2.1
-            (anim_sphere_fn if shape == "sphere" else anim_square_fn)(size, x, y, dwg, group)
+            (anim_sphere_fn if shape == "sphere" else anim_square_fn)(size, x, y, dwg, group, fps)
 
 
 def mesh_fn(pos, arr, dwg, group=None, shape="sphere"):
@@ -69,20 +75,15 @@ def mesh_fn(pos, arr, dwg, group=None, shape="sphere"):
         (sphere_fn if shape == "sphere" else square_fn)(size, x, y, dwg, group)
 
 
-def anim_mesh_fn(pos, arr, dwg, group=None, shape="sphere"):
+def anim_mesh_fn(pos, arr, dwg, group=None, shape="sphere", fps=fps):
     group = dwg if group is None else group
     assert arr.ndim == 2
     for (x, y), r in zip(pos, arr):
         size = r / len(arr) ** 0.5 / 2.1
-        (anim_sphere_fn if shape == "sphere" else anim_square_fn)(size, x, y, dwg, group)
-        # circle = dwg.circle(center=(x, y), r=r[-1] / len(pos) ** 0.5)
-        # radii = ";".join([f"{s.item() ** 0.5 / len(pos) ** 0.5:.3f}" for s in r])  # anim sizes
-        # anim = dwg.animate(attributeName="r", values=radii, dur=f"{arr.shape[0] / fps}s", repeatCount="indefinite")
-        # circle.add(anim)
-        # group.add(circle)
+        (anim_sphere_fn if shape == "sphere" else anim_square_fn)(size, x, y, dwg, group, fps)
 
 
-def anim_sims_fn(pos, dwg, group=None, shape="sphere"):
+def anim_sims_fn(pos, dwg, group=None):
     group = dwg if group is None else group
     assert pos.ndim == 3
     for x, y in pos:

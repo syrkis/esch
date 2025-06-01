@@ -7,7 +7,7 @@
 import numpy as np
 
 # Config
-fps = 2
+fps = 1
 
 
 # # %% Functions
@@ -102,7 +102,7 @@ def anim_sims_fn(pos, dwg, fill=None, edge=None, size=None, group=None, fps=fps)
 
 
 # TODO: add gun shots, that move from a to b at time t
-def anim_shot_fn(start_pos, end_pos, start_times, dwg, group=None, fps=fps, bullet_size=0.5, color="red", size=None):
+def anim_shot_fn(start_pos, end_pos, start_times, dwg, group=None, fps=fps, bullet_size=0.5, color=None, size=None):
     """
     Add animated gun shots that move from start_pos to end_pos over discrete time steps.
 
@@ -127,9 +127,13 @@ def anim_shot_fn(start_pos, end_pos, start_times, dwg, group=None, fps=fps, bull
         else:
             initial_size = bullet_size
             final_size = bullet_size
-            
+        if color is None:
+            c = "red"
+        else:
+            c = color[i]
+
         # Create bullet circle
-        bullet = dwg.circle(center=(float(start_x), float(start_y)), r=initial_size, fill=color, opacity="0")
+        bullet = dwg.circle(center=(float(start_x), float(start_y)), r=initial_size, fill=c, opacity="0")
 
         # Duration is exactly 1 time step (1/fps seconds per frame)
         step_duration = 1.0 / fps
@@ -141,7 +145,7 @@ def anim_shot_fn(start_pos, end_pos, start_times, dwg, group=None, fps=fps, bull
             values=f"{start_x};{end_x}",
             dur=f"{step_duration}s",
             begin=f"{begin_time}s",
-            fill="freeze",
+            # fill="freeze",
         )
 
         animcy = dwg.animate(
@@ -149,13 +153,14 @@ def anim_shot_fn(start_pos, end_pos, start_times, dwg, group=None, fps=fps, bull
             values=f"{start_y};{end_y}",
             dur=f"{step_duration}s",
             begin=f"{begin_time}s",
-            fill="freeze",
+            # fill="freeze",
         )
 
         # Make bullet visible only during the time step (t to t+1)
         anim_opacity = dwg.animate(
-            attributeName="opacity", values="1;1;0", dur=f"{step_duration}s", begin=f"{begin_time}s", fill="freeze"
-        )
+            attributeName="opacity", values="0;1;0", dur=f"{step_duration}s", begin=f"{begin_time}s"
+        )  # , fill="freeze"
+        # )
 
         # Animate size if size array is provided
         if size is not None:
@@ -164,7 +169,7 @@ def anim_shot_fn(start_pos, end_pos, start_times, dwg, group=None, fps=fps, bull
                 values=f"{initial_size};{final_size}",
                 dur=f"{step_duration}s",
                 begin=f"{begin_time}s",
-                fill="freeze"
+                fill="freeze",
             )
             bullet.add(anim_size)
 

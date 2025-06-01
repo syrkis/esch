@@ -7,7 +7,7 @@
 import numpy as np
 
 # Config
-fps = 10
+fps = 2
 
 
 # # %% Functions
@@ -83,19 +83,72 @@ def anim_mesh_fn(pos, arr, dwg, group=None, shape="sphere", fps=fps):
         (anim_sphere_fn if shape == "sphere" else anim_square_fn)(size, x, y, dwg, group, fps)
 
 
-def anim_sims_fn(pos, dwg, fill=None, stroke=None, group=None, fps=fps):
-    # stroke = ["black"] * pos.shape[0] if stroke is None else stroke
-    # fill = ["black"] * pos.shape[0] if fill is None else fill
+def anim_sims_fn(pos, dwg, fill=None, edge=None, size=None, group=None, fps=fps):
     group = dwg if group is None else group
     assert pos.ndim == 3
+    # print(pos.shape)
     for idx, (x, y) in enumerate(pos):
-        _fill = fill[idx] if fill is not None else "black"
-        _stroke = stroke[idx] if stroke is not None else "black"
-        circle = dwg.circle(center=(float(x[0]), float(y[0])), r=1 / 2, fill=_fill, stroke=_stroke, stroke_width="0.1")
+        f = fill[idx] if fill is not None else "black"
+        e = edge[idx] if edge is not None else "black"
+        s = size[idx] if size is not None else 1
+        circle = dwg.circle(center=(float(x[0]), float(y[0])), r=s / 2, fill=f, stroke=e, stroke_width="0.1")
         xs = ";".join([f"{x.item():.3f}" for x in x])
         ys = ";".join([f"{y.item():.3f}" for y in y])
-        animcx = dwg.animate(attributeName="cx", values=xs, dur=f"{len(xs) / fps}s", repeatCount="indefinite")
-        animcy = dwg.animate(attributeName="cy", values=ys, dur=f"{len(ys) / fps}s", repeatCount="indefinite")
+        animcx = dwg.animate(attributeName="cx", values=xs, dur=f"{pos.shape[0] / fps}s", repeatCount="indefinite")
+        animcy = dwg.animate(attributeName="cy", values=ys, dur=f"{pos.shape[0] / fps}s", repeatCount="indefinite")
         circle.add(animcx)
         circle.add(animcy)
         group.add(circle)
+
+
+# TODO: add gun shots, that move from a to b at time t
+def anim_shot_fn(start_pos, end_pos, start_times, dwg, group=None, fps=fps, bullet_size=0.5, color="red"):
+    """
+    Add animated gun shots that move from start_pos to end_pos over discrete time steps.
+
+    Args:
+        start_pos: array of shape (n_shots, 2) with starting (x, y) positions
+        end_pos: array of shape (n_shots, 2) with ending (x, y) positions
+        start_times: array of shape (n_shots,) with start time steps for each shot
+        dwg: SVG drawing object
+        group: SVG group to add elements to (optional)
+        fps: frames per second for animation
+        bullet_size: radius of the bullet circle
+        color: color of the bullet
+    """
+    group = dwg if group is None else group
+
+    for i, ((start_x, start_y), (end_x, end_y), t) in enumerate(zip(start_pos, end_pos, start_times)):
+        # Create bullet circle
+        bullet = dwg.circle(center=(float(start_x), float(start_y)), r=bullet_size, fill=color, opacity="0")
+
+        # Duration is exactly 1 time step (1/fps seconds per frame)
+        step_duration = 1.0 / fps
+        begin_time = t / fps
+
+        # Animate position from start to end over one time step
+        animcx = dwg.animate(
+            attributeName="cx",
+            values=f"{start_x};{end_x}",
+            dur=f"{step_duration}s",
+            begin=f"{begin_time}s",
+            fill="freeze",
+        )
+
+        animcy = dwg.animate(
+            attributeName="cy",
+            values=f"{start_y};{end_y}",
+            dur=f"{step_duration}s",
+            begin=f"{begin_time}s",
+            fill="freeze",
+        )
+
+        # Make bullet visible only during the time step (t to t+1)
+        anim_opacity = dwg.animate(
+            attributeName="opacity", values="1;1;0", dur=f"{step_duration}s", begin=f"{begin_time}s", fill="freeze"
+        )
+
+        bullet.add(animcx)
+        bullet.add(animcy)
+        bullet.add(anim_opacity)
+        group.add(bullet)

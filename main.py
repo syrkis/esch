@@ -36,11 +36,18 @@ esch.anim_mesh_fn(pos, arr / arr.max(), dwg)
 esch.save(dwg, "paper/figs/anim_mesh.svg")
 
 # %% test sims
-dwg = esch.init(100, 50)
-pos = np.random.randn(100, 2, 200).cumsum(axis=2) * 0.1 + np.array((45, 22.5))[..., None]
-fill = (["black"] * 50) + (["red"] * 50)
+dwg = esch.init(100, 100)
+pos = np.random.randn(100, 2, 1000).cumsum(axis=2) + np.array((50, 50))[..., None]
+fill = (["black"] * 50) + (["none"] * 50)
+size = [random.randint(1, 4) for _ in range(100)]
 random.shuffle(fill)
-esch.anim_sims_fn(pos, dwg, fill=fill)
+esch.anim_sims_fn(pos, dwg, fill=fill, size=size)
+
+start_positions = np.random.uniform(0, 100, (100, 2))
+end_positions = np.random.uniform(0, 100, (100, 2))
+shot_times = np.random.uniform(0, 10, 100)
+
+esch.anim_shot_fn(start_positions, end_positions, shot_times, dwg)
 esch.save(dwg, "paper/figs/anim_sims.svg")
 
 # %% test mix

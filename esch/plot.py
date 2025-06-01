@@ -7,7 +7,7 @@
 import numpy as np
 
 # Config
-fps = 2
+fps = 1
 
 
 # # %% Functions

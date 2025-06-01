@@ -46,8 +46,9 @@ esch.anim_sims_fn(pos, dwg, fill=fill, size=size)
 start_positions = np.random.uniform(0, 100, (100, 2))
 end_positions = np.random.uniform(0, 100, (100, 2))
 shot_times = np.random.uniform(0, 10, 100)
+size = [random.randint(1, 10) for _ in range(100)]
 
-esch.anim_shot_fn(start_positions, end_positions, shot_times, dwg)
+esch.anim_shot_fn(start_positions, end_positions, shot_times, size=size, dwg=dwg)
 esch.save(dwg, "paper/figs/anim_sims.svg")
 
 # %% test mix

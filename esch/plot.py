@@ -1,4 +1,4 @@
-# %% plot.py
+# temp %% plot.py
 #     main esch plot interface  #
 # by: Noah Syrkis
 
@@ -83,11 +83,15 @@ def anim_mesh_fn(pos, arr, dwg, group=None, shape="sphere", fps=fps):
         (anim_sphere_fn if shape == "sphere" else anim_square_fn)(size, x, y, dwg, group, fps)
 
 
-def anim_sims_fn(pos, dwg, group=None):
+def anim_sims_fn(pos, dwg, fill=None, stroke=None, group=None, fps=fps):
+    # stroke = ["black"] * pos.shape[0] if stroke is None else stroke
+    # fill = ["black"] * pos.shape[0] if fill is None else fill
     group = dwg if group is None else group
     assert pos.ndim == 3
-    for x, y in pos:
-        circle = dwg.circle(center=(float(x[0]), float(y[0])), r=1 / 2)
+    for idx, (x, y) in enumerate(pos):
+        _fill = fill[idx] if fill is not None else "black"
+        _stroke = stroke[idx] if stroke is not None else "black"
+        circle = dwg.circle(center=(float(x[0]), float(y[0])), r=1 / 2, fill=_fill, stroke=_stroke, stroke_width="0.1")
         xs = ";".join([f"{x.item():.3f}" for x in x])
         ys = ";".join([f"{y.item():.3f}" for y in y])
         animcx = dwg.animate(attributeName="cx", values=xs, dur=f"{len(xs) / fps}s", repeatCount="indefinite")

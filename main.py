@@ -5,6 +5,7 @@
 # Imports  ##########
 import esch
 import numpy as np
+import random
 
 
 # %% grid test
@@ -16,7 +17,7 @@ esch.save(dwg, "paper/figs/grid.svg")
 # %% anim grid test
 dwg = esch.init(10, 5)
 arr = np.absolute(np.random.randn(10, 5, 100).cumsum(2))
-esch.anim_grid_fn(arr / arr.max(), dwg, shape="square")
+esch.anim_grid_fn(arr / arr.max(), dwg, shape="square", fps=1)
 esch.save(dwg, "paper/figs/anim_grid.svg")
 
 # %% test mesh
@@ -37,7 +38,9 @@ esch.save(dwg, "paper/figs/anim_mesh.svg")
 # %% test sims
 dwg = esch.init(100, 50)
 pos = np.random.randn(100, 2, 200).cumsum(axis=2) * 0.1 + np.array((45, 22.5))[..., None]
-esch.anim_sims_fn(pos, dwg)
+fill = (["black"] * 50) + (["red"] * 50)
+random.shuffle(fill)
+esch.anim_sims_fn(pos, dwg, fill=fill)
 esch.save(dwg, "paper/figs/anim_sims.svg")
 
 # %% test mix

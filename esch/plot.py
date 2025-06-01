@@ -7,7 +7,7 @@
 import numpy as np
 
 # Config
-fps = 1
+fps = 2
 
 
 # # %% Functions
@@ -94,8 +94,8 @@ def anim_sims_fn(pos, dwg, fill=None, edge=None, size=None, group=None, fps=fps)
         circle = dwg.circle(center=(float(x[0]), float(y[0])), r=s / 2, fill=f, stroke=e, stroke_width="0.1")
         xs = ";".join([f"{x.item():.3f}" for x in x])
         ys = ";".join([f"{y.item():.3f}" for y in y])
-        animcx = dwg.animate(attributeName="cx", values=xs, dur=f"{pos.shape[0] / fps}s", repeatCount="indefinite")
-        animcy = dwg.animate(attributeName="cy", values=ys, dur=f"{pos.shape[0] / fps}s", repeatCount="indefinite")
+        animcx = dwg.animate(attributeName="cx", values=xs, dur=f"{pos.shape[-1] / fps}s", repeatCount="indefinite")
+        animcy = dwg.animate(attributeName="cy", values=ys, dur=f"{pos.shape[-1] / fps}s", repeatCount="indefinite")
         circle.add(animcx)
         circle.add(animcy)
         group.add(circle)
@@ -158,7 +158,7 @@ def anim_shot_fn(start_pos, end_pos, start_times, dwg, group=None, fps=fps, bull
 
         # Make bullet visible only during the time step (t to t+1)
         anim_opacity = dwg.animate(
-            attributeName="opacity", values="0;1;0", dur=f"{step_duration}s", begin=f"{begin_time}s"
+            attributeName="opacity", values="1;1;0", dur=f"{step_duration}s", begin=f"{begin_time}s"
         )  # , fill="freeze"
         # )
 

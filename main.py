@@ -1,24 +1,27 @@
-# %% main.py  ###################
+# %% main.py
 #   esch main file for testing  #
-# by: Noah Syrkis  ##############
+# by: Noah Syrkis
 
-# Imports  ##########
+# Imports
 import esch
 import numpy as np
 import random
+
+
+folder = "/Users/nobr/desk/s3/esch"
 
 
 # %% grid test
 dwg = esch.init(10, 5)
 arr = np.ones((10, 5))
 esch.grid_fn(arr, dwg, shape="square")
-esch.save(dwg, "paper/figs/grid.svg")
+esch.save(dwg, f"{folder}/grid.svg")
 
 # %% anim grid test
 dwg = esch.init(10, 5)
 arr = np.absolute(np.random.randn(10, 5, 100).cumsum(2))
 esch.anim_grid_fn(arr / arr.max(), dwg, shape="square", fps=1)
-esch.save(dwg, "paper/figs/anim_grid.svg")
+esch.save(dwg, f"{folder}/anim_grid.svg")
 
 # %% test mesh
 dwg = esch.init(10, 5)
@@ -26,14 +29,14 @@ pos = np.stack((np.random.uniform(0, 10, 10), np.random.uniform(0, 5, 10))).T
 arr = np.random.uniform(0, 1, 10)
 pos, arr = np.random.uniform(0, 9, (10, 2)), np.random.uniform(0, 1, 9)
 esch.mesh_fn(pos, arr, dwg)
-esch.save(dwg, "paper/figs/mesh.svg")
+esch.save(dwg, f"{folder}/mesh.svg")
 
 # %% test anim mesh
 dwg = esch.init(10, 5)
 pos = np.stack((np.random.uniform(0, 10, 10), np.random.uniform(0, 5, 10))).T
 arr = np.abs(np.random.randn(10, 20).cumsum(1))
 esch.anim_mesh_fn(pos, arr / arr.max(), dwg)
-esch.save(dwg, "paper/figs/anim_mesh.svg")
+esch.save(dwg, f"{folder}/anim_mesh.svg")
 
 # %% test sims
 dwg = esch.init(100, 100)
@@ -49,7 +52,7 @@ shot_times = np.random.uniform(0, 10, 100)
 size = [random.randint(1, 10) for _ in range(100)]
 
 esch.anim_shot_fn(start_positions, end_positions, shot_times, size=size, dwg=dwg)
-esch.save(dwg, "paper/figs/anim_sims.svg")
+esch.save(dwg, f"{folder}/anim_sims.svg")
 
 # %% test mix
 dwg = esch.init(10, 5)
@@ -57,7 +60,7 @@ pos = np.random.randn(100, 2, 200).cumsum(axis=2) * 0.1 + np.array((4.5, 2.25))[
 esch.anim_sims_fn(pos, dwg)
 arr = np.random.uniform(0, 1, (10, 5))
 esch.grid_fn(arr, dwg)
-esch.save(dwg, "paper/figs/anim_mix.svg")
+esch.save(dwg, f"{folder}/anim_mix.svg")
 
 
 # %% test multi
@@ -68,7 +71,7 @@ for i in range(len(arr)):
     group.translate(0, (5 + 1) * i)
     esch.grid_fn(arr[i] / arr[i].max(), dwg, group)
     dwg.add(group)
-esch.save(dwg, "paper/figs/multi.svg")
+esch.save(dwg, f"{folder}/multi.svg")
 
 
 # %% test anim multi
@@ -79,4 +82,4 @@ for i in range(len(arr)):
     group.translate(0, (5 + 1) * i)
     esch.anim_grid_fn(arr[i] / arr[i].max(), dwg, group)
     dwg.add(group)
-esch.save(dwg, "paper/figs/anim_multi.svg")
+esch.save(dwg, f"{folder}/anim_multi.svg")

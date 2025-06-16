@@ -16,23 +16,48 @@ from svglib import svglib
 # Types
 
 
-def init(x_range, y_range, rows=1, cols=1, line=False, pad=1):
+def init(x_range, y_range, rows=1, cols=1, pad=1, border=False):
     dwg = svgwrite.Drawing(size=None, preserveAspectRatio="xMidYMid meet")
     dwg.viewbox(-pad, -pad, (x_range + pad) * rows, (y_range + pad) * cols)
+    dwg.add(dwg.rect(insert=(-pad, -pad), size=((x_range + pad) * rows, (y_range + pad) * cols), fill="white"))  # bg
 
     rows, cols = cols, rows
-    if (rows > 1 or cols > 1) and line:
-        # Vertical lines between columns
-        if cols > 1:
-            for i in range(1, cols):
-                x = i * (x_range + 1) - 1
-                dwg.add(dwg.line(start=(x, +1), end=(x, (y_range - 1) * rows - 1), stroke="black", stroke_width=0.1))
 
-        # Horizontal lines between rows
-        if rows > 1:
-            for i in range(1, rows):
-                y = i * (y_range + 1) - 1
-                dwg.add(dwg.line(start=(+1, y), end=((x_range - 1) * cols - 1, y), stroke="black", stroke_width=0.1))
+    if border:
+        if rows > 1 or cols > 1:
+            # Border around each subplot
+            for row in range(rows):
+                for col in range(cols):
+                    x_offset = col * (x_range + pad)
+                    y_offset = row * (y_range + pad)
+                    dwg.add(
+                        dwg.rect(
+                            insert=(x_offset - pad / 2, y_offset - pad / 2),
+                            size=(x_range, y_range),
+                            fill="none",
+                            stroke="black",
+                            stroke_width=0.1,
+                        )
+                    )
+        else:
+            # Border around the entire plot
+            dwg.add(
+                dwg.rect(
+                    insert=(-pad / 2, -pad / 2), size=(x_range, y_range), fill="none", stroke="black", stroke_width=0.1
+                )
+            )
+    # if (rows > 1 or cols > 1) and line:
+    # Vertical lines between columns
+    # if cols > 1:
+    # for i in range(1, cols):
+    # x = i * (x_range + 1) - 1
+    # dwg.add(dwg.line(start=(x, +1), end=(x, (y_range - 1) * rows - 1), stroke="black", stroke_width=0.1))
+
+    # Horizontal lines between rows
+    # if rows > 1:
+    # for i in range(1, rows):
+    # y = i * (y_range + 1) - 1
+    # dwg.add(dwg.line(start=(+1, y), end=((x_range - 1) * cols - 1, y), stroke="black", stroke_width=0.1))
     return dwg
 
 

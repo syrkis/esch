@@ -103,77 +103,64 @@ def anim_sims_fn(pos, dwg, fill=None, edge=None, size=None, group=None, fps=fps)
 
 # TODO: add gun shots, that move from a to b at time t
 def anim_shot_fn(start_pos, end_pos, start_times, dwg, group=None, fps=fps, bullet_size=0.5, color=None, size=None):
-    """
-    Add animated gun shots that move from start_pos to end_pos over discrete time steps.
-
-    Args:
-        start_pos: array of shape (n_shots, 2) with starting (x, y) positions
-        end_pos: array of shape (n_shots, 2) with ending (x, y) positions
-        start_times: array of shape (n_shots,) with start time steps for each shot
-        dwg: SVG drawing object
-        group: SVG group to add elements to (optional)
-        fps: frames per second for animation
-        bullet_size: radius of the bullet circle (used when size is None)
-        color: color of the bullet
-        size: optional array of shape (n_shots,) with target sizes. If provided, bullets grow from 0 to target size
-    """
     group = dwg if group is None else group
 
-    for i, ((start_x, start_y), (end_x, end_y), t) in enumerate(zip(start_pos, end_pos, start_times)):
-        # Determine bullet size - use size array if provided, otherwise use bullet_size
-        if size is not None:
-            initial_size = 0
-            final_size = size[i]
-        else:
-            initial_size = bullet_size
-            final_size = bullet_size
-        if color is None:
-            c = "red"
-        else:
-            c = color[i]
+    # Calculate total number of timesteps
+    max_time = max(start_times) + 1
+    total_duration = max_time / fps
+
+    for i, ((start_x, start_y), (end_x, end_y), shot_time) in enumerate(zip(start_pos, end_pos, start_times)):
+        # Determine bullet size and color
+        final_size = size[i] if size is not None else bullet_size
+        c = color[i] if color is not None else "red"
+
+        # Create value sequences for each timestep
+        cx_values = []
+        cy_values = []
+        opacity_values = []
+        r_values = []
+
+        for timestep in range(max_time):
+            if timestep == shot_time:
+                # Start of shot: at start position
+                cx_values.append(f"{start_x:.3f}")
+                cy_values.append(f"{start_y:.3f}")
+                opacity_values.append("1")
+                r_values.append(f"{bullet_size if size is None else 0:.3f}")
+            elif timestep == shot_time + 1:
+                # End of shot: at end position but invisible
+                cx_values.append(f"{end_x:.3f}")
+                cy_values.append(f"{end_y:.3f}")
+                opacity_values.append("0")
+                r_values.append(f"{final_size:.3f}")
+            else:
+                # Invisible: use start position
+                cx_values.append(f"{start_x:.3f}")
+                cy_values.append(f"{start_y:.3f}")
+                opacity_values.append("0")
+                r_values.append(f"{bullet_size if size is None else 0:.3f}")
 
         # Create bullet circle
-        bullet = dwg.circle(center=(float(start_x), float(start_y)), r=initial_size, fill=c, opacity="0")
+        bullet = dwg.circle(
+            center=(float(start_x), float(start_y)), r=bullet_size if size is None else 0, fill=c, opacity="0"
+        )
 
-        # Duration is exactly 1 time step (1/fps seconds per frame)
-        step_duration = 1.0 / fps
-        begin_time = t / fps
-
-        # Animate position from start to end over one time step
+        # Add animations
         animcx = dwg.animate(
-            attributeName="cx",
-            values=f"{start_x};{end_x}",
-            dur=f"{step_duration}s",
-            begin=f"{begin_time}s",
-            # fill="freeze",
+            attributeName="cx", values=";".join(cx_values), dur=f"{total_duration}s", repeatCount="indefinite"
         )
-
         animcy = dwg.animate(
-            attributeName="cy",
-            values=f"{start_y};{end_y}",
-            dur=f"{step_duration}s",
-            begin=f"{begin_time}s",
-            # fill="freeze",
+            attributeName="cy", values=";".join(cy_values), dur=f"{total_duration}s", repeatCount="indefinite"
         )
-
-        # Make bullet visible only during the time step (t to t+1)
         anim_opacity = dwg.animate(
-            attributeName="opacity", values="1;1;0", dur=f"{step_duration}s", begin=f"{begin_time}s"
-        )  # , fill="freeze"
-        # )
-
-        # Animate size if size array is provided
-        if size is not None:
-            anim_size = dwg.animate(
-                attributeName="r",
-                values=f"{initial_size};{final_size}",
-                dur=f"{step_duration}s",
-                begin=f"{begin_time}s",
-                fill="freeze",
-            )
-            bullet.add(anim_size)
+            attributeName="opacity", values=";".join(opacity_values), dur=f"{total_duration}s", repeatCount="indefinite"
+        )
+        anim_size = dwg.animate(
+            attributeName="r", values=";".join(r_values), dur=f"{total_duration}s", repeatCount="indefinite"
+        )
 
         bullet.add(animcx)
         bullet.add(animcy)
         bullet.add(anim_opacity)
+        bullet.add(anim_size)
         group.add(bullet)

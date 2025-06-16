@@ -344,7 +344,7 @@ wheels = [
 
 [[package]]
 name = "esch"
-version = "0.0.10"
+version = "0.0.24"
 source = { editable = "." }
 dependencies = [
     { name = "chex" },

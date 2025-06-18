@@ -29,12 +29,12 @@ class Drawing:
         pad, w, h, row, col = self.pad, self.w, self.h, self.row, self.col
 
         # subplots dims
-        self.sub_plot_width = pad + w + pad
-        self.sub_plot_height = pad + h + pad
+        self.sub_width = pad + w
+        self.sub_height = pad + h
 
         # total dims
-        self.total_height = row * self.sub_plot_width
-        self.total_width = col * self.sub_plot_height
+        self.total_height = row * self.sub_width
+        self.total_width = col * self.sub_height
 
         # setup dwg
         self.dwg = svgwrite.Drawing(size=None, preserveAspectRatio="xMidYMid meet")
@@ -44,10 +44,7 @@ class Drawing:
         idxs = [(i, j) for i in range(row) for j in range(col)]
         print(idxs)
         self.gs = [self.dwg.g() for i, j in idxs]
-        [
-            g.translate(2 * pad + self.sub_plot_height * j, 2 * pad + self.sub_plot_width * i)
-            for g, (i, j) in zip(self.gs, idxs)
-        ]
+        [g.translate(pad + self.sub_height * j, pad + self.sub_width * i) for g, (i, j) in zip(self.gs, idxs)]
 
         # debug?
         self._debug() if self.debug else None
@@ -56,7 +53,7 @@ class Drawing:
         # add red box around viewbox of dwg
         self.dwg.add(
             self.dwg.rect(
-                insert=(0, 0), size=(self.total_width, self.total_height), stroke="red", stroke_width=2, fill="none"
+                insert=(0, 0), size=(self.total_width, self.total_height), stroke="red", stroke_width=1, fill="none"
             )
         )
 
@@ -67,7 +64,7 @@ class Drawing:
             g.add(
                 self.dwg.rect(
                     insert=(0, 0),
-                    size=(self.h - 2 * self.pad, self.w - 2 * self.pad),
+                    size=(self.h - self.pad, self.w - self.pad),
                     stroke="blue",
                     stroke_width=0.1,
                     fill="none",

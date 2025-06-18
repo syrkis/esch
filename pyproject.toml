@@ -19,6 +19,7 @@ dependencies = [
     "ipywidgets>=8.1.5,<9",
     "pdf2image>=1.17.0,<2",
     "jax>=0.6.0,<0.7",
+    "seaborn>=0.13.2",
 ]
 
 [build-system]

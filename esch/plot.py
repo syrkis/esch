@@ -4,105 +4,48 @@
 
 
 # imports
-import numpy as np
+from esch.atom import square_fn, circle_fn
 
 # Config
 fps = 1
 
 
-# # %% Functions
-def sphere_fn(size, x, y, dwg, group):
-    circle = dwg.circle(center=(x, y), r=size)
-    group.add(circle)
+def grid_fn(arr, e, shape="sphere", fps=fps):
+    for idx, g in enumerate(e.gs):
+        for x in range(arr.shape[1]):
+            for y in range(arr.shape[2]):
+                size = arr[idx, x, y] ** 0.5 / 2.1
+                (circle_fn if shape == "sphere" else square_fn)(size, x, y, e.dwg, g, fps)
+        e.dwg.add(g)
 
 
-def square_fn(size, x, y, dwg, group):
-    size *= 2
-    square = dwg.rect(insert=(x - size / 2, y - size / 2), size=(size, size))
-    group.add(square)
+def mesh_fn(pos, arr, e, shape="sphere", fps=fps):
+    for idx, g in enumerate(e.gs):
+        for (x, y), r in zip(pos[idx], arr[idx]):
+            size = r / len(arr[idx]) ** 0.5 / 2.1
+            (circle_fn if shape == "sphere" else square_fn)(size, x, y, e.dwg, g, fps)
+        e.dwg.add(g)
 
 
-def anim_sphere_fn(size, x, y, dwg, group, fps):
-    size = np.concat((size[-1][..., None], size))
-    circle = dwg.circle(center=(x, y), r=size[0] ** 0.5 / 2.1)  # / min(arr[:, :, -1].shape) ** 0.5)
-    radii = ";".join([f"{elm.item() ** 0.5 / 2.1}" for elm in size])
-    anim = dwg.animate(attributeName="r", values=radii, dur=f"{len(size) / fps}s", repeatCount="indefinite")
-    circle.add(anim)
-    group.add(circle)
-
-
-def anim_square_fn(size, x, y, dwg, group, fps):
-    size = np.concat((size[-1][..., None], size))
-    size *= 2
-    square = dwg.rect(insert=(x - size[0] / 2, y - size[0] / 2), size=(size[0], size[0]))
-    sizes = ";".join([f"{s.item()}" for s in size])
-    xs = ";".join([f"{x - s.item() / 2}" for s in size])
-    ys = ";".join([f"{y - s.item() / 2}" for s in size])
-    animw = dwg.animate(attributeName="width", values=sizes, dur=f"{len(size) / fps}s", repeatCount="indefinite")
-    animh = dwg.animate(attributeName="height", values=sizes, dur=f"{len(size) / fps}s", repeatCount="indefinite")
-    animx = dwg.animate(attributeName="x", values=xs, dur=f"{len(size) / fps}s", repeatCount="indefinite")
-    animy = dwg.animate(attributeName="y", values=ys, dur=f"{len(size) / fps}s", repeatCount="indefinite")
-    square.add(animw)
-    square.add(animh)
-    square.add(animx)
-    square.add(animy)
-    group.add(square)
-
-
-def grid_fn(arr, dwg, group, shape="sphere"):
-    assert arr.ndim == 2
-    for x in range(arr.shape[0]):
-        for y in range(arr.shape[1]):
-            size = arr[x, y] ** 0.5 / 2.1
-            (sphere_fn if shape == "sphere" else square_fn)(size, x, y, dwg, group)
-    dwg.add(group)
-
-
-def anim_grid_fn(arr, dwg, group=None, shape="sphere", fps=fps):
-    group = dwg if group is None else group
-    assert arr.ndim == 3
-    for x in range(arr.shape[0]):
-        for y in range(arr.shape[1]):
-            size = arr[x, y] ** 0.5 / 2.1
-            (anim_sphere_fn if shape == "sphere" else anim_square_fn)(size, x, y, dwg, group, fps)
-
-
-def mesh_fn(pos, arr, dwg, group=None, shape="sphere"):
-    group = dwg if group is None else group
-    assert arr.ndim == 1
-    for (x, y), r in zip(pos, arr):
-        size = r / len(arr) ** 0.5 / 2.1
-        (sphere_fn if shape == "sphere" else square_fn)(size, x, y, dwg, group)
-
-
-def anim_mesh_fn(pos, arr, dwg, group=None, shape="sphere", fps=fps):
-    group = dwg if group is None else group
-    assert arr.ndim == 2
-    for (x, y), r in zip(pos, arr):
-        size = r / len(arr) ** 0.5 / 2.1
-        (anim_sphere_fn if shape == "sphere" else anim_square_fn)(size, x, y, dwg, group, fps)
-
-
-def anim_sims_fn(pos, dwg, shots=None, fill=None, edge=None, size=None, group=None, fps=fps):
-    group = dwg if group is None else group
-    assert pos.ndim == 3
-    # print(pos.shape)
-    for idx, (x, y) in enumerate(pos):  # loop through units
-        f = fill[idx] if fill is not None else "black"
-        e = edge[idx] if edge is not None else "black"
-        s = size[idx] if size is not None else 1
-        circle = dwg.circle(center=(float(x[0]), float(y[0])), r=s / 2, fill=f, stroke=e, stroke_width="0.1")
-        xs = ";".join([f"{x.item():.3f}" for x in x])
-        ys = ";".join([f"{y.item():.3f}" for y in y])
-        animcx = dwg.animate(attributeName="cx", values=xs, dur=f"{pos.shape[-1] / fps}s", repeatCount="indefinite")
-        animcy = dwg.animate(attributeName="cy", values=ys, dur=f"{pos.shape[-1] / fps}s", repeatCount="indefinite")
-        circle.add(animcx)
-        circle.add(animcy)
-        group.add(circle)
-
-        if shots and shots[idx]:  # if unit has shots, animate the shots
-            # shots is a list of tuples: [(time, (x_coord, y_coord)), ...] f
-            # the source of the shot is x[t], y[t] and the target is x_coord, y_coord.
-            # one shape will represent the shots of each units. The shot will move from (x[t], y[t]) to x_cord, y_coord, during the first time step.
-            # When the shot arrives at the target, it will become invisible. The invisible shot will then move back to the
-            pass
+# def anim_sims_fn(pos, dwg, shots=None, fill=None, edge=None, size=None, group=None, fps=fps):
+# group = dwg if group is None else group
+# assert pos.ndim == 3
+# for idx, (x, y) in enumerate(pos):  # loop through units
+# f = fill[idx] if fill is not None else "black"
+# e = edge[idx] if edge is not None else "black"
+# s = size[idx] if size is not None else 1
+# circle = dwg.circle(center=(float(x[0]), float(y[0])), r=s / 2, fill=f, stroke=e, stroke_width="0.1")
+# xs = ";".join([f"{x.item():.3f}" for x in x])
+# ys = ";".join([f"{y.item():.3f}" for y in y])
+# animcx = dwg.animate(attributeName="cx", values=xs, dur=f"{pos.shape[-1] / fps}s", repeatCount="indefinite")
+# animcy = dwg.animate(attributeName="cy", values=ys, dur=f"{pos.shape[-1] / fps}s", repeatCount="indefinite")
+# circle.add(animcx)
+# circle.add(animcy)
+# group.add(circle)
+#
+# if shots and shots[idx]:  # if unit has shots, animate the shots
+# shots is a list of tuples: [(time, (x_coord, y_coord)), ...] f
+# the source of the shot is x[t], y[t] and the target is x_coord, y_coord.
+# one shape will represent the shots of each units. The shot will move from (x[t], y[t]) to x_cord, y_coord, during the first time step.
+# When the shot arrives at the target, it will become invisible. The invisible shot will then move back to the
+# pass

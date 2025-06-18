@@ -17,10 +17,10 @@ from dataclasses import dataclass
 # Types
 @dataclass
 class Drawing:
-    w: int
-    h: int
-    row: int = 1  # for small multiples
-    col: int = 1  # for small multipels
+    h: int  # rows
+    w: int  # rows
+    row: int  # for small multiples
+    col: int  # for small multipels
     debug: bool = True
 
     def __post_init__(self: "Drawing"):
@@ -33,17 +33,21 @@ class Drawing:
         self.sub_plot_height = pad + h + pad
 
         # total dims
-        self.total_width = row * self.sub_plot_width
-        self.total_height = col * self.sub_plot_height
+        self.total_height = row * self.sub_plot_width
+        self.total_width = col * self.sub_plot_height
 
         # setup dwg
         self.dwg = svgwrite.Drawing(size=None, preserveAspectRatio="xMidYMid meet")
         self.dwg.viewbox(minx=0, miny=0, width=self.total_width, height=self.total_height)  # type: ignore
 
         # make groups or group
-        gs = [(self.dwg.g(), i, j) for i in range(row) for j in range(col)]
-        [g.translate(2 * pad + self.sub_plot_width * j, 2 * pad + self.sub_plot_height * i) for g, i, j in gs]
-        self.gs = [g for g, _, _ in gs]
+        idxs = [(i, j) for i in range(row) for j in range(col)]
+        print(idxs)
+        self.gs = [self.dwg.g() for i, j in idxs]
+        [
+            g.translate(2 * pad + self.sub_plot_height * j, 2 * pad + self.sub_plot_width * i)
+            for g, (i, j) in zip(self.gs, idxs)
+        ]
 
         # debug?
         self._debug() if self.debug else None
@@ -56,8 +60,19 @@ class Drawing:
             )
         )
 
-
-#
+        # add blue rectangles to each group
+        idxs = [(i, j) for i in range(self.row) for j in range(self.col)]
+        for (i, j), g in zip(idxs, self.gs):
+            # insert = (self.sub_plot_height * i, self.sub_plot_width * j)
+            g.add(
+                self.dwg.rect(
+                    insert=(0, 0),
+                    size=(self.h - 2 * self.pad, self.w - 2 * self.pad),
+                    stroke="blue",
+                    stroke_width=0.1,
+                    fill="none",
+                )
+            )
 
 
 def save(dwg, filename, scale=80):

@@ -12,11 +12,12 @@ folder = "/Users/nobr/desk/s3/esch"
 
 
 # %% grid test
-dwg = esch.init(10, 5)
-arr = np.ones((10, 5))
-esch.grid_fn(arr, dwg, shape="square")
-esch.save(dwg, f"{folder}/grid.svg")
+e = esch.Drawing(w=10, h=5)
+arr = np.ones((10, 5)) / 2
+esch.grid_fn(arr, e.dwg, e.gs[0], shape="square")
+esch.save(e.dwg, f"{folder}/grid.svg")
 
+exit()
 # %% anim grid test
 dwg = esch.init(10, 5)
 arr = np.absolute(np.random.randn(10, 5, 100).cumsum(2))
@@ -51,8 +52,8 @@ end_positions = np.random.uniform(0, 100, (100, 2))
 shot_times = np.random.uniform(0, 10, 100)
 size = [random.randint(1, 10) for _ in range(100)]
 
-esch.anim_shot_fn(start_positions, end_positions, shot_times, size=size, dwg=dwg)
-esch.save(dwg, f"{folder}/anim_sims.svg")
+# esch.anim_shot_fn(start_positions, end_positions, shot_times, size=size, dwg=dwg)
+# esch.save(dwg, f"{folder}/anim_sims.svg")
 
 # %% test mix
 dwg = esch.init(10, 5)
@@ -64,7 +65,7 @@ esch.save(dwg, f"{folder}/anim_mix.svg")
 
 
 # %% test multi
-dwg = esch.init(10, 5, cols=3)
+dwg, gs = esch.init(10, 5, cols=3)
 arr = np.absolute(np.random.randn(3, 10, 5))
 for i in range(len(arr)):
     group = dwg.g()
@@ -75,11 +76,25 @@ esch.save(dwg, f"{folder}/multi.svg")
 
 
 # %% test anim multi
-dwg = esch.init(10, 5, cols=3)
-arr = np.absolute(np.random.randn(3, 10, 5, 10).cumsum(3))
-for i in range(len(arr)):
-    group = dwg.g()
-    group.translate(0, (5 + 1) * i)
-    esch.anim_grid_fn(arr[i] / arr[i].max(), dwg, group)
-    dwg.add(group)
+dwg, gs = esch.init(5, 10, rows=3)
+arr = np.absolute(np.random.randn(3, 5, 10, 100).cumsum(3))
+for idx, g in enumerate(gs):
+    esch.anim_grid_fn(arr[idx] / arr[idx].max(), dwg, g)
+    dwg.add(g)
 esch.save(dwg, f"{folder}/anim_multi.svg")
+
+# %% test sims with shots
+dwg = esch.init(100, 100)
+pos = np.random.randn(100, 2, 1000).cumsum(axis=2) + np.array((50, 50))[..., None]
+fill = (["black"] * 50) + (["none"] * 50)
+size = [random.randint(1, 4) for _ in range(100)]
+random.shuffle(fill)
+esch.anim_sims_fn(pos, dwg, fill=fill, size=size)
+
+start_positions = np.random.uniform(0, 100, (100, 2))
+end_positions = np.random.uniform(0, 100, (100, 2))
+shot_times = np.random.uniform(0, 10, 100)
+size = [random.randint(1, 10) for _ in range(100)]
+
+# esch.anim_shot_fn(start_positions, end_positions, shot_times, size=size, dwg=dwg)
+# esch.save(dwg, f"{folder}/anim_sims.svg")

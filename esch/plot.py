@@ -49,13 +49,13 @@ def anim_square_fn(size, x, y, dwg, group, fps):
     group.add(square)
 
 
-def grid_fn(arr, dwg, group=None, shape="sphere"):
-    group = dwg if group is None else group
+def grid_fn(arr, dwg, group, shape="sphere"):
     assert arr.ndim == 2
     for x in range(arr.shape[0]):
         for y in range(arr.shape[1]):
             size = arr[x, y] ** 0.5 / 2.1
             (sphere_fn if shape == "sphere" else square_fn)(size, x, y, dwg, group)
+    dwg.add(group)
 
 
 def anim_grid_fn(arr, dwg, group=None, shape="sphere", fps=fps):
@@ -83,11 +83,11 @@ def anim_mesh_fn(pos, arr, dwg, group=None, shape="sphere", fps=fps):
         (anim_sphere_fn if shape == "sphere" else anim_square_fn)(size, x, y, dwg, group, fps)
 
 
-def anim_sims_fn(pos, dwg, fill=None, edge=None, size=None, group=None, fps=fps):
+def anim_sims_fn(pos, dwg, shots=None, fill=None, edge=None, size=None, group=None, fps=fps):
     group = dwg if group is None else group
     assert pos.ndim == 3
     # print(pos.shape)
-    for idx, (x, y) in enumerate(pos):
+    for idx, (x, y) in enumerate(pos):  # loop through units
         f = fill[idx] if fill is not None else "black"
         e = edge[idx] if edge is not None else "black"
         s = size[idx] if size is not None else 1
@@ -100,67 +100,9 @@ def anim_sims_fn(pos, dwg, fill=None, edge=None, size=None, group=None, fps=fps)
         circle.add(animcy)
         group.add(circle)
 
-
-# TODO: add gun shots, that move from a to b at time t
-def anim_shot_fn(start_pos, end_pos, start_times, dwg, group=None, fps=fps, bullet_size=0.5, color=None, size=None):
-    group = dwg if group is None else group
-
-    # Calculate total number of timesteps
-    max_time = max(start_times) + 1
-    total_duration = max_time / fps
-
-    for i, ((start_x, start_y), (end_x, end_y), shot_time) in enumerate(zip(start_pos, end_pos, start_times)):
-        # Determine bullet size and color
-        final_size = size[i] if size is not None else bullet_size
-        c = color[i] if color is not None else "red"
-
-        # Create value sequences for each timestep
-        cx_values = []
-        cy_values = []
-        opacity_values = []
-        r_values = []
-
-        for timestep in range(max_time):
-            if timestep == shot_time:
-                # Start of shot: at start position
-                cx_values.append(f"{start_x:.3f}")
-                cy_values.append(f"{start_y:.3f}")
-                opacity_values.append("1")
-                r_values.append(f"{bullet_size if size is None else 0:.3f}")
-            elif timestep == shot_time + 1:
-                # End of shot: at end position but invisible
-                cx_values.append(f"{end_x:.3f}")
-                cy_values.append(f"{end_y:.3f}")
-                opacity_values.append("0")
-                r_values.append(f"{final_size:.3f}")
-            else:
-                # Invisible: use start position
-                cx_values.append(f"{start_x:.3f}")
-                cy_values.append(f"{start_y:.3f}")
-                opacity_values.append("0")
-                r_values.append(f"{bullet_size if size is None else 0:.3f}")
-
-        # Create bullet circle
-        bullet = dwg.circle(
-            center=(float(start_x), float(start_y)), r=bullet_size if size is None else 0, fill=c, opacity="0"
-        )
-
-        # Add animations
-        animcx = dwg.animate(
-            attributeName="cx", values=";".join(cx_values), dur=f"{total_duration}s", repeatCount="indefinite"
-        )
-        animcy = dwg.animate(
-            attributeName="cy", values=";".join(cy_values), dur=f"{total_duration}s", repeatCount="indefinite"
-        )
-        anim_opacity = dwg.animate(
-            attributeName="opacity", values=";".join(opacity_values), dur=f"{total_duration}s", repeatCount="indefinite"
-        )
-        anim_size = dwg.animate(
-            attributeName="r", values=";".join(r_values), dur=f"{total_duration}s", repeatCount="indefinite"
-        )
-
-        bullet.add(animcx)
-        bullet.add(animcy)
-        bullet.add(anim_opacity)
-        bullet.add(anim_size)
-        group.add(bullet)
+        if shots and shots[idx]:  # if unit has shots, animate the shots
+            # shots is a list of tuples: [(time, (x_coord, y_coord)), ...] f
+            # the source of the shot is x[t], y[t] and the target is x_coord, y_coord.
+            # one shape will represent the shots of each units. The shot will move from (x[t], y[t]) to x_cord, y_coord, during the first time step.
+            # When the shot arrives at the target, it will become invisible. The invisible shot will then move back to the
+            pass

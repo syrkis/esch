@@ -11,54 +11,53 @@ import svgwrite
 from pdf2image import convert_from_path
 from reportlab.graphics import renderPDF
 from svglib import svglib
+from dataclasses import dataclass
 
 
 # Types
+@dataclass
+class Drawing:
+    w: int
+    h: int
+    row: int = 1  # for small multiples
+    col: int = 1  # for small multipels
+    debug: bool = True
 
+    def __post_init__(self: "Drawing"):
+        # constants
+        self.pad = min(self.w, self.h) / 10
+        pad, w, h, row, col = self.pad, self.w, self.h, self.row, self.col
 
-def init(x_range, y_range, rows=1, cols=1, pad=1, border=False):
-    dwg = svgwrite.Drawing(size=None, preserveAspectRatio="xMidYMid meet")
-    dwg.viewbox(-pad, -pad, (x_range + pad) * rows, (y_range + pad) * cols)
-    dwg.add(dwg.rect(insert=(-pad, -pad), size=((x_range + pad) * rows, (y_range + pad) * cols), fill="white"))  # bg
+        # subplots dims
+        self.sub_plot_width = pad + w + pad
+        self.sub_plot_height = pad + h + pad
 
-    rows, cols = cols, rows
+        # total dims
+        self.total_width = row * self.sub_plot_width
+        self.total_height = col * self.sub_plot_height
 
-    if border:
-        if rows > 1 or cols > 1:
-            # Border around each subplot
-            for row in range(rows):
-                for col in range(cols):
-                    x_offset = col * (x_range + pad)
-                    y_offset = row * (y_range + pad)
-                    dwg.add(
-                        dwg.rect(
-                            insert=(x_offset - pad / 2, y_offset - pad / 2),
-                            size=(x_range, y_range),
-                            fill="none",
-                            stroke="black",
-                            stroke_width=0.1,
-                        )
-                    )
-        else:
-            # Border around the entire plot
-            dwg.add(
-                dwg.rect(
-                    insert=(-pad / 2, -pad / 2), size=(x_range, y_range), fill="none", stroke="black", stroke_width=0.1
-                )
+        # setup dwg
+        self.dwg = svgwrite.Drawing(size=None, preserveAspectRatio="xMidYMid meet")
+        self.dwg.viewbox(minx=0, miny=0, width=self.total_width, height=self.total_height)  # type: ignore
+
+        # make groups or group
+        gs = [(self.dwg.g(), i, j) for i in range(row) for j in range(col)]
+        [g.translate(2 * pad + self.sub_plot_width * j, 2 * pad + self.sub_plot_height * i) for g, i, j in gs]
+        self.gs = [g for g, _, _ in gs]
+
+        # debug?
+        self._debug() if self.debug else None
+
+    def _debug(self):
+        # add red box around viewbox of dwg
+        self.dwg.add(
+            self.dwg.rect(
+                insert=(0, 0), size=(self.total_width, self.total_height), stroke="red", stroke_width=2, fill="none"
             )
-    # if (rows > 1 or cols > 1) and line:
-    # Vertical lines between columns
-    # if cols > 1:
-    # for i in range(1, cols):
-    # x = i * (x_range + 1) - 1
-    # dwg.add(dwg.line(start=(x, +1), end=(x, (y_range - 1) * rows - 1), stroke="black", stroke_width=0.1))
+        )
 
-    # Horizontal lines between rows
-    # if rows > 1:
-    # for i in range(1, rows):
-    # y = i * (y_range + 1) - 1
-    # dwg.add(dwg.line(start=(+1, y), end=((x_range - 1) * cols - 1, y), stroke="black", stroke_width=0.1))
-    return dwg
+
+#
 
 
 def save(dwg, filename, scale=80):

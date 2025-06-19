@@ -7,10 +7,10 @@
 from esch.atom import square_fn, circle_fn, agent_fn
 
 # Config
-fps = 1
+fps = 4
 
 
-def grid_fn(arr, e, shape="sphere", fps=fps, ticks=None):
+def grid_fn(arr, e, shape="sphere", fps=fps, ticks=True):
     for idx, g in enumerate(e.gs):
         for x in range(arr.shape[1]):
             for y in range(arr.shape[2]):
@@ -20,7 +20,7 @@ def grid_fn(arr, e, shape="sphere", fps=fps, ticks=None):
                 (circle_fn if shape == "sphere" else square_fn)(size, x, y, e, g, fps)
 
                 # potentially add ticks
-                tick_fn(g) if ticks is not None else None
+                tick_fn(e, g)  #  if ticks is not None else None
         e.dwg.add(g)
 
 
@@ -35,33 +35,21 @@ def mesh_fn(pos, arr, e, shape="sphere", fps=fps):
 
 def sims_fn(pos, e, fps=fps):
     for idx, g in enumerate(e.gs):
-        # print(pos[idx].shape)
         for jdx, (xs, ys) in enumerate(pos[idx]):
-            # if jdx == 0:
-            # print(xs.shape, ys.shape)
-            agent_fn(size=0.1, xs=xs, ys=ys, e=e, g=g, fps=fps)
+            agent_fn(size=0.02, xs=xs, ys=ys, e=e, g=g, fps=fps)
         e.dwg.add(g)
 
 
-# def anim_sims_fn(pos, dwg, shots=None, fill=None, edge=None, size=None, group=None, fps=fps):
-# group = dwg if group is None else group
-# assert pos.ndim == 3
-# for idx, (x, y) in enumerate(pos):  # loop through units
-# f = fill[idx] if fill is not None else "black"
-# e = edge[idx] if edge is not None else "black"
-# s = size[idx] if size is not None else 1
-# circle = dwg.circle(center=(float(x[0]), float(y[0])), r=s / 2, fill=f, stroke=e, stroke_width="0.1")
-# xs = ";".join([f"{x.item():.3f}" for x in x])
-# ys = ";".join([f"{y.item():.3f}" for y in y])
-# animcx = dwg.animate(attributeName="cx", values=xs, dur=f"{pos.shape[-1] / fps}s", repeatCount="indefinite")
-# animcy = dwg.animate(attributeName="cy", values=ys, dur=f"{pos.shape[-1] / fps}s", repeatCount="indefinite")
-# circle.add(animcx)
-# circle.add(animcy)
-# group.add(circle)
-#
-# if shots and shots[idx]:  # if unit has shots, animate the shots
-# shots is a list of tuples: [(time, (x_coord, y_coord)), ...] f
-# the source of the shot is x[t], y[t] and the target is x_coord, y_coord.
-# one shape will represent the shots of each units. The shot will move from (x[t], y[t]) to x_cord, y_coord, during the first time step.
-# When the shot arrives at the target, it will become invisible. The invisible shot will then move back to the
-# pass
+def tick_fn(e, g):
+    for i in range(e.w + 1):
+        # horizontal ticks
+        g.add(e.dwg.line(start=(i, 0 - e.pad / 2), end=(i, 0.1 - e.pad / 2), stroke="red", stroke_width="0.05"))
+        g.add(
+            e.dwg.line(start=(i, e.h + e.pad / 2), end=(i, -0.1 + e.h + e.pad / 2), stroke="red", stroke_width="0.05")
+        )
+
+        # vertical ticks
+        g.add(e.dwg.line(start=(0 - e.pad / 2, i), end=(0.1 - e.pad / 2, i), stroke="red", stroke_width="0.05"))
+        g.add(
+            e.dwg.line(start=(e.w + e.pad / 2, i), end=(-0.1 + e.w + e.pad / 2, i), stroke="red", stroke_width="0.05")
+        )

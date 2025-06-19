@@ -21,7 +21,7 @@ class Drawing:
     w: int  # rows
     row: int  # for small multiples
     col: int  # for small multipels
-    debug: bool = True
+    debug: bool = False
 
     def __post_init__(self: "Drawing"):
         # constants

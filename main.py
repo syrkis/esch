@@ -75,70 +75,12 @@ esch.save(e.dwg, f"{folder}/multi_anim_mesh.svg")
 # NOT WORKING YET
 # %% SIMS #######################################################################################
 e = esch.Drawing(h=h, w=w, row=1, col=1)
-pos = (
-    np.stack((np.random.uniform(0, h, (88, 1000)), np.random.uniform(0, w, (88, 1000))))
-    .T[None, ...]
-    .transpose((0, 1, 3, 2))
-)
+pos = np.stack((np.random.uniform(0, h, (1, 88, 1000)), np.random.uniform(0, w, (1, 88, 1000)))).transpose((1, 3, 0, 2))
 esch.sims_fn(pos, e)
 esch.save(e.dwg, f"{folder}/sims.svg")
 
-exit()
-e = esch.Drawing(h=h, w=w, row=1, col=n)
-pos = np.stack((np.random.uniform(0, h - 1, (1000, n)), np.random.uniform(0, w - 1, (1000, n)))).T
-arr = np.abs(np.random.randn(n, 1000, 20).cumsum(2))
-esch.mesh_fn(pos, arr / arr.max(), e)
-esch.save(e.dwg, f"{folder}/multi_multi.svg")
-
 # %% MULTI SIMS
-
-
-# exit()
-# %% test sims
-# dwg = esch.init(100, 100)
-# pos = np.random.randn(100, 2, 1000).cumsum(axis=2) + np.array((50, 50))[..., None]
-# fill = (["black"] * 50) + (["none"] * 50)
-# size = [random.randint(1, 4) for _ in range(100)]
-# random.shuffle(fill)
-# esch.anim_sims_fn(pos, dwg, fill=fill, size=size)
-
-# start_positions = np.random.uniform(0, 100, (100, 2))
-# end_positions = np.random.uniform(0, 100, (100, 2))
-# shot_times = np.random.uniform(0, 10, 100)
-# size = [random.randint(1, 10) for _ in range(100)]
-
-# esch.anim_shot_fn(start_positions, end_positions, shot_times, size=size, dwg=dwg)
-# esch.save(dwg, f"{folder}/anim_sims.svg")
-
-# %% test mix
-# dwg = esch.init(10, 5)
-# pos = np.random.randn(100, 2, 200).cumsum(axis=2) * 0.1 + np.array((4.5, 2.25))[..., None]
-# esch.anim_sims_fn(pos, dwg)
-# arr = np.random.uniform(0, 1, (10, 5))
-# esch.grid_fn(arr, dwg)
-# esch.save(dwg, f"{folder}/anim_mix.svg")
-
-
-# %% test anim multi
-# dwg, gs = esch.init(5, 10, rows=3)
-# arr = np.absolute(np.random.randn(3, 5, 10, 100).cumsum(3))
-# for idx, g in enumerate(gs):
-# esch.anim_grid_fn(arr[idx] / arr[idx].max(), dwg, g)
-# dwg.add(g)
-# esch.save(dwg, f"{folder}/anim_multi.svg")
-
-# %% test sims with shots
-# dwg = esch.init(100, 100)
-# pos = np.random.randn(100, 2, 1000).cumsum(axis=2) + np.array((50, 50))[..., None]
-# fill = (["black"] * 50) + (["none"] * 50)
-# size = [random.randint(1, 4) for _ in range(100)]
-# random.shuffle(fill)
-# esch.anim_sims_fn(pos, dwg, fill=fill, size=size)
-#
-# start_positions = np.random.uniform(0, 100, (100, 2))
-# end_positions = np.random.uniform(0, 100, (100, 2))
-# shot_times = np.random.uniform(0, 10, 100)
-# size = [random.randint(1, 10) for _ in range(100)]
-#
-# esch.anim_shot_fn(start_positions, end_positions, shot_times, size=size, dwg=dwg)
-# esch.save(dwg, f"{folder}/anim_sims.svg")
+e = esch.Drawing(h=h, w=w, row=1, col=n)
+pos = np.stack((np.random.uniform(0, h, (n, 88, 1000)), np.random.uniform(0, w, (n, 88, 1000)))).transpose((1, 3, 0, 2))
+esch.sims_fn(pos, e)
+esch.save(e.dwg, f"{folder}/multi_sims.svg")

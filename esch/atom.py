@@ -4,19 +4,29 @@ import numpy as np
 
 # %% Primitives
 def circle_fn(s, x, y, e, g, fps):  # size, x, y (possible switch x, and y pos)
-    shp = e.dwg.circle(center=(x, y), r=s) if s.size == 1 else sphere_fn(s, x, y, e, g, fps=30)
+    if s.size == 1:
+        s = round(s, 3)
+        shp = e.dwg.circle(center=(x, y), r=s)
+    else:
+        shp = sphere_fn(s, x, y, e, g, fps=30)
     g.add(shp)
 
 
 def square_fn(s, x, y, e, g, fps):  # size, x, y (possible switch x, and y pos)
-    shp = e.dwg.rect(insert=(x - s / 2, y - s / 2), size=(s, s)) if s.size == 1 else cube_fn(s, x, y, e, g, fps=30)
+    if s.size == 1:
+        s = round(s, 3)
+        shp = e.dwg.rect(insert=(x - s / 2, y - s / 2), size=(s, s))
+    else:
+        shp = cube_fn(s, x, y, e, g, fps=30)
     g.add(shp)
 
 
 def agent_fn(size, xs, ys, e, g, fps):
+    xs = np.concat((xs[-1][..., None], xs))
+    ys = np.concat((ys[-1][..., None], ys))
     agent = e.dwg.circle(center=(xs[0], ys[0]), r=size)
-    xs_str = ";".join([f"{x}" for x in xs])
-    ys_str = ";".join([f"{y}" for y in ys])
+    xs_str = ";".join([f"{round(x, 3)}" for x in xs])
+    ys_str = ";".join([f"{round(y, 3)}" for y in ys])
     # print(len(xs))
     animx = e.dwg.animate(attributeName="cx", values=xs, dur=f"{len(xs_str) / fps}s", repeatCount="indefinite")
     animy = e.dwg.animate(attributeName="cy", values=ys, dur=f"{len(ys_str) / fps}s", repeatCount="indefinite")
@@ -27,21 +37,21 @@ def agent_fn(size, xs, ys, e, g, fps):
 
 # %% Animations
 def sphere_fn(size, x, y, e, group, fps):
-    size = np.concat((size[-1][..., None], size))
+    size = np.concatenate((size[-1][..., None], size))
     circle = e.dwg.circle(center=(x, y), r=size[0] ** 0.5 / 2.1)
-    radii = ";".join([f"{elm.item() ** 0.5 / 2.1}" for elm in size])
+    radii = ";".join([f"{round(elm.item() ** 0.5 / 2.1, 3)}" for elm in size])
     anim = e.dwg.animate(attributeName="r", values=radii, dur=f"{len(size) / fps}s", repeatCount="indefinite")
     circle.add(anim)
     return circle
 
 
 def cube_fn(size, x, y, e, group, fps):
-    size = np.concat((size[-1][..., None], size))
+    size = np.concat((size[-1][None, ...], size)).round(3)
     size *= 2
     square = e.dwg.rect(insert=(x - size[0] / 2, y - size[0] / 2), size=(size[0], size[0]))
-    sizes = ";".join([f"{s.item()}" for s in size])
-    xs = ";".join([f"{x - s.item() / 2}" for s in size])
-    ys = ";".join([f"{y - s.item() / 2}" for s in size])
+    sizes = ";".join([f"{round(s.item(), 3)}" for s in size])
+    xs = ";".join([f"{round(x - s.item() / 2, 3)}" for s in size])
+    ys = ";".join([f"{round(y - s.item() / 2, 3)}" for s in size])
     animw = e.dwg.animate(attributeName="width", values=sizes, dur=f"{len(size) / fps}s", repeatCount="indefinite")
     animh = e.dwg.animate(attributeName="height", values=sizes, dur=f"{len(size) / fps}s", repeatCount="indefinite")
     animx = e.dwg.animate(attributeName="x", values=xs, dur=f"{len(size) / fps}s", repeatCount="indefinite")

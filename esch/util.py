@@ -21,11 +21,13 @@ class Drawing:
     w: int  # rows
     row: int  # for small multiples
     col: int  # for small multipels
+    pad: int = 1
+    tick: float = 0.3
     debug: bool = False
 
     def __post_init__(self: "Drawing"):
         # constants
-        self.pad = float(min(self.w, self.h) / 3)
+        # self.pad = float(min(self.w, self.h) / 8)
         pad, w, h, row, col = self.pad, self.w, self.h, self.row, self.col
 
         # subplots dims
@@ -39,6 +41,15 @@ class Drawing:
         # setup dwg
         self.dwg = svgwrite.Drawing(size=None, preserveAspectRatio="xMidYMid meet")
         self.dwg.viewbox(minx=0, miny=0, width=self.total_width, height=self.total_height)  # type: ignore
+        # set default stroke color to black and stroke width to 0.02
+        self.dwg.defs.add(
+            self.dwg.style("""
+            * {
+                stroke: black;
+                stroke-width: 0.1;
+            }
+        """)
+        )
 
         # make groups or group
         idxs = [(i, j) for i in range(row) for j in range(col)]
@@ -111,7 +122,3 @@ def show(img, dpi=300):
         ax.set_facecolor("black" if darkdetect.isDark() else "white")
         for spine in ax.spines.values():
             spine.set_visible(False)
-
-
-def tick_fn(g):
-    pass

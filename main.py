@@ -46,6 +46,7 @@ e = esch.Drawing(h=h - 1, w=w - 1, row=1, col=n)
 arr = np.ones((n, h, w)) / 2
 esch.grid_fn(arr, e, shape="square")
 esch.save(e.dwg, f"{folder}/multi_grid.svg")
+print(arr.shape)
 
 
 # MULTI ANIM GRID

@@ -10,21 +10,31 @@ from esch.atom import square_fn, circle_fn
 fps = 1
 
 
-def grid_fn(arr, e, shape="sphere", fps=fps):
+def grid_fn(arr, e, shape="sphere", fps=fps, ticks=None):
     for idx, g in enumerate(e.gs):
         for x in range(arr.shape[1]):
             for y in range(arr.shape[2]):
+                # add shap
                 size = arr[idx, x, y] ** 0.5 / 2.1
-                (circle_fn if shape == "sphere" else square_fn)(size, x, y, e.dwg, g, fps)
+                # x, y = x + e.pad, y + e.pad
+                (circle_fn if shape == "sphere" else square_fn)(size, x, y, e, g, fps)
+
+                # potentially add ticks
+                tick_fn(g) if ticks is not None else None
         e.dwg.add(g)
 
 
 def mesh_fn(pos, arr, e, shape="sphere", fps=fps):
     for idx, g in enumerate(e.gs):
         for (x, y), r in zip(pos[idx], arr[idx]):
+            # add shape
             size = r / len(arr[idx]) ** 0.5 / 2.1
-            (circle_fn if shape == "sphere" else square_fn)(size, x, y, e.dwg, g, fps)
+            (circle_fn if shape == "sphere" else square_fn)(size, x, y, e, g, fps)
         e.dwg.add(g)
+
+
+def tick_fn(g):
+    pass
 
 
 # def anim_sims_fn(pos, dwg, shots=None, fill=None, edge=None, size=None, group=None, fps=fps):

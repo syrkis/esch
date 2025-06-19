@@ -7,19 +7,19 @@ import esch
 import numpy as np
 
 # Constants
-folder = "/Users/nobr/desk/s3/esch"
-w, h, n = 10, 20, 4
+folder: str = "/Users/nobr/desk/s3/esch"
+w, h, n = int(4), int(4), int(4)
 
 
 # %% GRID
-e = esch.Drawing(h=h, w=w, row=1, col=1)
-arr = np.ones((h, w))[None, ...] / 2
+e = esch.Drawing(h=h - 1, w=w - 1, row=1, col=1)
+arr = np.ones((h, w))[None, ...] * 0.8
 esch.grid_fn(arr, e, shape="square")
 esch.save(e.dwg, f"{folder}/grid.svg")
 
 
 # %% ANIM GRID
-e = esch.Drawing(h=h, w=w, row=1, col=1)
+e = esch.Drawing(h=h - 1, w=w - 1, row=1, col=1)
 arr = np.absolute(np.random.randn(h, w, 100)[None, ...].cumsum(3))
 esch.grid_fn(arr / arr.max(), e, shape="square", fps=1)
 esch.save(e.dwg, f"{folder}/anim_grid.svg")
@@ -27,7 +27,7 @@ esch.save(e.dwg, f"{folder}/anim_grid.svg")
 
 # %% MESH
 e = esch.Drawing(h=h, w=w, row=1, col=1)
-pos = np.stack((np.random.uniform(0, h - 1, 100), np.random.uniform(0, w - 1, 100))).T[None, ...]
+pos = np.stack((np.random.uniform(0, h, 100), np.random.uniform(0, w, 100))).T[None, ...]
 arr = np.random.uniform(0, 1, 100)[None, ...]
 esch.mesh_fn(pos, arr, e)
 esch.save(e.dwg, f"{folder}/mesh.svg")
@@ -35,27 +35,27 @@ esch.save(e.dwg, f"{folder}/mesh.svg")
 
 # %% ANIM MESH
 e = esch.Drawing(h=h, w=w, row=1, col=1)
-pos = np.stack((np.random.uniform(0, h - 1, 1000), np.random.uniform(0, w - 1, 1000))).T[None, ...]
+pos = np.stack((np.random.uniform(0, h, 1000), np.random.uniform(0, w, 1000))).T[None, ...]
 arr = np.abs(np.random.randn(1000, 20)[None, ...].cumsum(2))
 esch.mesh_fn(pos, arr / arr.max(), e)
 esch.save(e.dwg, f"{folder}/anim_mesh.svg")
 
 
 # MULTI GRID
-e = esch.Drawing(h=h, w=w, row=1, col=n)
+e = esch.Drawing(h=h - 1, w=w - 1, row=1, col=n)
 arr = np.ones((n, h, w)) / 2
 esch.grid_fn(arr, e, shape="square")
 esch.save(e.dwg, f"{folder}/multi_grid.svg")
 
 
 # MULTI ANIM GRID
-e = esch.Drawing(h=h, w=w, row=1, col=n)
+e = esch.Drawing(h=h - 1, w=w - 1, row=1, col=n)
 arr = np.absolute(np.random.randn(n, h, w, 100).cumsum(3))
 esch.grid_fn(arr / arr.max(), e, shape="square", fps=1)
 esch.save(e.dwg, f"{folder}/multi_anim_grid.svg")
 
 # %% MULTI MESH
-e = esch.Drawing(h=h, w=w, row=1, col=n)
+e = esch.Drawing(h=h, w=w, row=n, col=1)
 pos = np.stack((np.random.uniform(0, h - 1, (100, n)), np.random.uniform(0, w - 1, (100, n)))).T
 arr = np.random.uniform(0, 1, (n, 100))
 esch.mesh_fn(pos, arr, e)
@@ -68,6 +68,14 @@ pos = np.stack((np.random.uniform(0, h - 1, (1000, n)), np.random.uniform(0, w -
 arr = np.abs(np.random.randn(n, 1000, 20).cumsum(2))
 esch.mesh_fn(pos, arr / arr.max(), e)
 esch.save(e.dwg, f"{folder}/multi_anim_mesh.svg")
+
+
+# %% MULTI SIMS
+e = esch.Drawing(h=h, w=w, row=1, col=n)
+pos = np.stack((np.random.uniform(0, h - 1, (100, n)), np.random.uniform(0, w - 1, (100, n)))).T
+arr = np.random.uniform(0, 1, (n, 100))
+esch.mesh_fn(pos, arr, e)
+esch.save(e.dwg, f"{folder}/multi_mesh.svg")
 
 
 # exit()

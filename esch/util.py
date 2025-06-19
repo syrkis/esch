@@ -25,16 +25,15 @@ class Drawing:
 
     def __post_init__(self: "Drawing"):
         # constants
-        self.pad = min(self.w, self.h) / 10
+        self.pad = float(min(self.w, self.h) / 3)
         pad, w, h, row, col = self.pad, self.w, self.h, self.row, self.col
 
         # subplots dims
-        self.sub_width = pad + w
-        self.sub_height = pad + h
-
+        self.sub_width = pad + w + pad  #  w and pad on both sides
+        self.sub_height = pad + h + pad  # h and pad on both sides
         # total dims
-        self.total_height = row * self.sub_width
-        self.total_width = col * self.sub_height
+        self.total_height = row * self.sub_width  # could add pad again around that, but fuck it for now
+        self.total_width = col * self.sub_height  # could add pad around that, but fuck it for now
 
         # setup dwg
         self.dwg = svgwrite.Drawing(size=None, preserveAspectRatio="xMidYMid meet")
@@ -50,12 +49,12 @@ class Drawing:
         self._debug() if self.debug else None
 
     def _debug(self):
-        # add red box around viewbox of dwg
-        self.dwg.add(
-            self.dwg.rect(
-                insert=(0, 0), size=(self.total_width, self.total_height), stroke="red", stroke_width=1, fill="none"
-            )
-        )
+        # # add red box around viewbox of dwg
+        # self.dwg.add(
+        #     self.dwg.rect(
+        #         insert=(0, 0), size=(self.total_width, self.total_height), stroke="red", stroke_width=1, fill="none"
+        #     )
+        # )
 
         # add blue rectangles to each group
         idxs = [(i, j) for i in range(self.row) for j in range(self.col)]
@@ -63,13 +62,30 @@ class Drawing:
             # insert = (self.sub_plot_height * i, self.sub_plot_width * j)
             g.add(
                 self.dwg.rect(
-                    insert=(0, 0),
-                    size=(self.h - self.pad, self.w - self.pad),
+                    insert=(-self.pad, -self.pad),
+                    size=(self.h + 2 * self.pad, self.w + 2 * self.pad),
                     stroke="blue",
                     stroke_width=0.1,
                     fill="none",
                 )
             )
+            g.add(
+                self.dwg.rect(
+                    insert=(-0, -0),
+                    size=(self.h, self.w),
+                    stroke="red",
+                    stroke_width=0.1,
+                    fill="none",
+                )
+            )
+        # add separator lines between subplots
+        for i in range(self.row + 1):
+            y = i * self.sub_width
+            self.dwg.add(self.dwg.line(start=(0, y), end=(self.total_width, y), stroke="green", stroke_width=0.1))
+
+        for j in range(self.col + 1):
+            x = j * self.sub_height
+            self.dwg.add(self.dwg.line(start=(x, 0), end=(x, self.total_height), stroke="green", stroke_width=0.1))
 
 
 def save(dwg, filename, scale=80):

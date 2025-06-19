@@ -4,7 +4,7 @@
 
 
 # imports
-from esch.atom import square_fn, circle_fn
+from esch.atom import square_fn, circle_fn, agent_fn
 
 # Config
 fps = 1
@@ -33,8 +33,14 @@ def mesh_fn(pos, arr, e, shape="sphere", fps=fps):
         e.dwg.add(g)
 
 
-def tick_fn(g):
-    pass
+def sims_fn(pos, e, fps=fps):
+    for idx, g in enumerate(e.gs):
+        # print(pos[idx].shape)
+        for jdx, (xs, ys) in enumerate(pos[idx]):
+            # if jdx == 0:
+            # print(xs.shape, ys.shape)
+            agent_fn(size=0.1, xs=xs, ys=ys, e=e, g=g, fps=fps)
+        e.dwg.add(g)
 
 
 # def anim_sims_fn(pos, dwg, shots=None, fill=None, edge=None, size=None, group=None, fps=fps):

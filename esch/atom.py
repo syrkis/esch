@@ -13,6 +13,17 @@ def square_fn(s, x, y, e, g, fps):  # size, x, y (possible switch x, and y pos)
     g.add(shp)
 
 
+def agent_fn(size, xs, ys, e, g, fps):
+    agent = e.dwg.circle(center=(xs[0], ys[0]), r=size)
+    xs = ";".join([f"{x}" for x in xs])
+    ys = ";".join([f"{y}" for y in ys])
+    animx = e.dwg.animate(attributeName="cx", values=xs, dur=f"{len(xs) / fps}s", repeatCount="indefinite")
+    animy = e.dwg.animate(attributeName="cy", values=ys, dur=f"{len(ys) / fps}s", repeatCount="indefinite")
+    agent.add(animx)
+    agent.add(animy)
+    g.add(agent)
+
+
 # %% Animations
 def sphere_fn(size, x, y, e, group, fps):
     size = np.concat((size[-1][..., None], size))

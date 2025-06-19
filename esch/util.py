@@ -31,6 +31,7 @@ class Drawing:
         # subplots dims
         self.sub_width = pad + w + pad  #  w and pad on both sides
         self.sub_height = pad + h + pad  # h and pad on both sides
+
         # total dims
         self.total_height = row * self.sub_width  # could add pad again around that, but fuck it for now
         self.total_width = col * self.sub_height  # could add pad around that, but fuck it for now
@@ -41,7 +42,6 @@ class Drawing:
 
         # make groups or group
         idxs = [(i, j) for i in range(row) for j in range(col)]
-        print(idxs)
         self.gs = [self.dwg.g() for i, j in idxs]
         [g.translate(pad + self.sub_height * j, pad + self.sub_width * i) for g, (i, j) in zip(self.gs, idxs)]
 
@@ -111,3 +111,7 @@ def show(img, dpi=300):
         ax.set_facecolor("black" if darkdetect.isDark() else "white")
         for spine in ax.spines.values():
             spine.set_visible(False)
+
+
+def tick_fn(g):
+    pass

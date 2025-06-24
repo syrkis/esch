@@ -45,7 +45,6 @@ class Drawing:
         self.dwg.defs.add(
             self.dwg.style("""
             * {
-                stroke: black;
                 stroke-width: 0.1;
             }
         """)

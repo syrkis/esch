@@ -8,12 +8,13 @@ import numpy as np
 
 # Constants
 folder: str = "/Users/nobr/desk/s3/esch"
-w, h, n = int(4), int(4), int(4)
+w, h, n = int(16), int(16), int(4)
 
 
 # %% GRID ######################################################################################
 e = esch.Drawing(h=h - 1, w=w - 1, row=1, col=1)
-arr = np.ones((h, w))[None, ...] * 0.8
+# arr = np.ones((h, w))[None, ...] * 0.8
+arr = np.random.uniform(0, 1, (h, w))[None, ...] * 0.8
 esch.grid_fn(arr, e, shape="square")
 esch.save(e.dwg, f"{folder}/grid.svg")
 
@@ -21,7 +22,7 @@ esch.save(e.dwg, f"{folder}/grid.svg")
 # %% ANIM GRID
 e = esch.Drawing(h=h - 1, w=w - 1, row=1, col=1)
 arr = np.absolute(np.random.randn(h, w, 100)[None, ...].cumsum(3))
-esch.grid_fn(arr / arr.max(), e, shape="square", fps=1)
+esch.grid_fn(arr / arr.max() / 2, e, shape="square", fps=1)
 esch.save(e.dwg, f"{folder}/anim_grid.svg")
 
 
@@ -42,8 +43,8 @@ esch.save(e.dwg, f"{folder}/anim_mesh.svg")
 
 
 # MULTI GRID ####################################################################################
-e = esch.Drawing(h=h - 1, w=w - 1, row=1, col=n)
-arr = np.ones((n, h, w)) / 2
+e = esch.Drawing(h=h - 1, w=w - 1, row=1, col=n, pad=4)
+arr = np.random.uniform(0, 1, (n, h, w)) * 0.8
 esch.grid_fn(arr, e, shape="square")
 esch.save(e.dwg, f"{folder}/multi_grid.svg")
 print(arr.shape)
@@ -81,6 +82,6 @@ esch.save(e.dwg, f"{folder}/sims.svg")
 
 # %% MULTI SIMS
 e = esch.Drawing(h=h, w=w, row=1, col=n)
-pos = np.stack((np.random.uniform(0, h, (n, 88, 1000)), np.random.uniform(0, w, (n, 88, 1000)))).transpose((1, 3, 0, 2))
+pos = np.stack((np.random.uniform(0, h, (n, 88, 500)), np.random.uniform(0, w, (n, 88, 500)))).transpose((1, 3, 0, 2))
 esch.sims_fn(pos, e)
 esch.save(e.dwg, f"{folder}/multi_sims.svg")

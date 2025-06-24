@@ -1,0 +1,15 @@
+[package]
+name = "esch"
+version = "0.0.0"
+entrypoint = "lib.typ"
+repository = "https://github.com/syrkis/esch"
+authors = ["Noah Syrkis"]
+license = "MIT"
+description = "ticks and labels for stuff"
+compiler = "0.13.0"
+categories = ["presentation"]
+
+[template]
+path = "template"
+entrypoint = "main.typ"
+thumbnail = "thumbnail.png"

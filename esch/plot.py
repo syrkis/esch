@@ -32,10 +32,15 @@ def mesh_fn(pos, arr, e, shape="sphere", fps=fps):
         e.dwg.add(g)
 
 
-def sims_fn(pos, e, fps=fps):
-    for idx, g in enumerate(e.gs):
-        for jdx, (xs, ys) in enumerate(pos[idx]):
-            agent_fn(size=0.02, xs=xs, ys=ys, e=e, g=g, fps=fps)
+def sims_fn(e, pos, action, fps=fps, col="black", size=0.1, stroke="black"):
+    for i, g in enumerate(e.gs):
+        for j, (xs, ys) in enumerate(pos[i]):
+            shots = (
+                {kdx: coord for kdx, coord in enumerate(action.pos[i, :, j]) if action.shoot[i, kdx, j]}
+                if action is not None
+                else None
+            )
+            agent_fn(size=size, xs=xs, ys=ys, shots=shots, e=e, g=g, fps=fps, col=col, stroke=stroke)
         e.dwg.add(g)
 
 

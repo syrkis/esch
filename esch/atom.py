@@ -3,23 +3,23 @@ import numpy as np
 
 
 # %% Primitives
-def circle_fn(s, x, y, e, g, fps):  # size, x, y (possible switch x, and y pos)
+def circle_fn(s, x, y, e, g, fps, col):  # size, x, y (possible switch x, and y pos)
     x, y = y, x  # i, j versus x, y
     if s.size == 1:
         s = round(s, 3)
-        shp = e.dwg.circle(center=(x, y), r=s)
+        shp = e.dwg.circle(center=(x, y), r=s, fill=col)
     else:
-        shp = sphere_fn(s, x, y, e, g, fps=30)
+        shp = sphere_fn(s, x, y, e, g, fps=30, col=col)
     g.add(shp)
 
 
-def square_fn(s, x, y, e, g, fps):  # size, x, y (possible switch x, and y pos)
+def square_fn(s, x, y, e, g, fps, col):  # size, x, y (possible switch x, and y pos)
     x, y = y, x  # i, j versus x, y
     if s.size == 1:
         s = round(s, 3)
-        shp = e.dwg.rect(insert=(x - s / 2, y - s / 2), size=(s, s))
+        shp = e.dwg.rect(insert=(x - s / 2, y - s / 2), size=(s, s), fill=col)
     else:
-        shp = cube_fn(s, x, y, e, g, fps=30)
+        shp = cube_fn(s, x, y, e, g, fps=30, col=col)
     g.add(shp)
 
 
@@ -46,19 +46,19 @@ def agent_fn(size, xs, ys, shots, e, g, fps, col, stroke, blast):
 
 
 # %% Animations
-def sphere_fn(size, x, y, e, group, fps):
+def sphere_fn(size, x, y, e, group, fps, col):
     size = np.concatenate((size[-1][..., None], size))
-    circle = e.dwg.circle(center=(x, y), r=size[0] ** 0.5 / 2.1)
+    circle = e.dwg.circle(center=(x, y), r=size[0] ** 0.5 / 2.1, col=col)
     radii = ";".join([f"{round(elm.item() ** 0.5 / 2.1, 3)}" for elm in size])
     anim = e.dwg.animate(attributeName="r", values=radii, dur=f"{len(size) / fps}s", repeatCount="indefinite")
     circle.add(anim)
     return circle
 
 
-def cube_fn(size, x, y, e, group, fps):
+def cube_fn(size, x, y, e, group, fps, col):
     size = np.concat((size[-1][None, ...], size)).round(3)
     size *= 2
-    square = e.dwg.rect(insert=(x - size[0] / 2, y - size[0] / 2), size=(size[0], size[0]))
+    square = e.dwg.rect(insert=(x - size[0] / 2, y - size[0] / 2), size=(size[0], size[0]), col=col)
     sizes = ";".join([f"{round(s.item(), 3)}" for s in size])
     xs = ";".join([f"{round(x - s.item() / 2, 3)}" for s in size])
     ys = ";".join([f"{round(y - s.item() / 2, 3)}" for s in size])

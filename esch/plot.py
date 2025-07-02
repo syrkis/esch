@@ -10,25 +10,25 @@ from esch.atom import square_fn, circle_fn, agent_fn
 fps = 1
 
 
-def grid_fn(arr, e, shape="sphere", fps=fps, ticks=None):
+def grid_fn(arr, e, shape="sphere", fps=fps, ticks=None, col="black"):
     for idx, g in enumerate(e.gs):
         for x in range(arr.shape[1]):
             for y in range(arr.shape[2]):
                 # add shap
                 size = arr[idx, x, y]
-                (circle_fn if shape == "sphere" else square_fn)(size, x, y, e, g, fps)
+                (circle_fn if shape == "sphere" else square_fn)(size, x, y, e, g, fps, col)
 
                 # potentially add ticks
         tick_fn(e, g) if ticks is not None else None
         e.dwg.add(g)
 
 
-def mesh_fn(pos, arr, e, shape="sphere", fps=fps):
+def mesh_fn(e, pos, arr, col="black", shape="sphere", fps=fps):
     for idx, g in enumerate(e.gs):
         for (x, y), r in zip(pos[idx], arr[idx]):
             # add shape
             size = r / len(arr[idx]) ** 0.5 / 2.1
-            (circle_fn if shape == "sphere" else square_fn)(size, x, y, e, g, fps)
+            (circle_fn if shape == "sphere" else square_fn)(size, x, y, e, g, fps, col=col)
         e.dwg.add(g)
 
 
@@ -36,7 +36,7 @@ def sims_fn(e, pos, action, fps=fps, col="black", size=0.1, blast=0.1, stroke="b
     for i, g in enumerate(e.gs):
         for j, (xs, ys) in enumerate(pos[i]):
             shots = (
-                {kdx: coord for kdx, coord in enumerate(action.pos[i, :, j]) if action.shoot[i, kdx, j]}
+                {kdx: coord for kdx, coord in enumerate(action.pos[i, :, j]) if action.cast[i, kdx, j]}
                 if action is not None
                 else None
             )

@@ -15,10 +15,12 @@ w, h, n = int(16), int(16), int(4)
 e = esch.Drawing(h=h - 1, w=w - 1, row=1, col=1)
 # arr = np.ones((h, w))[None, ...] * 0.8
 arr = np.random.uniform(0, 1, (h, w))[None, ...] * 0.8
-esch.grid_fn(arr, e, shape="square")
+print(arr.shape)
+esch.grid_fn(e, arr, shape="square")
 esch.save(e.dwg, f"{folder}/grid.svg")
 
 
+exit()
 # %% ANIM GRID
 e = esch.Drawing(h=h - 1, w=w - 1, row=1, col=1)
 arr = np.absolute(np.random.randn(h, w, 100)[None, ...].cumsum(3))
@@ -75,13 +77,13 @@ esch.save(e.dwg, f"{folder}/multi_anim_mesh.svg")
 #################################################################################################
 # NOT WORKING YET
 # %% SIMS #######################################################################################
-e = esch.Drawing(h=h, w=w, row=1, col=1)
-pos = np.stack((np.random.uniform(0, h, (1, 88, 1000)), np.random.uniform(0, w, (1, 88, 1000)))).transpose((1, 3, 0, 2))
-esch.sims_fn(pos, e)
-esch.save(e.dwg, f"{folder}/sims.svg")
-
+# e = esch.Drawing(h=h, w=w, row=1, col=1)
+# pos = np.stack((np.random.uniform(0, h, (1, 88, 1000)), np.random.uniform(0, w, (1, 88, 1000)))).transpose((1, 3, 0, 2))
+# esch.sims_fn(pos, e)
+# esch.save(e.dwg, f"{folder}/sims.svg")
+#
 # %% MULTI SIMS
-e = esch.Drawing(h=h, w=w, row=1, col=n)
-pos = np.stack((np.random.uniform(0, h, (n, 88, 500)), np.random.uniform(0, w, (n, 88, 500)))).transpose((1, 3, 0, 2))
-esch.sims_fn(pos, e)
-esch.save(e.dwg, f"{folder}/multi_sims.svg")
+# e = esch.Drawing(h=h, w=w, row=1, col=n)
+# pos = np.stack((np.random.uniform(0, h, (n, 88, 500)), np.random.uniform(0, w, (n, 88, 500)))).transpose((1, 3, 0, 2))
+# esch.sims_fn(pos, e)
+# esch.save(e.dwg, f"{folder}/multi_sims.svg")

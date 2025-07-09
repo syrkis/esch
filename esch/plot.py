@@ -10,7 +10,7 @@ from esch.atom import square_fn, circle_fn, agent_fn
 fps = 1
 
 
-def grid_fn(arr, e, shape="sphere", fps=fps, ticks=None, col="black"):
+def grid_fn(e, arr, shape="sphere", fps=fps, ticks=None, col="black"):
     for idx, g in enumerate(e.gs):
         for x in range(arr.shape[1]):
             for y in range(arr.shape[2]):

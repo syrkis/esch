@@ -9,7 +9,7 @@ def circle_fn(s, x, y, e, g, fps, col):  # size, x, y (possible switch x, and y 
         s = round(s, 3)
         shp = e.dwg.circle(center=(x, y), r=s, fill=col)
     else:
-        shp = sphere_fn(s, x, y, e, g, fps=30, col=col)
+        shp = sphere_fn(s, x, y, e, g, fps=fps, col=col)
     g.add(shp)
 
 
@@ -19,7 +19,7 @@ def square_fn(s, x, y, e, g, fps, col):  # size, x, y (possible switch x, and y 
         s = round(s, 3)
         shp = e.dwg.rect(insert=(x - s / 2, y - s / 2), size=(s, s), fill=col)
     else:
-        shp = cube_fn(s, x, y, e, g, fps=30, col=col)
+        shp = cube_fn(s, x, y, e, g, fps=fps, col=col)
     g.add(shp)
 
 

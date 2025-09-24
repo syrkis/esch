@@ -1,14 +1,42 @@
 # %% main.py
-#   esch main file for testing  #
+#   esch main file for testing
 # by: Noah Syrkis
 
 # Imports
 import esch
 import numpy as np
+from numpy import random
 
-# Constants
-folder: str = "/Users/nobr/desk/s3/esch"
-w, h, n = int(16), int(16), int(4)
+# row column depth channel time
+N, C, H, W, T = int(2), int(4), int(8), int(16), int(32)
+
+
+# grid tests
+grid_test = [
+    ((N, C, H, W, T), "n c h w t"),
+    ((H, W, T), "h w t"),
+    ((N, H, W), "n h w"),
+    ((H, W), "h w"),
+    ((H, T), "h t"),
+    ((W, T), "w t"),
+    ((T,), "t"),
+]
+
+for shape, pattern in grid_test:
+    arr = random.normal(0, 1, shape)
+    e = esch.draw(pattern, arr, debug=True)
+    e.save(f"figs_{pattern}.svg")
+exit()
+
+
+# %% mesh tests
+arr, pos = random.random((units, time)), random.random(((points, 2, time)))  #  "plots nums time, plots points xy time"
+arr, pos = random.random((units,)), random.random(((points, 2, time)))  #  "plots nums time, plots points xy time"
+arr, pos = random.random((units, time)), random.random(((points, 2)))  #  "plots nums time, plots points xy time"
+arr, pos = random.random((units, time)), random.random(((points, 2, time)))  #  "nums time, points xy time"
+arr, pos = random.random((units, time)), random.random(((points, 2)))  #  "points time, nums xy"
+arr, pos = random.random((units,)), random.random(((points, 2, time)))  #  "points, points xy time"
+arr, pos = random.random((units,)), random.random(((points, 2)))  #  "points, points xy"
 
 
 # %% GRID ######################################################################################
@@ -71,18 +99,3 @@ pos = np.stack((np.random.uniform(0, h, (1000, n)), np.random.uniform(0, w, (100
 arr = np.abs(np.random.randn(n, 1000, 20).cumsum(2))
 esch.mesh_fn(e, pos, arr / arr.max())
 esch.save(e.dwg, f"{folder}/multi_anim_mesh.svg")
-
-
-#################################################################################################
-# NOT WORKING YET
-# %% SIMS #######################################################################################
-# e = esch.Drawing(h=h, w=w, row=1, col=1)
-# pos = np.stack((np.random.uniform(0, h, (1, 88, 1000)), np.random.uniform(0, w, (1, 88, 1000)))).transpose((1, 3, 0, 2))
-# esch.sims_fn(pos, e)
-# esch.save(e.dwg, f"{folder}/sims.svg")
-#
-# %% MULTI SIMS
-# e = esch.Drawing(h=h, w=w, row=1, col=n)
-# pos = np.stack((np.random.uniform(0, h, (n, 88, 500)), np.random.uniform(0, w, (n, 88, 500)))).transpose((1, 3, 0, 2))
-# esch.sims_fn(pos, e)
-# esch.save(e.dwg, f"{folder}/multi_sims.svg")

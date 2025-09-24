@@ -2,7 +2,8 @@
 # from .edge import EdgeConfig, EdgeConfigs  # noqa
 # from .ring import ring
 
-from .plot import grid_fn, mesh_fn, sims_fn
+from .draw import draw
+from .plot import grid_fn, mesh_fn
 from .util import show, save, Drawing
 
 __all__ = [
@@ -10,6 +11,7 @@ __all__ = [
     "save",
     "grid_fn",
     "mesh_fn",
-    "sims_fn",
+    # "sims_fn",
     "Drawing",
+    "draw",
 ]

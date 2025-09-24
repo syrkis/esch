@@ -26,7 +26,10 @@
         place(bottom + center, dy: x-offset, text(size: 12pt, xlabel))
       }
       + if ylabel != none {
-        place(left + horizon, dx: y-offset, text(size: 12pt, ylabel))
+        place(left + horizon, dx: y-offset, rotate(-90deg, text(
+          size: 12pt,
+          ylabel,
+        )))
       },
   )
 

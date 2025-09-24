@@ -4,7 +4,7 @@
 
 
 # imports
-from esch.atom import square_fn, circle_fn, agent_fn
+from esch.atom import square_fn, circle_fn
 
 # Config
 fps = 1
@@ -32,16 +32,16 @@ def mesh_fn(e, pos, arr, col="black", shape="sphere", fps=fps):
         e.dwg.add(g)
 
 
-def sims_fn(e, pos, action, fps=fps, col="black", size=0.1, blast=0.1, stroke="black"):
-    for i, g in enumerate(e.gs):
-        for j, (xs, ys) in enumerate(pos[i]):
-            shots = (
-                {kdx: coord for kdx, coord in enumerate(action.pos[i, :, j]) if action.cast[i, kdx, j]}
-                if action is not None
-                else None
-            )
-            agent_fn(size=size, xs=xs, ys=ys, shots=shots, e=e, g=g, fps=fps, col=col, stroke=stroke, blast=blast)
-        e.dwg.add(g)
+# def sims_fn(e, pos, action, fps=fps, col="black", size=0.1, blast=0.1, stroke="black"):
+# for i, g in enumerate(e.gs):
+# for j, (xs, ys) in enumerate(pos[i]):
+# shots = (
+# {kdx: coord for kdx, coord in enumerate(action.pos[i, :, j]) if action.cast[i, kdx, j]}
+# if action is not None
+# else None
+# )
+# agent_fn(size=size, xs=xs, ys=ys, shots=shots, e=e, g=g, fps=fps, col=col, stroke=stroke, blast=blast)
+# e.dwg.add(g)
 
 
 def tick_fn(e, g):

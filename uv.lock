@@ -328,6 +328,7 @@ dependencies = [
     { name = "svglib" },
     { name = "svgwrite" },
     { name = "tqdm" },
+    { name = "uiuapy" },
 ]
 
 [package.metadata]
@@ -343,6 +344,7 @@ requires-dist = [
     { name = "svglib", specifier = ">=1.5.1,<2" },
     { name = "svgwrite", specifier = ">=1.4.3,<2" },
     { name = "tqdm", specifier = ">=4.66.5,<5" },
+    { name = "uiuapy", specifier = ">=0.2.0" },
 ]
 
 [[package]]
@@ -1563,6 +1565,20 @@ source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/95/32/1a225d6164441be760d75c2c42e2780dc0873fe382da3e98a2e1e48361e5/tzdata-2025.2.tar.gz", hash = "sha256:b60a638fcc0daffadf82fe0f57e53d06bdec2f36c4df66280ae79bce6bd6f2b9", size = 196380, upload-time = "2025-03-23T13:54:43.652Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/5c/23/c7abc0ca0a1526a0774eca151daeb8de62ec457e77262b66b359c3c7679e/tzdata-2025.2-py2.py3-none-any.whl", hash = "sha256:1a403fada01ff9221ca8044d701868fa132215d84beb92242d9acd2147f667a8", size = 347839, upload-time = "2025-03-23T13:54:41.845Z" },
+]
+
+[[package]]
+name = "uiuapy"
+version = "0.2.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "numpy" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/e2/05/4c522004df83b988555928d976f8945d223a39704b51f98abf4a46558562/uiuapy-0.2.0.tar.gz", hash = "sha256:bc1f8b4397b00dfdca529bce4339c7e2a8bdf9bc7c7a0edd6a664b83b5de5c50", size = 36877, upload-time = "2025-08-24T23:05:22.256Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/d1/af/dbd1b0f92d2d5bd8a102e740f7f73c7787de28fe844cb51efe445f844eed/uiuapy-0.2.0-cp311-cp311-macosx_11_0_universal2.whl", hash = "sha256:3d9f8be72de33f3ec10015a75ffb87debdd1683c0cfc26b7f169a9d130110f5c", size = 9057083, upload-time = "2025-08-24T23:04:57.528Z" },
+    { url = "https://files.pythonhosted.org/packages/7e/ec/b7ddc2fedf3318f40fafce2ad99c83903b65149edf63c61e5ae9ca1ec042/uiuapy-0.2.0-cp311-cp311-manylinux_2_28_x86_64.whl", hash = "sha256:8df8b46e3db514cec6238915f1f96761268ad83c49409482f8e768bcb59ec5f1", size = 10534986, upload-time = "2025-08-24T23:04:59.417Z" },
+    { url = "https://files.pythonhosted.org/packages/ce/8e/cb1f8411f5dbb479b0dbca5de4360b213f5b7a398140e73449f76591f831/uiuapy-0.2.0-cp311-cp311-win_amd64.whl", hash = "sha256:f024a05ffe3621ef70a4dde887a5e5349566ffb9988ca433dcb750a2c2ed19d0", size = 9496971, upload-time = "2025-08-24T23:05:01.244Z" },
 ]
 
 [[package]]

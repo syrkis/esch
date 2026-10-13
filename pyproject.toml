@@ -1,0 +1,53 @@
+[project]
+name = "esch"
+version = "0.0.88"
+description = "esch (v.) : to turn matricies into high quality svg (animations)"
+authors = [{ name = "Noah Syrkis", email = "noah@syrkis.com" }]
+requires-python = ">=3.11,<3.14"
+readme = "README.md"
+dependencies = [
+    "shapely>=2.1,<3",
+    "webcolors>=24.11",
+    "numpy>=1.26",
+    "svgwrite>=1.4.3,<2",
+    "ipython>=8.29.0",
+    "einops>=0.8.0",
+]
+
+[project.optional-dependencies]
+notebook = [
+    "jupyterlab>=4.4.7",
+    "ipywidgets>=8.1.7",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.pyright]
+venvPath = "."
+venv = ".venv"
+
+[tool.ruff]
+line-length = 128
+
+[tool.ruff.lint]
+# Bugs, needless constructs and loop patterns; `T20` keeps printing at the edges.
+extend-select = ["B", "PERF", "C4", "SIM", "RET", "PIE", "FURB", "UP", "PTH", "ERA", "NPY", "I", "T20"]
+
+[tool.ruff.lint.per-file-ignores]
+# Entry points and tests may print.
+"main.py" = ["T20"]
+"tests/**" = ["T20"]
+
+[tool.pytest.ini_options]
+# Parallel workers; only test_gallery writes the shared visual/ folder.
+addopts = "-n auto"
+testpaths = ["tests"]
+
+[dependency-groups]
+dev = [
+    "hypothesis>=6.168.3",
+    "pytest>=9.1.1",
+    "pytest-xdist>=3.8.0",
+]
